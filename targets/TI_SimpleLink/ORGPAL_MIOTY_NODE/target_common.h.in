@@ -52,7 +52,7 @@
 #if defined(DEBUG)
     #define MANAGED_HEAP_SIZE       (27*1024)
 #else
-    #define MANAGED_HEAP_SIZE       (33*1024)
+    #define MANAGED_HEAP_SIZE       (32*1024)
 #endif
 /////////////////////////////////////
 
