@@ -1,0 +1,123 @@
+//
+// Copyright (c) 2020 The nanoFramework project contributors
+// See LICENSE file in the project root for full license information.
+//
+
+#include <stdint.h>
+#include <nanoCLR_Application.h>
+#include <nanoHAL_v2.h>
+
+// RTOS header files
+#include <xdc/std.h>
+#include <xdc/runtime/Error.h>
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Task.h>
+
+// board Header files
+#include <ti_drivers_config.h>
+#include <ti/drivers/Power.h>
+#include <ti/drivers/gpio/GPIOCC26XX.h>
+// clang-format off
+#include DeviceFamily_constructPath(inc/hw_prcm.h)
+#include DeviceFamily_constructPath(driverlib/sys_ctrl.h)
+// clang-format on
+
+//////////////////////////////
+
+// Stack size in bytes
+#define TASKSTACKSIZE 2048
+
+// better declare the task stacks statically to check allocation
+uint8_t ReceiverHandleStack[TASKSTACKSIZE], ClrHandleStack[TASKSTACKSIZE];
+
+Task_Handle ReceiverHandle;
+Task_Handle ClrHandle;
+
+CLR_SETTINGS ClrSettings;
+
+// this define has to match the one in cpu_gpio.cpp
+#define GPIO_MAX_PINS 16
+
+// these are declared in cpu_gpio.cpp
+extern GPIO_PinConfig gpioPinConfigs[GPIO_MAX_PINS];
+extern GPIO_CallbackFxn gpioCallbackFunctions[GPIO_MAX_PINS];
+
+// this has to be define in a C file, otherwise the linker can't replace the weak one declared in the SDK driver library
+const GPIOCC26XX_Config GPIOCC26XX_config = {
+    .pinConfigs = (GPIO_PinConfig *)gpioPinConfigs,
+    .callbacks = (GPIO_CallbackFxn *)gpioCallbackFunctions,
+    .numberOfPinConfigs = GPIO_MAX_PINS,
+    .numberOfCallbacks = GPIO_MAX_PINS,
+    .intPriority = (~0)};
+
+extern void ReceiverThread(UArg arg0, UArg arg1);
+extern void CLRStartupThread(UArg arg0, UArg arg1);
+
+int main(void)
+{
+    Task_Params taskParams;
+
+    // get and store reset reason
+    // must be called before PIN_init()
+    WakeupReasonStore = SysCtrlResetSourceGet();
+
+    // Call board init functions
+    Board_init();
+
+    // Map LNA enable pin RFC_GPO0 to DIO21
+    IOCPortConfigureSet(IOID_21, IOC_PORT_RFC_GPO0, IOC_IOMODE_NORMAL);
+
+    // Map PA enable pin RFC_GPO1 to DIO22
+    IOCPortConfigureSet(IOID_22, IOC_PORT_RFC_GPO1, IOC_IOMODE_NORMAL);
+
+    // setup Task thread
+    Task_Params_init(&taskParams);
+    taskParams.stack = &ReceiverHandleStack;
+    taskParams.stackSize = TASKSTACKSIZE;
+    taskParams.priority = 4;
+
+    // create Receiver
+    ReceiverHandle = Task_create(ReceiverThread, &taskParams, NULL);
+    if (ReceiverHandle == NULL)
+    {
+        while (1)
+            ;
+    }
+
+    // CLR settings to launch CLR thread
+    (void)memset(&ClrSettings, 0, sizeof(CLR_SETTINGS));
+
+    ClrSettings.MaxContextSwitches = 50;
+    ClrSettings.WaitForDebugger = false;
+    ClrSettings.EnterDebuggerLoopAfterExit = true;
+
+    // setup CLR task
+    taskParams.arg0 = (UArg)&ClrSettings;
+    taskParams.stack = &ClrHandleStack;
+
+    ClrHandle = Task_create(CLRStartupThread, &taskParams, NULL);
+    if (ClrHandle == NULL)
+    {
+        while (1)
+            ;
+    }
+
+    ADC_init();
+    GPIO_init();
+    ConfigUART();
+
+    BIOS_start();
+
+    return (0);
+}
+
+///////////////////////////////////////////////////////////////////////
+// need this dummy implementation here (started with SDK 4.20.01.04) //
+///////////////////////////////////////////////////////////////////////
+void __attribute__((naked)) _exit(int code)
+{
+    (void)code;
+
+    for (;;)
+        ;
+}
