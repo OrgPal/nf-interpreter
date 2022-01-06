@@ -25,15 +25,12 @@
 //////////////////////////////
 
 // Stack size in bytes
-#define TASKSTACKSIZE 2048
+#define THREADSTACKSIZE 2048
 
-// better declare the task stacks statically to check allocation
-uint8_t ReceiverHandleStack[TASKSTACKSIZE], ClrHandleStack[TASKSTACKSIZE];
+Task_Handle receiverHandle;
+Task_Handle clrHandle;
 
-Task_Handle ReceiverHandle;
-Task_Handle ClrHandle;
-
-CLR_SETTINGS ClrSettings;
+CLR_SETTINGS clrSettings;
 
 // this define has to match the one in cpu_gpio.cpp
 #define GPIO_MAX_PINS 16
@@ -64,6 +61,9 @@ int main(void)
     // Call board init functions
     Board_init();
 
+    GPIO_init();
+    ConfigUART();
+
     // Map LNA enable pin RFC_GPO0 to DIO21
     IOCPortConfigureSet(IOID_21, IOC_PORT_RFC_GPO0, IOC_IOMODE_NORMAL);
 
@@ -72,39 +72,35 @@ int main(void)
 
     // setup Task thread
     Task_Params_init(&taskParams);
-    taskParams.stack = &ReceiverHandleStack;
-    taskParams.stackSize = TASKSTACKSIZE;
+    taskParams.stackSize = THREADSTACKSIZE;
     taskParams.priority = 4;
 
     // create Receiver
-    ReceiverHandle = Task_create(ReceiverThread, &taskParams, NULL);
-    if (ReceiverHandle == NULL)
+    receiverHandle = Task_create((Task_FuncPtr)ReceiverThread, &taskParams, Error_IGNORE);
+    if (receiverHandle == NULL)
     {
         while (1)
             ;
     }
 
     // CLR settings to launch CLR thread
-    (void)memset(&ClrSettings, 0, sizeof(CLR_SETTINGS));
+    (void)memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
 
-    ClrSettings.MaxContextSwitches = 50;
-    ClrSettings.WaitForDebugger = false;
-    ClrSettings.EnterDebuggerLoopAfterExit = true;
+    clrSettings.MaxContextSwitches = 50;
+    clrSettings.WaitForDebugger = false;
+    clrSettings.EnterDebuggerLoopAfterExit = true;
 
     // setup CLR task
-    taskParams.arg0 = (UArg)&ClrSettings;
-    taskParams.stack = &ClrHandleStack;
+    taskParams.arg0 = (UArg)&clrSettings;
+    taskParams.stackSize = THREADSTACKSIZE;
+    taskParams.priority = 4;
 
-    ClrHandle = Task_create(CLRStartupThread, &taskParams, NULL);
-    if (ClrHandle == NULL)
+    clrHandle = Task_create(CLRStartupThread, &taskParams, Error_IGNORE);
+    if (clrHandle == NULL)
     {
         while (1)
             ;
     }
-
-    ADC_init();
-    GPIO_init();
-    ConfigUART();
 
     BIOS_start();
 
