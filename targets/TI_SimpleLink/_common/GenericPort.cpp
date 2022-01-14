@@ -25,7 +25,7 @@ extern "C" uint32_t DebuggerPort_WriteProxy(const char *format, ...)
 
     if (CLR_EE_DBG_IS_NOT(Enabled))
     {
-        if (SemaphoreP_pend(uartMutex, UART2_WAIT_FOREVER) == SemaphoreP_OK)
+        //if (SemaphoreP_pend(uartMutex, UART2_WAIT_FOREVER) == SemaphoreP_OK)
         {
             va_start(arg, format);
 

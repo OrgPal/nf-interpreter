@@ -3,19 +3,20 @@
 // See LICENSE file in the project root for full license information.
 //
 
-#include <stdint.h>
+//#include <stdint.h>
 #include <nanoCLR_Application.h>
 #include <nanoHAL_v2.h>
 
 // RTOS header files
 #include <xdc/std.h>
+#include <ioc.h>
 #include <xdc/runtime/Error.h>
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Task.h>
 
 // board Header files
-#include <ti_drivers_config.h>
-#include <ti/drivers/Power.h>
+//#include <ti_drivers_config.h>
+//#include <ti/drivers/Power.h>
 #include <ti/drivers/gpio/GPIOCC26XX.h>
 // clang-format off
 #include DeviceFamily_constructPath(inc/hw_prcm.h)
@@ -27,8 +28,8 @@
 // Stack size in bytes
 #define THREADSTACKSIZE 2048
 
-Task_Handle receiverHandle;
-Task_Handle clrHandle;
+Task_Struct receiverTask;
+Task_Struct clrTask;
 
 CLR_SETTINGS clrSettings;
 
@@ -40,15 +41,34 @@ extern GPIO_PinConfig gpioPinConfigs[GPIO_MAX_PINS];
 extern GPIO_CallbackFxn gpioCallbackFunctions[GPIO_MAX_PINS];
 
 // this has to be define in a C file, otherwise the linker can't replace the weak one declared in the SDK driver library
-const GPIOCC26XX_Config GPIOCC26XX_config = {
-    .pinConfigs = (GPIO_PinConfig *)gpioPinConfigs,
-    .callbacks = (GPIO_CallbackFxn *)gpioCallbackFunctions,
-    .numberOfPinConfigs = GPIO_MAX_PINS,
-    .numberOfCallbacks = GPIO_MAX_PINS,
-    .intPriority = (~0)};
+// const GPIOCC26XX_Config GPIOCC26XX_config = {
+//     .pinConfigs = (GPIO_PinConfig *)gpioPinConfigs,
+//     .callbacks = (GPIO_CallbackFxn *)gpioCallbackFunctions,
+//     .numberOfPinConfigs = GPIO_MAX_PINS,
+//     .numberOfCallbacks = GPIO_MAX_PINS,
+//     .intPriority = (~0)};
 
 extern void ReceiverThread(UArg arg0, UArg arg1);
 extern void CLRStartupThread(UArg arg0, UArg arg1);
+
+/////////////////////////////////////////////////
+
+Task_Struct testTask;
+
+void TestTaskExec(UArg arg0, UArg arg1)
+{
+    (void)arg0;
+    (void)arg1;
+
+    // loop forever
+    while (1)
+    {
+        // Allow other tasks a chance to run
+        Task_sleep(100);
+    }
+}
+
+/////////////////////////////////////////////////
 
 int main(void)
 {
@@ -64,6 +84,16 @@ int main(void)
     GPIO_init();
     ConfigUART();
 
+    // ////////////////////////////////////////////////////////////////////
+    // *** FOR DEBUG RUNS, PLEASE KEEP THIS CODE ***
+    // // setup Test task
+    // Task_Params_init(&taskParams);
+    // taskParams.stackSize = THREADSTACKSIZE;
+    // taskParams.priority = 4;
+    // // create task
+    // Task_construct(&testTask, TestTaskExec, &taskParams, Error_IGNORE);
+    // ////////////////////////////////////////////////////////////////////
+
     // Map LNA enable pin RFC_GPO0 to DIO21
     IOCPortConfigureSet(IOID_21, IOC_PORT_RFC_GPO0, IOC_IOMODE_NORMAL);
 
@@ -76,12 +106,7 @@ int main(void)
     taskParams.priority = 4;
 
     // create Receiver
-    receiverHandle = Task_create((Task_FuncPtr)ReceiverThread, &taskParams, Error_IGNORE);
-    if (receiverHandle == NULL)
-    {
-        while (1)
-            ;
-    }
+    Task_construct(&receiverTask, ReceiverThread, &taskParams, Error_IGNORE);
 
     // CLR settings to launch CLR thread
     (void)memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
@@ -92,15 +117,10 @@ int main(void)
 
     // setup CLR task
     taskParams.arg0 = (UArg)&clrSettings;
-    taskParams.stackSize = THREADSTACKSIZE;
+    taskParams.stackSize = 2 * THREADSTACKSIZE;
     taskParams.priority = 4;
 
-    clrHandle = Task_create(CLRStartupThread, &taskParams, Error_IGNORE);
-    if (clrHandle == NULL)
-    {
-        while (1)
-            ;
-    }
+    Task_construct(&clrTask, CLRStartupThread, &taskParams, Error_IGNORE);
 
     BIOS_start();
 
