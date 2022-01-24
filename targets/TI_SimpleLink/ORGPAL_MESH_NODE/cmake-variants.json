@@ -22,8 +22,8 @@
   "linkage": {
     "default": "",
     "choices": {
-      "ORGPAL_MIOTY_NODE": {
-        "short": "ORGPAL_MIOTY_NODE",
+      "ORGPAL_MESH_NODE": {
+        "short": "ORGPAL_MESH_NODE",
         "settings": {
           "BUILD_VERSION": "0.9.99.999",
           "CMAKE_TOOLCHAIN_FILE": "CMake/toolchain.arm-none-eabi.cmake",

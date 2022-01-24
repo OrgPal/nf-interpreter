@@ -1,6 +1,6 @@
-# ORGPAL MIOTY board
+# ORGPAL_MESH_NODE board
 
-The ORGPAL MIOTY board contains a TI CC1352R1 device.
+The ORGPAL_MESH_NODE board contains a TI CC1352R1 device.
 
 
 ## Floating point
