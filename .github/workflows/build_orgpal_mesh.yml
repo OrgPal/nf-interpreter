@@ -49,8 +49,12 @@ jobs:
           -DRTOS=TI_SimpleLink
           -DRADIO_FREQUENCY=915
           -DSUPPORT_ANY_BASE_CONVERSION=OFF
+          -DNF_TARGET_HAS_NANOBOOTER=OFF
+          -DNF_FEATURE_SUPPORT_REFLECTION=OFF
           -DNF_FEATURE_DEBUGGER=ON
           -DNF_FEATURE_RTC=ON
+          -DNF_PLATFORM_NO_CLR_TRACE=ON
+          -DNF_CLR_NO_IL_INLINE=ON
           -DNF_FEATURE_WATCHDOG=OFF
           -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
           -DAPI_Windows.Devices.Spi=OFF
@@ -58,6 +62,7 @@ jobs:
           -DAPI_Windows.Devices.Pwm=OFF
           -DAPI_System.IO.Ports=ON
           -DAPI_Windows.Devices.Adc=ON -DAPI_System.Device.Adc=ON
+          -DAPI_System.Math=OFF
           -DAPI_nanoFramework.TI.EasyLink=ON
           -DAPI_nanoFramework.Hardware.TI=ON
         run-test: false
@@ -115,14 +120,19 @@ jobs:
           -DRTOS=TI_SimpleLink
           -DRADIO_FREQUENCY=915
           -DSUPPORT_ANY_BASE_CONVERSION=OFF
+          -DNF_TARGET_HAS_NANOBOOTER=OFF
+          -DNF_FEATURE_SUPPORT_REFLECTION=OFF
           -DNF_FEATURE_DEBUGGER=ON
           -DNF_FEATURE_RTC=ON
+          -DNF_PLATFORM_NO_CLR_TRACE=ON
+          -DNF_CLR_NO_IL_INLINE=ON
           -DNF_FEATURE_WATCHDOG=OFF
           -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
           -DAPI_Windows.Devices.Spi=OFF
           -DAPI_Windows.Devices.I2c=OFF
           -DAPI_Windows.Devices.Pwm=OFF
           -DAPI_System.IO.Ports=ON
+          -DAPI_System.Math=OFF
           -DAPI_nanoFramework.TI.EasyLink=ON
           -DAPI_nanoFramework.Hardware.TI=ON
         run-test: false
