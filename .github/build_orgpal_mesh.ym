@@ -1,0 +1,50 @@
+name: Build ORGPAL_MESH
+
+on:
+  workflow_dispatch
+
+env:
+  BUILD_TYPE: MinSizeRel
+  BUILD_OPTIONS: >-
+    -DTARGET_SERIES=CC13X2
+    -DRTOS=TI_SimpleLink
+    -DRADIO_FREQUENCY=868
+    -DSUPPORT_ANY_BASE_CONVERSION=OFF
+    -DNF_FEATURE_DEBUGGER=ON
+    -DNF_FEATURE_RTC=ON
+    -DNF_FEATURE_WATCHDOG=OFF
+    -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
+    -DAPI_Windows.Devices.Spi=OFF
+    -DAPI_Windows.Devices.I2c=OFF
+    -DAPI_Windows.Devices.Pwm=OFF
+    -DAPI_Windows.Devices.SerialCommunication=OFF -DAPI_System.IO.Ports=OFF
+    -DAPI_Windows.Devices.Adc=ON -DAPI_System.Device.Adc=ON
+    -DAPI_nanoFramework.TI.EasyLink=ON
+    -DAPI_nanoFramework.Hardware.TI=ON
+
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: seanmiddleditch/gha-setup-ninja@master
+    - name: arm-none-eabi-gcc
+      uses: ryanwinter/arm-none-eabi-gcc@master
+      with:
+        release: '10-2021.07' # The arm-none-eabi-gcc release to use
+    - name: Configure CMake
+      run: nbgv cloud -a -c                                                                       
+      
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake -DTOOLCHAIN_PREFIX=$(Agent.TempDirectory)\GNU_Tools_ARM_Embedded -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_VERSION=$(NBGV_VersionMajor).$(NBGV_VersionMinor).$(NBGV_BuildNumber) -DTARGET_BOARD=ORGPAL_MESH_NODE -DTARGET_NAME=ORGPAL_MESH_NODE ${{env.BUILD_OPYIONS}} ..
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build  --target all --config ${{env.BUILD_TYPE}}
