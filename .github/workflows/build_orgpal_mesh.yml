@@ -56,7 +56,7 @@ jobs:
           -DAPI_Windows.Devices.Spi=OFF
           -DAPI_Windows.Devices.I2c=OFF
           -DAPI_Windows.Devices.Pwm=OFF
-          -DAPI_Windows.Devices.SerialCommunication=ON -DAPI_System.IO.Ports=ON
+          -DAPI_System.IO.Ports=ON
           -DAPI_Windows.Devices.Adc=ON -DAPI_System.Device.Adc=ON
           -DAPI_nanoFramework.TI.EasyLink=ON
           -DAPI_nanoFramework.Hardware.TI=ON
@@ -122,7 +122,7 @@ jobs:
           -DAPI_Windows.Devices.Spi=OFF
           -DAPI_Windows.Devices.I2c=OFF
           -DAPI_Windows.Devices.Pwm=OFF
-          -DAPI_Windows.Devices.SerialCommunication=ON -DAPI_System.IO.Ports=ON
+          -DAPI_System.IO.Ports=ON
           -DAPI_nanoFramework.TI.EasyLink=ON
           -DAPI_nanoFramework.Hardware.TI=ON
         run-test: false
