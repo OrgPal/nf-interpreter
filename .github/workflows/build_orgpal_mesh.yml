@@ -1,0 +1,90 @@
+name: Build ORGPAL_MESH
+
+on:
+  workflow_dispatch
+
+env:
+  BUILD_TYPE: MinSizeRel
+  BUILD_OPTIONS: >-
+    -DTARGET_SERIES=CC13X2
+    -DRTOS=TI_SimpleLink
+    -DRADIO_FREQUENCY=868
+    -DSUPPORT_ANY_BASE_CONVERSION=OFF
+    -DNF_FEATURE_DEBUGGER=ON
+    -DNF_FEATURE_RTC=ON
+    -DNF_FEATURE_WATCHDOG=OFF
+    -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
+    -DAPI_Windows.Devices.Spi=OFF
+    -DAPI_Windows.Devices.I2c=OFF
+    -DAPI_Windows.Devices.Pwm=OFF
+    -DAPI_Windows.Devices.SerialCommunication=OFF -DAPI_System.IO.Ports=OFF
+    -DAPI_Windows.Devices.Adc=ON -DAPI_System.Device.Adc=ON
+    -DAPI_nanoFramework.TI.EasyLink=ON
+    -DAPI_nanoFramework.Hardware.TI=ON
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: 'orgpal-mesh'
+
+    - uses: seanmiddleditch/gha-setup-ninja@master
+
+    - name: Install arm-none-eabi-gcc
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        release: '10.3-2021.10'
+        path-env-var: ARM_NONE_EABI_GCC_PATH
+
+    - name: Tweak GCC path
+      run: |
+        $currentPath = "$env:ARM_NONE_EABI_GCC_PATH"
+        if($currentPath.EndsWith("bin"))
+        {
+          $fixedPath = $currentPath.Replace("\bin", "")
+          
+          echo "ARM_NONE_EABI_GCC_PATH=$fixedPath" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+        }
+
+    - run: nbgv cloud -a -c
+
+    - uses: urkle/action-cmake-build@v1
+      with:
+        build-dir: ${{ runner.workspace }}/build
+        build-type: MinSizeRel
+        configure-options: >-
+          -G Ninja
+          -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
+          -DTOOLCHAIN_PREFIX='${{env.ARM_NONE_EABI_GCC_PATH}}'
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          -DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}
+          -DTARGET_BOARD=ORGPAL_MESH_NODE
+          -DTARGET_NAME=ORGPAL_MESH_NODE
+          -DTARGET_SERIES=CC13X2
+          -DRTOS=TI_SimpleLink
+          -DRADIO_FREQUENCY=868
+          -DSUPPORT_ANY_BASE_CONVERSION=OFF
+          -DNF_FEATURE_DEBUGGER=ON
+          -DNF_FEATURE_RTC=ON
+          -DNF_FEATURE_WATCHDOG=OFF
+          -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
+          -DAPI_Windows.Devices.Spi=OFF
+          -DAPI_Windows.Devices.I2c=OFF
+          -DAPI_Windows.Devices.Pwm=OFF
+          -DAPI_Windows.Devices.SerialCommunication=OFF -DAPI_System.IO.Ports=OFF
+          -DAPI_Windows.Devices.Adc=ON -DAPI_System.Device.Adc=ON
+          -DAPI_nanoFramework.TI.EasyLink=ON
+          -DAPI_nanoFramework.Hardware.TI=ON
+        run-test: false
+        parallel: 14
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: 'ORGPAL_MESH_NODE-v${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
+        path: |
+          ${{ runner.workspace }}/build/*.bin
+          ${{ runner.workspace }}/build/*.hex
