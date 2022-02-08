@@ -13,7 +13,6 @@ const ADC      = scripting.addModule("/ti/drivers/ADC", {}, false);
 const ADC1     = ADC.addInstance();
 const UART2    = scripting.addModule("/ti/drivers/UART2", {}, false);
 const UART21   = UART2.addInstance();
-const UART22   = UART2.addInstance();
 const easylink = scripting.addModule("/ti/easylink/easylink");
 
 /**
@@ -29,11 +28,6 @@ ADC1.adc.adcPin.$assign = "ball.37";
 UART21.$name              = "UART0";
 UART21.uart.txPin.$assign = "ball.18";
 UART21.uart.rxPin.$assign = "ball.19";
-
-UART22.$name              = "UART1";
-UART22.rxRingBufferSize   = 256;
-UART22.uart.txPin.$assign = "ball.20";
-UART22.uart.rxPin.$assign = "ball.21";
 
 easylink.EasyLink_Phy_50kbps2gfsk                                  = true;
 easylink.EasyLink_Phy_5kbpsSlLr                                    = true;
@@ -51,4 +45,4 @@ easylink.radioConfigEasylinkPhy200kbps2gfsk.codeExportConfig.$name = "ti_devices
  */
 ADC1.adc.$suggestSolution    = "ADC0";
 UART21.uart.$suggestSolution = "UART1";
-UART22.uart.$suggestSolution = "UART0";
+
