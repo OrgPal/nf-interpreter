@@ -1,8 +1,10 @@
 name: Merge from upstream
 on: 
   schedule:
-    - cron: '0 0 * * *'
     # scheduled for 00:00 every day
+    - cron: '0 0 * * *'
+
+  workflow_dispatch:
 
 jobs:
   merge-from-upstream-repo:
@@ -11,14 +13,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: upstream
+          ref: orgpal-mesh
           fetch-depth: 0
+          token: ${{ secrets.UPTODATE }}
 
       - name: Merge from upstream repo
-        uses: discdiver/merge-from-upstream-repo@v0.0.9
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
         with:
-          useremail: ${{ github.event.inputs.useremail }}
-          username: ${{ github.event.inputs.usename }}
-          upstream: nanoframework/nf-interpreter
-          upstream-branch: develop
-          branch: orgpal-mesh
+          target_sync_branch: orgpal-mesh
+          upstream_sync_branch: develop
+          upstream_sync_repo: nanoframework/nf-interpreter
+
+      - name: New commits found
+        if: steps.sync.outputs.has_new_commits == 'true'
+        run: echo "New commits were found to sync."
+      
+      - name: No new commits
+        if: steps.sync.outputs.has_new_commits == 'false'
+        run: echo "There were no new commits."
+        
+      - name: Show value of 'has_new_commits'
+        run: echo ${{ steps.sync.outputs.has_new_commits }}
