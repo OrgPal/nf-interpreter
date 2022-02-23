@@ -136,6 +136,7 @@ jobs:
           -DAPI_System.Math=OFF
           -DAPI_nanoFramework.TI.EasyLink=ON
           -DAPI_nanoFramework.Hardware.TI=ON
+          -DAPI_nanoFramework.System.Text=ON
         run-test: false
         parallel: 14
 
