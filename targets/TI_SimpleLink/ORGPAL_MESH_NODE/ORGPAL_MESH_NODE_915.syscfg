@@ -11,6 +11,7 @@
 const CCFG     = scripting.addModule("/ti/devices/CCFG");
 const ADC      = scripting.addModule("/ti/drivers/ADC", {}, false);
 const ADC1     = ADC.addInstance();
+const Board    = scripting.addModule("/ti/drivers/Board");
 const UART2    = scripting.addModule("/ti/drivers/UART2", {}, false);
 const UART21   = UART2.addInstance();
 const easylink = scripting.addModule("/ti/easylink/easylink");
@@ -47,4 +48,4 @@ easylink.radioConfigEasylinkPhy200kbps2gfsk.codeExportConfig.$name = "ti_devices
  * re-solve from scratch.
  */
 ADC1.adc.$suggestSolution    = "ADC0";
-UART21.uart.$suggestSolution = "UART1";
+UART21.uart.$suggestSolution = "UART0";
