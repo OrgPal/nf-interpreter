@@ -16,7 +16,6 @@ jobs:
           ref: orgpal-mesh
           fetch-depth: 0
           token: ${{ secrets.UPTODATE }}
-          branch: main
 
       - name: Merge from upstream repo
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
