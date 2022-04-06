@@ -12,6 +12,7 @@ jobs:
       with:
         fetch-depth: 0
         ref: 'orgpal-mesh'
+        branch: main
 
     - uses: seanmiddleditch/gha-setup-ninja@master
 

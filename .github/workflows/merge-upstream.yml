@@ -16,12 +16,13 @@ jobs:
           ref: orgpal-mesh
           fetch-depth: 0
           token: ${{ secrets.UPTODATE }}
+          branch: main
 
       - name: Merge from upstream repo
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
         with:
           target_sync_branch: orgpal-mesh
-          upstream_sync_branch: develop
+          upstream_sync_branch: main
           upstream_sync_repo: nanoframework/nf-interpreter
 
       - name: New commits found
