@@ -57,12 +57,9 @@ jobs:
           -DNF_PLATFORM_NO_CLR_TRACE=ON
           -DNF_CLR_NO_IL_INLINE=ON
           -DNF_FEATURE_WATCHDOG=OFF
-          -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
-          -DAPI_Windows.Devices.Spi=OFF
-          -DAPI_Windows.Devices.I2c=OFF
-          -DAPI_Windows.Devices.Pwm=OFF
+          -DAPI_System.Device.Gpio=ON
           -DAPI_System.IO.Ports=ON
-          -DAPI_Windows.Devices.Adc=ON -DAPI_System.Device.Adc=ON
+          -DAPI_System.Device.Adc=ON
           -DAPI_System.Math=OFF
           -DAPI_nanoFramework.TI.EasyLink=ON
           -DAPI_nanoFramework.Hardware.TI=ON
@@ -129,10 +126,7 @@ jobs:
           -DNF_PLATFORM_NO_CLR_TRACE=ON
           -DNF_CLR_NO_IL_INLINE=ON
           -DNF_FEATURE_WATCHDOG=OFF
-          -DAPI_Windows.Devices.Gpio=ON -DAPI_System.Device.Gpio=ON
-          -DAPI_Windows.Devices.Spi=OFF
-          -DAPI_Windows.Devices.I2c=OFF
-          -DAPI_Windows.Devices.Pwm=OFF
+          -DAPI_System.Device.Gpio=ON
           -DAPI_System.IO.Ports=ON
           -DAPI_System.Math=OFF
           -DAPI_nanoFramework.TI.EasyLink=ON
