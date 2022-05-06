@@ -246,7 +246,7 @@ static uint8_t QSPI_Write(uint8_t *pData, uint32_t writeAddr, uint32_t size);
 static uint8_t QSPI_Erase_Block(uint32_t blockAddress);
 
 // target specific implementation of hal_spiffs_erase
-s32_t hal_spiffs_erase_1(u32_t addr, u32_t size)
+s32_t hal_spiffs_erase_0(u32_t addr, u32_t size)
 {
     // how many sectors need to be erased?
     uint32_t erase_count = (size + SPIFFS0_ERASE_BLOCK_SIZE - 1) / SPIFFS0_ERASE_BLOCK_SIZE;
@@ -266,7 +266,7 @@ s32_t hal_spiffs_erase_1(u32_t addr, u32_t size)
 }
 
 // target specific implementation of hal_spiffs_read
-s32_t hal_spiffs_read_1(u32_t addr, u32_t size, u8_t *dst)
+s32_t hal_spiffs_read_0(u32_t addr, u32_t size, u8_t *dst)
 {
     if (QSPI_Read(dst, addr, size) != QSPI_OK)
     {
@@ -277,7 +277,7 @@ s32_t hal_spiffs_read_1(u32_t addr, u32_t size, u8_t *dst)
 }
 
 // target specific implementation of hal_spiffs_write
-s32_t hal_spiffs_write_1(u32_t addr, u32_t size, u8_t *src)
+s32_t hal_spiffs_write_0(u32_t addr, u32_t size, u8_t *src)
 {
     if (QSPI_Write(src, addr, size) != QSPI_OK)
     {
