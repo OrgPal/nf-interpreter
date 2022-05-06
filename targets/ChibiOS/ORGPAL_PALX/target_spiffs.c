@@ -249,7 +249,7 @@ static uint8_t QSPI_Erase_Block(uint32_t blockAddress);
 s32_t hal_spiffs_erase_1(u32_t addr, u32_t size)
 {
     // how many sectors need to be erased?
-    uint32_t erase_count = (size + SPIFFS1_ERASE_BLOCK_SIZE - 1) / SPIFFS1_ERASE_BLOCK_SIZE;
+    uint32_t erase_count = (size + SPIFFS0_ERASE_BLOCK_SIZE - 1) / SPIFFS0_ERASE_BLOCK_SIZE;
 
     for (uint32_t i = 0; i < erase_count; i++)
     {
@@ -259,7 +259,7 @@ s32_t hal_spiffs_erase_1(u32_t addr, u32_t size)
         }
 
         // adjust sector address
-        addr += i * SPIFFS1_ERASE_BLOCK_SIZE;
+        addr += i * SPIFFS0_ERASE_BLOCK_SIZE;
     }
 
     return SPIFFS_SUCCESS;
@@ -758,7 +758,7 @@ uint8_t target_spiffs_init()
     QSPID1.Init.FifoThreshold = 4;
     QSPID1.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_HALFCYCLE;
     // OK to use the SPIFFS_TOTAL_SIZE for this instance
-    QSPID1.Init.FlashSize = POSITION_VAL(SPIFFS1_TOTAL_SIZE) - 1;
+    QSPID1.Init.FlashSize = POSITION_VAL(SPIFFS0_TOTAL_SIZE) - 1;
     QSPID1.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_2_CYCLE;
     QSPID1.Init.ClockMode = QSPI_CLOCK_MODE_0;
     QSPID1.Init.FlashID = QSPI_FLASH_ID_1;

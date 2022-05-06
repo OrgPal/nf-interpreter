@@ -8,11 +8,10 @@
 
 #include <nanoHAL_v2.h>
 
-#define SPIFFS_SPI1
 #define SPIFFS_QSPI
 
 // need to define how many SPIFFS instances we'll be running
-#define SPIFFS_INSTANCES_COUNT 2
+#define SPIFFS_INSTANCES_COUNT 1
 
 //////////////////////////////////
 // defines specific for SPI1 drive
@@ -188,9 +187,9 @@
 
 ////////////////////////////////
 // remapping into SPIFFS defines
-#define SPIFFS1_TOTAL_SIZE         W25Q128_FLASH_SIZE
-#define SPIFFS1_ERASE_BLOCK_SIZE   W25Q128_SECTOR_SIZE
-#define SPIFFS1_LOGICAL_BLOCK_SIZE (64 * 1024)
+#define SPIFFS0_TOTAL_SIZE         W25Q128_FLASH_SIZE
+#define SPIFFS0_ERASE_BLOCK_SIZE   W25Q128_SECTOR_SIZE
+#define SPIFFS0_LOGICAL_BLOCK_SIZE (64 * 1024)
 
 #endif // SPIFFS_QSPI
 
