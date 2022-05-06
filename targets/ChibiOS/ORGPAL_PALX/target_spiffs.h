@@ -183,7 +183,7 @@
 
 // IDs
 #define W25Q128_MANUFACTURER_ID ((uint8_t)0xEF)
-#define W25Q128_DEVICE_ID1      ((uint8_t)0x70)
+#define W25Q128_DEVICE_ID1      ((uint8_t)0x40)
 #define W25Q128_DEVICE_ID2      ((uint8_t)0x18)
 
 ////////////////////////////////
