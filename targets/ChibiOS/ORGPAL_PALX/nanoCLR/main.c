@@ -98,7 +98,7 @@ int main(void)
 
 #if (NF_FEATURE_USE_SPIFFS == TRUE)
     // config and init SPIFFS
-    hal_spiffs_config();
+    //hal_spiffs_config();
 #endif
 
     //  Initializes a serial-over-USB CDC driver.
