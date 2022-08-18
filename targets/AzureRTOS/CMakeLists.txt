@@ -281,7 +281,9 @@ endif()
 
 ##############################
 # network connectivity options
-nf_set_network_connectivity_options()
+if(USE_NETWORKING_OPTION)
+    nf_set_network_connectivity_options()
+endif()
 
 #############################################
 # try to find STM board in the targets folder
