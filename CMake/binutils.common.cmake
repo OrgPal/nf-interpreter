@@ -25,9 +25,25 @@ macro(nf_common_compiler_definitions)
     string(FIND ${NFCCF_BUILD_TARGET} ${NANOCLR_PROJECT_NAME} CLR_INDEX)
     
     if(${BOOTER_INDEX} EQUAL 0)
-        target_compile_definitions(${NFCCF_TARGET} PUBLIC -DI_AM_NANOBOOTER)
+
+        # set global define for nanoBooter
+        target_compile_definitions(${NFCCF_TARGET} PUBLIC -DI_AM_NANOBOOTER )
+
+        # add global defines for nanoBooter
+        foreach(DEFINITION ${BOOTER_EXTRA_COMPILE_DEFINITIONS})
+            target_compile_definitions(${NFCCF_TARGET} PUBLIC ${DEFINITION})
+        endforeach()
+        
     elseif(${CLR_INDEX} EQUAL 0)
+    
+        # set global define for nanoCLR
         target_compile_definitions(${NFCCF_TARGET} PUBLIC -DI_AM_NANOCLR)
+        
+        # add global defines for nanoCLR
+        foreach(DEFINITION ${CLR_EXTRA_COMPILE_DEFINITIONS})
+            target_compile_definitions(${NFCCF_TARGET} PUBLIC ${DEFINITION})
+        endforeach()
+    
     else()
         message(FATAL_ERROR "\n\n Build target name '${NFCCF_BUILD_TARGET}' is not any of the expected ones: '${NANOBOOTER_PROJECT_NAME}' or '${NANOCLR_PROJECT_NAME}'")
     endif()
@@ -306,12 +322,8 @@ function(nf_generate_build_output_files target)
 
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
 
-                # copy target file to build folder (this is only usefull for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
-
-                # copy target image to other formats
-                COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
-                COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
+                # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
+                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
 
                 COMMENT "Generate nanoBooter HEX and BIN files for deployment")
 
@@ -319,12 +331,8 @@ function(nf_generate_build_output_files target)
 
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
 
-                # copy target file to build folder (this is only usefull for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
-
-                # copy target image to other formats
-                COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
-                COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
+                # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
+                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
 
                 # dump target image as source code listing 
                 # ONLY when DEBUG info is available, this is on 'Debug' and 'RelWithDebInfo'
@@ -448,8 +456,8 @@ macro(nf_setup_target_build_common)
     cmake_parse_arguments(
         NFSTBC 
         "HAS_NANOBOOTER" 
-        "BOOTER_LINKER_FILE;CLR_LINKER_FILE;BOOTER_EXTRA_LINKMAP_PROPERTIES;CLR_EXTRA_LINKMAP_PROPERTIES;BOOTER_EXTRA_COMPILE_DEFINITIONS;CLR_EXTRA_COMPILE_DEFINITIONS;BOOTER_EXTRA_COMPILE_OPTIONS;CLR_EXTRA_COMPILE_OPTIONS;BOOTER_EXTRA_LINK_FLAGS;CLR_EXTRA_LINK_FLAGS" 
-        "BOOTER_EXTRA_SOURCE_FILES;CLR_EXTRA_SOURCE_FILES;BOOTER_EXTRA_LIBRARIES;CLR_EXTRA_LIBRARIES" 
+        "BOOTER_LINKER_FILE;CLR_LINKER_FILE;BOOTER_EXTRA_LINKMAP_PROPERTIES;CLR_EXTRA_LINKMAP_PROPERTIES" 
+        "BOOTER_EXTRA_COMPILE_DEFINITIONS;CLR_EXTRA_COMPILE_DEFINITIONS;BOOTER_EXTRA_COMPILE_OPTIONS;CLR_EXTRA_COMPILE_OPTIONS;BOOTER_EXTRA_LINK_FLAGS;CLR_EXTRA_LINK_FLAGS;BOOTER_EXTRA_SOURCE_FILES;CLR_EXTRA_SOURCE_FILES;BOOTER_EXTRA_LIBRARIES;CLR_EXTRA_LIBRARIES" 
         ${ARGN})
 
     if(NOT NFSTBC_HAS_NANOBOOTER 
@@ -464,6 +472,10 @@ macro(nf_setup_target_build_common)
     if(NOT NFSTBC_CLR_LINKER_FILE OR "${NFSTBC_CLR_LINKER_FILE}" STREQUAL "")
         message(FATAL_ERROR "Need to provide CLR_LINKER_FILE argument")
     endif()
+
+    # store these so they can be used to add the compiler definitions globally
+    set(BOOTER_EXTRA_COMPILE_DEFINITIONS ${NFSTBC_BOOTER_EXTRA_COMPILE_DEFINITIONS})
+    set(CLR_EXTRA_COMPILE_DEFINITIONS ${NFSTBC_CLR_EXTRA_COMPILE_DEFINITIONS})
 
     #######################################
     # now the actual calls for building a target
@@ -508,7 +520,7 @@ macro(nf_setup_target_build_common)
         nf_set_compile_options(TARGET ${NANOBOOTER_PROJECT_NAME}.elf EXTRA_COMPILE_OPTIONS ${NFSTBC_BOOTER_EXTRA_COMPILE_OPTIONS})
         
         # set compile definitions
-        nf_set_compile_definitions(TARGET ${NANOBOOTER_PROJECT_NAME}.elf EXTRA_COMPILE_DEFINITIONS ${NFSTBC_BOOTER_EXTRA_COMPILE_DEFINITIONS} BUILD_TARGET ${NANOBOOTER_PROJECT_NAME})
+        nf_set_compile_definitions(TARGET ${NANOBOOTER_PROJECT_NAME}.elf BUILD_TARGET ${NANOBOOTER_PROJECT_NAME})
 
         # set linker files
         if(CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
@@ -587,7 +599,7 @@ macro(nf_setup_target_build_common)
     endif()
 
     # set compile definitions
-    nf_set_compile_definitions(TARGET ${NANOCLR_PROJECT_NAME}.elf EXTRA_COMPILE_DEFINITIONS ${NFSTBC_CLR_EXTRA_COMPILE_DEFINITIONS} BUILD_TARGET ${NANOCLR_PROJECT_NAME} )
+    nf_set_compile_definitions(TARGET ${NANOCLR_PROJECT_NAME}.elf BUILD_TARGET ${NANOCLR_PROJECT_NAME} )
 
     # set linker files
     if(CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)

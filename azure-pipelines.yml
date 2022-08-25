@@ -45,7 +45,7 @@ resources:
       type: github
       name: espressif/esp-idf
       endpoint: nanoframework
-      ref: refs/tags/v4.4.1
+      ref: refs/tags/v4.4.2
       
 jobs:
 
@@ -288,6 +288,7 @@ jobs:
         eq(dependencies.Check_Build_Options.outputs['TargetsToBuild.BUILD_ESP32'], true),
         eq(dependencies.Check_Build_Options.outputs['TargetsToBuild.BUILD_FREERTOS'], true),
         eq(dependencies.Check_Build_Options.outputs['TargetsToBuild.BUILD_TI'], true),
+        eq(dependencies.Check_Build_Options.outputs['TargetsToBuild.BUILD_AZURERTOS'], true),
         eq(dependencies.Check_Build_Options.outputs['TargetsToBuild.BUILD_WIN32'], true)
       )
     )
@@ -355,7 +356,7 @@ jobs:
   - template: azure-pipelines-templates/download-install-ninja.yml
   - template: azure-pipelines-templates/download-srecord.yml
   - template: azure-pipelines-templates/download-hexdfu.yml
-  - template: azure-pipelines-templates/build-chibios-stm32.yml
+  - template: azure-pipelines-templates/build-chibios-stm32-targets.yml
   - template: azure-pipelines-templates/pack-publish-artifacts.yml
   - template: azure-pipelines-templates/publish-cloudsmith.yml
   - template: azure-pipelines-templates/pack-publish-managed-helpers.yml
@@ -440,7 +441,7 @@ jobs:
   - template: azure-pipelines-templates/download-install-ninja.yml
     parameters:
       repoDirectory: '$(Build.SourcesDirectory)\nf-interpreter'
-  - template: azure-pipelines-templates/build-esp32.yml
+  - template: azure-pipelines-templates/build-espressif-esp32-targets.yml
 
   - task: CopyFiles@1
     condition: succeeded()
@@ -451,11 +452,12 @@ jobs:
         bootloader.bin
       TargetFolder: '$(Build.ArtifactStagingDirectory)\$(TargetPublishName)'
       flattenFolders: true
-
+  - template: azure-pipelines-templates/copy-sdkconfig.yml
   - template: azure-pipelines-templates/pack-publish-artifacts.yml
     parameters:
       buildDirectory: '$(Build.SourcesDirectory)\nf-interpreter\build'
   - template: azure-pipelines-templates/publish-cloudsmith.yml
+  - template: azure-pipelines-templates/publish-sdkconfig.yml
 
 #################
 # NXP
@@ -499,7 +501,7 @@ jobs:
   - template: azure-pipelines-templates/download-install-arm-gcc-toolchain.yml
   - template: azure-pipelines-templates/download-install-ninja.yml
   - template: azure-pipelines-templates/download-srecord.yml
-  - template: azure-pipelines-templates/build-freertos-nxp.yml
+  - template: azure-pipelines-templates/build-freertos-nxp-targets.yml
   - template: azure-pipelines-templates/pack-publish-artifacts.yml
   - template: azure-pipelines-templates/publish-cloudsmith.yml
   - template: azure-pipelines-templates/pack-publish-managed-helpers.yml
@@ -568,7 +570,7 @@ jobs:
   - template: azure-pipelines-templates/nb-gitversioning.yml
   - template: azure-pipelines-templates/download-install-arm-gcc-toolchain.yml
   - template: azure-pipelines-templates/download-install-ninja.yml
-  - template: azure-pipelines-templates/build-ti-simplelink.yml
+  - template: azure-pipelines-templates/build-ti-simplelink-targets.yml
   - template: azure-pipelines-templates/pack-publish-artifacts.yml
   - template: azure-pipelines-templates/publish-cloudsmith.yml
   - template: azure-pipelines-templates/pack-publish-ti-sl-managed-helpers.yml
@@ -624,7 +626,7 @@ jobs:
   - template: azure-pipelines-templates/download-install-ninja.yml
   - template: azure-pipelines-templates/download-hexdfu.yml
   - template: azure-pipelines-templates/download-srecord.yml
-  - template: azure-pipelines-templates/build-azurertos.yml
+  - template: azure-pipelines-templates/build-azurertos-targets.yml
   - template: azure-pipelines-templates/pack-publish-artifacts.yml
   - template: azure-pipelines-templates/publish-cloudsmith.yml
   - template: azure-pipelines-templates/pack-publish-managed-helpers.yml
@@ -653,7 +655,7 @@ jobs:
     DOTNET_NOLOGO: true
     TargetPublishName: WIN32_nanoCLR
     # creates a counter and assigns it to the revision variable
-    REVISION: $[counter('WIN32_1_8_0_versioncounter', 0)]
+    REVISION: $[counter('WIN32_1_8_0__versioncounter', 400)]
 
   steps:
   - template: azure-pipelines-templates/nb-gitversioning.yml
@@ -912,7 +914,7 @@ jobs:
         failed('Build_ESP32_targets'),
         failed('Build_NXP_targets'),
         failed('Build_TI_SimpleLink_targets'),
-        succeeded('Build_Azure_RTOS_targets'),
+        failed('Build_Azure_RTOS_targets'),
         failed('Build_WIN32_nanoCLR'),
         failed('Generate_change_log')
       )
