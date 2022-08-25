@@ -50,7 +50,7 @@
                 "API_System.Device.Gpio": "ON",
                 "API_System.Device.I2c": "ON",
                 "API_System.Device.Spi": "ON",
-                "API_System.Device.Pwm": "ON", 
+                "API_System.Device.Pwm": "ON",
                 "API_System.Device.Wifi": "ON",
                 "API_System.IO.Ports": "ON",
                 "API_Hardware.Esp32": "ON",
@@ -604,7 +604,7 @@
                 "API_System.IO.FileSystem": "ON",
                 "API_nanoFramework.Device.OneWire": "ON"
             }
-        },       
+        },
         {
             "name": "LilygoTWatch2020_preset",
             "inherits": [
