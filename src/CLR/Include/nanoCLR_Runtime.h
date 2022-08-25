@@ -59,7 +59,7 @@ typedef CLR_RT_AddressToSymbolMap::iterator CLR_RT_AddressToSymbolMapIter;
 #endif // #if defined(_WIN32)
 
 #if defined(_MSC_VER)
-#pragma pack(push, NANOCLR_RUNTIME_H, 4)
+#pragma pack(push, __NANOCLR_RUNTIME_H__, 4)
 #endif
 
 #if defined(_WIN32)
@@ -1149,6 +1149,8 @@ struct CLR_RT_Assembly : public CLR_RT_HeapBlock_Node // EVENT HEAP - NO RELOCAT
     static const CLR_UINT32 Deployed = 0x00000008;
     static const CLR_UINT32 PreparingForExecution = 0x00000010;
     static const CLR_UINT32 StaticConstructorsExecuted = 0x00000020;
+    // this flag should be set when the m_header was malloc'ed
+    static const CLR_UINT32 FreeOnDestroy = 0x00000100;
 
     CLR_UINT32 m_idx; // Relative to the type system (for static fields access).
     CLR_UINT32 m_flags;
@@ -2125,7 +2127,7 @@ struct CLR_RT_HeapCluster : public CLR_RT_HeapBlock_Node // EVENT HEAP - NO RELO
 
 //--//
 
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
 struct CLR_RT_InlineFrame
 {
     CLR_RT_HeapBlock *m_locals;
@@ -2234,7 +2236,7 @@ struct CLR_RT_StackFrame : public CLR_RT_HeapBlock_Node // EVENT HEAP - NO RELOC
         void *m_customPointer;
     };
 
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
     CLR_RT_InlineBuffer *m_inlineFrame;
 #endif
 
@@ -2262,7 +2264,7 @@ struct CLR_RT_StackFrame : public CLR_RT_HeapBlock_Node // EVENT HEAP - NO RELOC
 
     void Pop();
 
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
     bool PushInline(
         CLR_PMETADATA &ip,
         CLR_RT_Assembly *&assm,
@@ -2579,18 +2581,20 @@ struct CLR_RT_GarbageCollector
     static const int c_minimumSpaceForGC = 128;
     static const int c_minimumSpaceForCompact = 128;
     static const CLR_UINT32 c_pressureThreshold = 10;
-    static const CLR_UINT32 c_memoryThreshold = HEAP_SIZE_THRESHOLD;
-    static const CLR_UINT32 c_memoryThreshold2 = HEAP_SIZE_THRESHOLD_UPPER;
 
     static const CLR_UINT32 c_StartGraphEvent = 0x00000001;
     static const CLR_UINT32 c_StopGraphEvent = 0x00000002;
     static const CLR_UINT32 c_DumpGraphHeapEvent = 0x00000004;
     static const CLR_UINT32 c_DumpPerfCountersEvent = 0x00000008;
 
+    CLR_UINT32 c_memoryThreshold;
+    CLR_UINT32 c_memoryThreshold2;
+
     CLR_UINT32 m_numberOfGarbageCollections;
     CLR_UINT32 m_numberOfCompactions;
 
-    CLR_RT_DblLinkedList m_weakDelegates_Reachable; // list of CLR_RT_HeapBlock_Delegate_List
+    // list of CLR_RT_HeapBlock_Delegate_List
+    CLR_RT_DblLinkedList m_weakDelegates_Reachable;
 
     CLR_UINT32 m_totalBytes;
     CLR_UINT32 m_freeBytes;
@@ -3134,7 +3138,7 @@ extern size_t LinkArraySize();
 extern size_t LinkMRUArraySize();
 extern size_t PayloadArraySize();
 extern size_t InterruptRecords();
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
 extern size_t InlineBufferCount();
 #endif
 
@@ -3142,7 +3146,7 @@ extern CLR_UINT32 g_scratchVirtualMethodTableLink[];
 extern CLR_UINT32 g_scratchVirtualMethodTableLinkMRU[];
 extern CLR_UINT32 g_scratchVirtualMethodPayload[];
 extern CLR_UINT32 g_scratchInterruptDispatchingStorage[];
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
 extern CLR_UINT32 g_scratchInlineBuffer[];
 #endif
 
@@ -3287,7 +3291,7 @@ struct CLR_RT_EventCache
     BoundedList *m_events;
 
     VirtualMethodTable m_lookup_VirtualMethod;
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
     CLR_RT_InlineBuffer *m_inlineBufferStart;
 #endif
 
@@ -3307,7 +3311,7 @@ struct CLR_RT_EventCache
         const CLR_RT_MethodDef_Index &mdVirtual,
         CLR_RT_MethodDef_Index &md);
 
-#ifndef CLR_NO_IL_INLINE
+#ifndef NANOCLR_NO_IL_INLINE
     bool GetInlineFrameBuffer(CLR_RT_InlineBuffer **ppBuffer);
     bool FreeInlineBuffer(CLR_RT_InlineBuffer *pBuffer);
 #endif
@@ -3875,7 +3879,10 @@ CT_ASSERT(sizeof(CLR_RT_DataTypeLookup) == 16 + 4)
 //--//
 
 #if defined(_MSC_VER)
-#pragma pack(pop, NANOCLR_RUNTIME_H)
+#pragma pack(pop, __NANOCLR_RUNTIME_H__)
 #endif
+
+extern const CLR_RT_NativeAssemblyData *g_CLR_InteropAssembliesNativeData[];
+extern const uint16_t g_CLR_InteropAssembliesCount;
 
 #endif // NANOCLR_RUNTIME_H

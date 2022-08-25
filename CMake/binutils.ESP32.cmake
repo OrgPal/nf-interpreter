@@ -32,11 +32,12 @@ endmacro()
 
 function(nf_set_optimization_options target) 
 
+    # debug compile options: -Og (optimize for debugging) and -g (produce generic debug symbols)
     target_compile_options(${target} PRIVATE
-        $<$<CONFIG:Debug>:-Og -femit-class-debug-always -g3 -ggdb>
+        $<$<CONFIG:Debug>:-Og -g>
         $<$<CONFIG:Release>:-O3>
         $<$<CONFIG:MinSizeRel>:-Os>
-        $<$<CONFIG:RelWithDebInfo>:-Os -femit-class-debug-always -g3 -ggdb>
+        $<$<CONFIG:RelWithDebInfo>:-Os -g>
     )
 
 endfunction()
@@ -352,32 +353,35 @@ macro(nf_setup_partition_tables_generator)
     # create partition tables for other memory sizes
     set(ESP32_PARTITION_TABLE_UTILITY ${IDF_PATH_CMAKED}/components/partition_table/gen_esp32part.py )
 
+    # create command line for partition table generator
+    set(gen_partition_table "python" "${ESP32_PARTITION_TABLE_UTILITY}")
+
     if(${TARGET_SERIES_SHORT} STREQUAL "esp32")
-        
+
         # partition tables for ESP32
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table} 
             --flash-size 16MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_16mb.csv
             ${CMAKE_BINARY_DIR}/partitions_16mb.bin
             COMMENT "Generate ESP32 partition table for 16MB flash" )
 
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table} 
             --flash-size 8MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_8mb.csv
             ${CMAKE_BINARY_DIR}/partitions_8mb.bin
             COMMENT "Generate ESP32 partition table for 8MB flash" )
 
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table} 
             --flash-size 4MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_4mb.csv
             ${CMAKE_BINARY_DIR}/partitions_4mb.bin
             COMMENT "Generate Esp32 partition table for 4MB flash" )
-
+        
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table}  
             --flash-size 2MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_2mb.csv
             ${CMAKE_BINARY_DIR}/partitions_2mb.bin
@@ -389,21 +393,21 @@ macro(nf_setup_partition_tables_generator)
                 
         # partition tables for ESP32
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table} 
             --flash-size 16MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_16mb.csv
             ${CMAKE_BINARY_DIR}/partitions_16mb.bin
             COMMENT "Generate ESP32 partition table for 16MB flash" )
 
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table} 
             --flash-size 8MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_8mb.csv
             ${CMAKE_BINARY_DIR}/partitions_8mb.bin
             COMMENT "Generate ESP32 partition table for 8MB flash" )
 
         add_custom_command( TARGET ${NANOCLR_PROJECT_NAME}.elf POST_BUILD
-            COMMAND ${ESP32_PARTITION_TABLE_UTILITY} 
+            COMMAND ${gen_partition_table} 
             --flash-size 4MB 
             ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/esp32/partitions_nanoclr_4mb.csv
             ${CMAKE_BINARY_DIR}/partitions_4mb.bin
@@ -420,9 +424,7 @@ macro(nf_add_idf_as_library)
 
     # if running on Azure Pipeline, tweak the reported version so it doesn't show '-dirty'
     # because it is not!
-    set(RUNNING_ON_AZURE ($ENV{Agent_HomeDirectory} AND $ENV{Build_BuildNumber}))
-
-    if(RUNNING_ON_AZURE)
+    if((DEFINED $ENV{Agent_HomeDirectory}) AND (DEFINED $ENV{Build_BuildNumber}))
         get_property(MY_IDF_VER TARGET __idf_build_target PROPERTY IDF_VER )
 
         string(REPLACE "-dirty" "" MY_IDF_VER_FIXED "${MY_IDF_VER}")
@@ -463,7 +465,7 @@ macro(nf_add_idf_as_library)
         set(SDKCONFIG_DEFAULTS_FILE ${CMAKE_SOURCE_DIR}/targets/ESP32/_IDF/sdkconfig.default)
     endif()
 
-    message(STATUS "\n--SDK CONFIG is: '${SDKCONFIG_DEFAULTS_FILE}'.")
+    message(STATUS "\n-- SDK CONFIG is: '${SDKCONFIG_DEFAULTS_FILE}'.")
 
     # set list with the IDF components to add
     # need to match the list below with the respective libraries
@@ -572,12 +574,16 @@ macro(nf_add_idf_as_library)
     # option for automatic XTAL frequency detection
     # (default is OFF which means that fixed default frequency will be used)
     option(ESP32_XTAL_FREQ_26 "option to set XTAL frequency to 26MHz")
-    
+   
+    message(DEBUG "ESP32_XTAL_FREQ_26 option is ${ESP32_XTAL_FREQ_26}")
+
     if(ESP32_XTAL_FREQ_26)
 
         message(STATUS "Set XTAL frequency to 26MHz")
-                
-        # need to read the supplied SDK CONFIG file and replace the appropriate options            
+
+        # need to read the supplied SDK CONFIG file(s) and replace the appropriate options
+
+        message(DEBUG "Reading SDK config from '${SDKCONFIG_DEFAULTS_FILE}'")
         file(READ
             "${SDKCONFIG_DEFAULTS_FILE}"
             SDKCONFIG_DEFAULT_CONTENTS)
@@ -588,12 +594,31 @@ macro(nf_add_idf_as_library)
             SDKCONFIG_DEFAULT_FINAL_CONTENTS
             "${SDKCONFIG_DEFAULT_CONTENTS}")
 
+        # now do the same for the series config file, if it exists
+        file(READ
+            "${SDKCONFIG_DEFAULTS_FILE}.${TARGET_SERIES_SHORT}"
+            SDKCONFIG_DEFAULT_SERIES_CONTENTS)
+        
+        string(REPLACE
+            "CONFIG_ESP32_XTAL_FREQ_40"
+            "CONFIG_ESP32_XTAL_FREQ_26"
+            SDKCONFIG_DEFAULT_SERIES_FINAL_CONTENTS
+            "${SDKCONFIG_DEFAULT_SERIES_CONTENTS}")
+
         # need to temporarilly allow changes in source files
         set(CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
         file(WRITE 
             ${SDKCONFIG_DEFAULTS_FILE} 
             ${SDKCONFIG_DEFAULT_FINAL_CONTENTS})
+
+        message(DEBUG "Wrote updated SDK config to '${SDKCONFIG_DEFAULTS_FILE}'")
+
+        file(WRITE 
+            "${SDKCONFIG_DEFAULTS_FILE}.${TARGET_SERIES_SHORT}" 
+            ${SDKCONFIG_DEFAULT_SERIES_FINAL_CONTENTS})
+
+        message(DEBUG "Wrote updated SDK config to '${SDKCONFIG_DEFAULTS_FILE}.${TARGET_SERIES_SHORT}'")
 
         set(CMAKE_DISABLE_SOURCE_CHANGES ON)
     else()

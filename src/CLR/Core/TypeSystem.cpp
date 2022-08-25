@@ -1865,6 +1865,12 @@ void CLR_RT_Assembly::DestroyInstance()
     }
 #endif
 
+    // check if header has to be freed (in case the assembly lives in RAM)
+    if ((this->m_flags & CLR_RT_Assembly::FreeOnDestroy) != 0)
+    {
+        platform_free((void *)this->m_header);
+    }
+
     //--//
 
     g_CLR_RT_EventCache.Append_Node(this);
@@ -4837,9 +4843,16 @@ HRESULT CLR_RT_AttributeParser::ReadString(CLR_RT_HeapBlock *&value)
     NANOCLR_HEADER();
 
     CLR_UINT32 tk;
+
+    CLR_RT_TypeDescriptor desc;
+    NANOCLR_CHECK_HRESULT(desc.InitializeFromType(g_CLR_RT_WellKnownTypes.m_String));
+
     NANOCLR_READ_UNALIGNED_UINT16(tk, m_blob);
 
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance(*value, CLR_TkFromType(TBL_Strings, tk), m_assm));
+
+    // need to box this
+    value->PerformBoxing(desc.m_handlerCls);
 
     NANOCLR_NOCLEANUP();
 }
@@ -4851,6 +4864,9 @@ HRESULT CLR_RT_AttributeParser::ReadNumericValue(
     const CLR_UINT32 size)
 {
     NANOCLR_HEADER();
+
+    CLR_RT_TypeDescriptor desc;
+    NANOCLR_CHECK_HRESULT(desc.InitializeFromType(*m_cls));
 
     NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.NewObjectFromIndex(*value, g_CLR_RT_WellKnownTypes.m_TypeStatic));
 
@@ -4865,8 +4881,6 @@ HRESULT CLR_RT_AttributeParser::ReadNumericValue(
         NANOCLR_READ_UNALIGNED_UINT8(boolValue, m_blob);
 
         value->SetBoolean((bool)boolValue);
-        // this is a bool so need to box it
-        value->PerformBoxingIfNeeded();
     }
     else
     {
@@ -4876,6 +4890,9 @@ HRESULT CLR_RT_AttributeParser::ReadNumericValue(
 
         m_blob += size;
     }
+
+    // need to box this
+    value->PerformBoxing(desc.m_handlerCls);
 
     NANOCLR_NOCLEANUP();
 }
