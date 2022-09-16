@@ -95,6 +95,11 @@ int main(void)
     BlockStorageList_Initialize();
     BlockStorage_AddDevices();
 
+    // initialize configuration manager
+    // in CLR this is called in nanoHAL_Initialize()
+    // for nanoBooter we have to init it here to have access to network configuration blocks
+    ConfigurationManager_Initialize();
+
     // report successfull nanoBooter execution
     ReportSuccessfullNanoBooter();
 
