@@ -18,9 +18,10 @@ list(APPEND STM32F7_CubePackage_INCLUDE_DIRS ${TARGET_BASE_LOCATION})
 set(STM32F7_CubePackage_SRCS
 
     # add HAL files here as required
-    stm32f7xx_hal.c
-    stm32f7xx_hal_flash_ex.c
-    stm32f7xx_hal_flash.c
+    # temporary commented out to allow build in ChibiOS
+    # stm32f7xx_hal.c
+    # stm32f7xx_hal_flash_ex.c
+    # stm32f7xx_hal_flash.c
 
     # SPIFFS
     stm32f7xx_hal_dma.c
