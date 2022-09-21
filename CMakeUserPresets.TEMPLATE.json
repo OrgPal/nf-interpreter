@@ -97,6 +97,43 @@
             }
         },
         {
+            "name": "ORGPAL_PALX_CHIBIOS",
+            "inherits": [
+                "user-local-tools",
+                "user-prefs",
+                "ORGPAL_PALTHREE_preset"
+            ],
+            "cacheVariables": {
+                "TARGET_BOARD": "ORGPAL_PALX",
+                "NF_INTEROP_ASSEMBLIES": null,
+                "RTOS": "ChibiOS",
+                "TARGET_SERIES": "STM32F7xx",
+                "CHIBIOS_CONTRIB_REQUIRED": "ON",
+                "STM32_CUBE_PACKAGE_REQUIRED": "ON",
+                "SUPPORT_ANY_BASE_CONVERSION": "ON",
+                "NF_FEATURE_DEBUGGER": "ON",
+                "NF_FEATURE_RTC": "ON",
+                "NF_FEATURE_HAS_SDCARD": "ON",
+                "NF_FEATURE_HAS_CONFIG_BLOCK": "ON",
+                "NF_FEATURE_HAS_USB_MSD": "ON",
+                "NF_FEATURE_USE_SPIFFS": "ON",
+                "NF_BUILD_RTM": "OFF",
+                "API_System.Math": "ON",
+                "API_Hardware.Stm32": "ON",
+                "API_System.Device.Gpio": "ON",
+                "API_System.Device.Spi": "ON",
+                "API_System.Device.I2c": "ON",
+                "API_System.Device.Pwm": "ON",
+                "API_System.IO.Ports": "ON",
+                "API_System.Device.Adc": "ON",
+                "API_System.Device.Dac": "ON",
+                "API_System.Net": "OFF",
+                "API_nanoFramework.ResourceManager": "ON",
+                "API_nanoFramework.System.Collections": "ON",
+                "API_nanoFramework.System.Text": "ON"
+            }
+        },
+        {
             "name": "ST_NUCLEO64_F091RC",
             "inherits": [
                 "user-local-tools",
@@ -619,6 +656,11 @@
             "name": "ORGPAL_PALX",
             "displayName": "ORGPAL_PALX",
             "configurePreset": "ORGPAL_PALX"
+        },
+        {
+            "name": "ORGPAL_PALX_CHIBIOS",
+            "displayName": "ORGPAL_PALX_CHIBIOS",
+            "configurePreset": "ORGPAL_PALX_CHIBIOS"
         },
         {
             "name": "ST_NUCLEO64_F091RC",

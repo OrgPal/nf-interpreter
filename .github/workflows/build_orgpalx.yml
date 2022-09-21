@@ -58,3 +58,58 @@ jobs:
         path: |
           ${{ github.workspace }}/build/*.bin
           ${{ github.workspace }}/build/*.hex
+
+  build_ORGPALX_CHIBIOS:
+    runs-on: windows-latest
+
+    env:
+      TARGET_NAME: 'ORGPAL_PALX_CHIBIOS'
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: 'orgpal-palx'
+
+    - uses: seanmiddleditch/gha-setup-ninja@master
+
+    - name: Install arm-none-eabi-gcc
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        release: '11.3.Rel1'
+        path-env-var: ARM_NONE_EABI_GCC_PATH
+
+    - name: Tweak PATH to reach cmd
+      run: echo "C:\Windows\System32" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Set version
+      run: nbgv cloud -a -c
+
+    - name: Compose CMakeUserPresets
+      run: |
+        $file = "CMakeUserPresets.json"
+
+        Rename-Item -Path "CMakeUserPresets.TEMPLATE.json" -NewName $file
+        
+        $filecontent = Get-Content($file)
+        attrib $file -r
+        $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
+
+        [regex]$pattern='user-local-tools'
+        $pattern.replace([IO.File]::ReadAllText($file), 'user-local-tools-dummy', 1) | Out-File $file -Encoding UTF8
+
+        $filecontent = Get-Content($file)
+        $filecontent -replace  'user-local-tools-cloud', 'user-local-tools' | Out-File $file -Encoding UTF8
+
+    - name: Build with CMake
+      run: |
+        cmake -B build --preset ${{ env.TARGET_NAME }} -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_VERSION='${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
+        cmake --build ${{ github.workspace }}/build --target all
+      working-directory: ${{ github.workspace }}
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: '${{ env.TARGET_NAME }}-v${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
+        path: |
+          ${{ github.workspace }}/build/*.bin
+          ${{ github.workspace }}/build/*.hex
