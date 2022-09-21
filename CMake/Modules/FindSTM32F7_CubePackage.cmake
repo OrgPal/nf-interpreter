@@ -27,6 +27,13 @@ set(STM32F7_CubePackage_SRCS
     stm32f7xx_hal_qspi.c
 )
 
+# temporary hack to allow building PALX with ChibiOS
+if(RTOS_CHIBIOS_CHECK)
+    list(REMOVE_ITEM STM32F7_CubePackage_SRCS stm32f7xx_hal.c)
+    list(REMOVE_ITEM STM32F7_CubePackage_SRCS stm32f7xx_hal_flash_ex.c)
+    list(REMOVE_ITEM STM32F7_CubePackage_SRCS stm32f7xx_hal_flash.c)
+endif()
+
 # add exception to compiler warnings as errors
 SET_SOURCE_FILES_PROPERTIES(${stm32f7_hal_driver_SOURCE_DIR}/Src/stm32f7xx_hal_eth.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 
