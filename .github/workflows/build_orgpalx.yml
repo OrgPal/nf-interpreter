@@ -91,10 +91,6 @@ jobs:
 
         Rename-Item -Path "CMakeUserPresets.TEMPLATE.json" -NewName $file
         
-        $filecontent = Get-Content($file)
-        attrib $file -r
-        $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
-
         [regex]$pattern='user-local-tools'
         $pattern.replace([IO.File]::ReadAllText($file), 'user-local-tools-dummy', 1) | Out-File $file -Encoding UTF8
 
@@ -103,7 +99,7 @@ jobs:
 
     - name: Build with CMake
       run: |
-        cmake -B build --preset ${{ env.TARGET_NAME }} -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_VERSION='${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
+        cmake -B build --preset ${{ env.TARGET_NAME }} -DCMAKE_BUILD_TYPE=Debug -DBUILD_VERSION='${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
         cmake --build ${{ github.workspace }}/build --target all
       working-directory: ${{ github.workspace }}
 
