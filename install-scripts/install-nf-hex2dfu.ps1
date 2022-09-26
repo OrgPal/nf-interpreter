@@ -12,8 +12,14 @@ param (
 # check if running on Azure Pipelines by looking at this two environment variables
 $IsAzurePipelines = $env:Agent_HomeDirectory -and $env:Build_BuildNumber
 
+# check if running on GitHub Action by looking for this environment variable
+$IsGitHUbAction = ![string]::IsNullOrEmpty($env:GITHUB_ACTIONS)
+
 if ($IsAzurePipelines) {
     $zipRoot = "$env:Agent_TempDirectory"
+}
+elseif ($IsGitHUbAction) {
+    $zipRoot = "$env:RUNNER_TEMP"
 }
 else {
     #Set location of nf-interpreter top-level
@@ -29,6 +35,9 @@ if ([string]::IsNullOrEmpty($Path) -or $force) {
     # check for NF_TOOLS_PATH
     if ($env:NF_TOOLS_PATH) {
         $Path = $env:NF_TOOLS_PATH
+    }
+    elseif ($IsGitHUbAction) {
+        $Path = "$env:RUNNER_TEMP"
     }
     else {
         # use default
@@ -71,8 +80,8 @@ else {
     "Skipping install of hex2dfu" | Write-Host -ForegroundColor Yellow
 }
 
-# set env variable, if not on Azure
-if ($IsAzurePipelines -eq $False) {
+# set env variable, if not on Azure or Github Actions
+if ($IsAzurePipelines -eq $False -and $IsGitHUbAction -eq $False) {
     # need to replace forward slash for paths to work with GCC and CMake
     $Path = "$Path".Replace('\', '/')
 
