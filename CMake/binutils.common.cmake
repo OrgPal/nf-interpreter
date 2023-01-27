@@ -322,12 +322,12 @@ function(nf_generate_build_output_files target)
 
     if(CMAKE_BUILD_TYPE EQUAL "Release" OR CMAKE_BUILD_TYPE EQUAL "MinSizeRel")
 
-        add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
+        # add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
 
-                # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
+        #         # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
+        #         COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
 
-                COMMENT "Generate nanoBooter HEX and BIN files for deployment")
+        #         COMMENT "Generate nanoBooter HEX and BIN files for deployment")
 
     else()
 
