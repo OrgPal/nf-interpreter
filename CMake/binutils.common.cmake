@@ -344,10 +344,10 @@ function(nf_generate_build_output_files target)
 
     endif()
 
-    #nf_add_hex_bin_dump_targets(${target})
+    nf_add_hex_bin_dump_targets(${target})
         
     # add this to print the size of the output targets
-    #nf_print_target_size(${target})
+    nf_print_target_size(${target})
 
 endfunction()
 
