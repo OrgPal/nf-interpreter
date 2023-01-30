@@ -15,11 +15,11 @@ function(nf_add_hex_bin_dump_targets target)
 	#get_filename_component(FNSHORT ${FILENAME} NAME_WE)
 	string(REGEX REPLACE "\\.[^.]*$" "" FNSHORT ${FILENAME})
 
-    # add targets for HEX, BIN and S19 formats with no output so they will always be built
+    # add targets for HEX and BIN formats with no output so they will always be built
     add_custom_target(${target}.hex DEPENDS ${target} COMMAND ${CMAKE_OBJCOPY} -Oihex ${FILENAME} ${FNSHORT}.hex)
-    add_custom_target(${target}.s19 DEPENDS ${target} COMMAND ${CMAKE_OBJCOPY} -Osrec ${FILENAME} ${FNSHORT}.s19)
     add_custom_target(${target}.bin DEPENDS ${target} COMMAND ${CMAKE_OBJCOPY} -Obinary ${FILENAME} ${FNSHORT}.bin)
     add_custom_target(${target}.dump DEPENDS ${target} COMMAND ${CMAKE_OBJDUMP} -d -EL -S ${FILENAME} ${FNSHORT}.dump)
+
 endfunction()
 
 
