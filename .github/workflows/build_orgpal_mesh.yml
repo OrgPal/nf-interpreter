@@ -7,9 +7,6 @@ jobs:
   build_ORGPAL_MESH_NODE:
     runs-on: windows-latest
 
-    env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-
     steps:
     - uses: actions/checkout@v3
       with:
@@ -33,51 +30,29 @@ jobs:
           echo "ARM_NONE_EABI_GCC_PATH=$fixedPath" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
         }
 
+    - name: Rename CMake presets
+      run: |
+        $file = "CMakeUserPresets.json"
+        Rename-Item -Path "CMakeUserPresets.ORGPAL_MESH.json" -NewName $file
+
     - run: nbgv cloud -a -c
 
-    - uses: ashutoshvarma/action-cmake-build@v1
+    - uses: lukka/run-cmake@v10
       with:
-        build-type: MinSizeRel
-        cc: gcc
-        cxx: g++
-        configure-options: >-
-          -G Ninja
-          -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
-          -DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}
-          -DTARGET_BOARD=ORGPAL_MESH_NODE
-          -DTARGET_NAME=ORGPAL_MESH_NODE
-          -DTARGET_SERIES=CC13X2
-          -DRTOS=TI_SimpleLink
-          -DRADIO_FREQUENCY=915
-          -DSUPPORT_ANY_BASE_CONVERSION=OFF
-          -DNF_TARGET_HAS_NANOBOOTER=OFF
-          -DNF_FEATURE_SUPPORT_REFLECTION=OFF
-          -DNF_FEATURE_DEBUGGER=ON
-          -DNF_FEATURE_RTC=ON
-          -DNF_PLATFORM_NO_CLR_TRACE=ON
-          -DNF_CLR_NO_IL_INLINE=ON
-          -DNF_FEATURE_WATCHDOG=OFF
-          -DAPI_System.Device.Gpio=ON
-          -DAPI_System.IO.Ports=ON
-          -DAPI_System.Device.Adc=ON
-          -DAPI_System.Math=OFF
-          -DAPI_nanoFramework.TI.EasyLink=ON
-          -DAPI_nanoFramework.Hardware.TI=ON
-          -DAPI_nanoFramework.System.Text=ON
-        run-test: false
+        configurePreset: 'ORGPAL_MESH_NODE'
+        configurePresetAdditionalArgs: "['-DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}','-DCMAKE_BUILD_TYPE=MinSizeRel']"
+        buildPreset: 'ORGPAL_MESH_NODE'
+        buildPresetAdditionalArgs: "['--config MinSizeRel']"
 
     - uses: actions/upload-artifact@v2
       with:
         name: 'ORGPAL_MESH_NODE-v${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
         path: |
-          ${{ runner.workspace }}/build/*.bin
-          ${{ runner.workspace }}/build/*.hex
+          ${{ github.workspace }}/build/*.bin
+          ${{ github.workspace }}/build/*.hex
 
   build_ORGPAL_MESH_HUB:
     runs-on: windows-latest
-
-    env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
     - uses: actions/checkout@v3
@@ -102,41 +77,23 @@ jobs:
           echo "ARM_NONE_EABI_GCC_PATH=$fixedPath" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
         }
 
+    - name: Rename CMake presets
+      run: |
+        $file = "CMakeUserPresets.json"
+        Rename-Item -Path "CMakeUserPresets.ORGPAL_MESH.json" -NewName $file
+
     - run: nbgv cloud -a -c
 
-    - uses: ashutoshvarma/action-cmake-build@v1
+    - uses: lukka/run-cmake@v10
       with:
-        build-type: MinSizeRel
-        cc: gcc
-        cxx: g++
-        configure-options: >-
-          -G Ninja
-          -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
-          -DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}
-          -DTARGET_BOARD=ORGPAL_MESH_HUB
-          -DTARGET_NAME=ORGPAL_MESH_HUB
-          -DTARGET_SERIES=CC13X2
-          -DRTOS=TI_SimpleLink
-          -DRADIO_FREQUENCY=915
-          -DSUPPORT_ANY_BASE_CONVERSION=OFF
-          -DNF_TARGET_HAS_NANOBOOTER=OFF
-          -DNF_FEATURE_SUPPORT_REFLECTION=OFF
-          -DNF_FEATURE_DEBUGGER=ON
-          -DNF_FEATURE_RTC=ON
-          -DNF_PLATFORM_NO_CLR_TRACE=ON
-          -DNF_CLR_NO_IL_INLINE=ON
-          -DNF_FEATURE_WATCHDOG=OFF
-          -DAPI_System.Device.Gpio=ON
-          -DAPI_System.IO.Ports=ON
-          -DAPI_System.Math=OFF
-          -DAPI_nanoFramework.TI.EasyLink=ON
-          -DAPI_nanoFramework.Hardware.TI=ON
-          -DAPI_nanoFramework.System.Text=ON
-        run-test: false
+        configurePreset: 'ORGPAL_MESH_HUB'
+        configurePresetAdditionalArgs: "['-DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}','-DCMAKE_BUILD_TYPE=MinSizeRel']"
+        buildPreset: 'ORGPAL_MESH_HUB'
+        buildPresetAdditionalArgs: "['--config MinSizeRel']"
 
     - uses: actions/upload-artifact@v2
       with:
         name: 'ORGPAL_MESH_HUB-v${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
         path: |
-          ${{ runner.workspace }}/build/*.bin
-          ${{ runner.workspace }}/build/*.hex
+          ${{ github.workspace }}/build/*.bin
+          ${{ github.workspace }}/build/*.hex
