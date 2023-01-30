@@ -7,19 +7,21 @@ jobs:
   build_ORGPAL_MESH_NODE:
     runs-on: windows-latest
 
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         ref: 'orgpal-mesh'
 
-    - uses: seanmiddleditch/gha-setup-ninja@master
+    - uses: lukka/get-cmake@latest
 
     - name: Install arm-none-eabi-gcc
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '11.3.Rel1'
-        path-env-var: ARM_NONE_EABI_GCC_PATH
+        release: 'latest'
 
     - name: Tweak GCC path
       run: |
@@ -33,10 +35,11 @@ jobs:
 
     - run: nbgv cloud -a -c
 
-    - uses: urkle/action-cmake-build@v1
+    - uses: ashutoshvarma/action-cmake-build@v1
       with:
-        build-dir: ${{ runner.workspace }}/build
         build-type: MinSizeRel
+        cc: gcc
+        cxx: g++
         configure-options: >-
           -G Ninja
           -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
@@ -73,19 +76,21 @@ jobs:
   build_ORGPAL_MESH_HUB:
     runs-on: windows-latest
 
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         ref: 'orgpal-mesh'
 
-    - uses: seanmiddleditch/gha-setup-ninja@master
+    - uses: lukka/get-cmake@latest
 
     - name: Install arm-none-eabi-gcc
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '10.3-2021.10'
-        path-env-var: ARM_NONE_EABI_GCC_PATH
+        release: 'latest'
 
     - name: Tweak GCC path
       run: |
@@ -99,10 +104,11 @@ jobs:
 
     - run: nbgv cloud -a -c
 
-    - uses: urkle/action-cmake-build@v1
+    - uses: ashutoshvarma/action-cmake-build@v1
       with:
-        build-dir: ${{ runner.workspace }}/build
         build-type: MinSizeRel
+        cc: gcc
+        cxx: g++
         configure-options: >-
           -G Ninja
           -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
