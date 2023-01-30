@@ -40,8 +40,6 @@ jobs:
         configure-options: >-
           -G Ninja
           -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
-          -DTOOLCHAIN_PREFIX='${{env.ARM_NONE_EABI_GCC_PATH}}'
-          -DCMAKE_BUILD_TYPE='MinSizeRel'
           -DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}
           -DTARGET_BOARD=ORGPAL_MESH_NODE
           -DTARGET_NAME=ORGPAL_MESH_NODE
@@ -64,7 +62,6 @@ jobs:
           -DAPI_nanoFramework.Hardware.TI=ON
           -DAPI_nanoFramework.System.Text=ON
         run-test: false
-        parallel: 14
 
     - uses: actions/upload-artifact@v2
       with:
@@ -109,8 +106,6 @@ jobs:
         configure-options: >-
           -G Ninja
           -DCMAKE_TOOLCHAIN_FILE=CMake/toolchain.arm-none-eabi.cmake
-          -DTOOLCHAIN_PREFIX='${{env.ARM_NONE_EABI_GCC_PATH}}'
-          -DCMAKE_BUILD_TYPE='MinSizeRel'
           -DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}
           -DTARGET_BOARD=ORGPAL_MESH_HUB
           -DTARGET_NAME=ORGPAL_MESH_HUB
@@ -132,7 +127,6 @@ jobs:
           -DAPI_nanoFramework.Hardware.TI=ON
           -DAPI_nanoFramework.System.Text=ON
         run-test: false
-        parallel: 14
 
     - uses: actions/upload-artifact@v2
       with:
