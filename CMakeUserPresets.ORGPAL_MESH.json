@@ -35,7 +35,8 @@
                 "NF_CLR_NO_IL_INLINE": "ON",
                 "NF_FEATURE_WATCHDOG": "OFF",
                 "API_System.Math": "OFF",
-                "API_System.IO.Ports": "ON"
+                "API_System.IO.Ports": "ON",
+                "API_System.Device.Adc": "ON"
             }
         }
     ],
