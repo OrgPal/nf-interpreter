@@ -316,18 +316,24 @@ function(nf_generate_build_output_files target)
     string(FIND ${target} "." TARGET_EXTENSION_DOT_INDEX)
     string(SUBSTRING ${target} 0 ${TARGET_EXTENSION_DOT_INDEX} TARGET_SHORT)
 
-    set(TARGET_HEX_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.hex)
-    set(TARGET_BIN_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.bin)
-    set(TARGET_DUMP_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.lst)
+    set(TARGET_HEX_FILE ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.hex)
+    set(TARGET_BIN_FILE ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.bin)
+    set(TARGET_DUMP_FILE ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.lst)
 
-    if(CMAKE_BUILD_TYPE EQUAL "Release" OR CMAKE_BUILD_TYPE EQUAL "MinSizeRel")
+    if(CMAKE_BUILD_TYPE MATCHES "Release" OR CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
 
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
 
-                # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
+            # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
+            COMMAND ${CMAKE_OBJCOPY} ${NANOCLR_PROJECT_NAME}.elf ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
+            COMMAND ${CMAKE_OBJCOPY} -Oihex ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf ${TARGET_HEX_FILE}
+            COMMAND ${CMAKE_OBJCOPY} -Obinary ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf ${TARGET_HEX_FILE}
 
-                COMMENT "Generate nanoBooter HEX and BIN files for deployment")
+            BYPRODUCTS 
+                ${TARGET_HEX_FILE} 
+                ${TARGET_BIN_FILE}
+
+            COMMENT "Generate nanoBooter HEX and BIN files for deployment")
 
     else()
 
