@@ -325,6 +325,7 @@ function(nf_generate_build_output_files target)
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
             # copy target image to other formats
             COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
+            
             COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
             COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
 
@@ -337,18 +338,24 @@ function(nf_generate_build_output_files target)
     else()
 
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
-                # copy target image to other formats
-                COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
-                COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
 
-                # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
+            # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
+            COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
 
-                # dump target image as source code listing 
-                # ONLY when DEBUG info is available, this is on 'Debug' and 'RelWithDebInfo'
-                COMMAND ${CMAKE_OBJDUMP} -d -EL -S $<TARGET_FILE:${TARGET_SHORT}.elf> > ${TARGET_DUMP_FILE}
+            # copy target image to other formats
+            COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
+            COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
 
-                COMMENT "Generate nanoBooter HEX and BIN files for deployment, LST file for debug")
+            # dump target image as source code listing 
+            # ONLY when DEBUG info is available, this is on 'Debug' and 'RelWithDebInfo'
+            COMMAND ${CMAKE_OBJDUMP} -d -EL -S $<TARGET_FILE:${TARGET_SHORT}.elf> > ${TARGET_DUMP_FILE}
+
+            BYPRODUCTS 
+                ${TARGET_HEX_FILE} 
+                ${TARGET_BIN_FILE}
+                ${TARGET_DUMP_FILE}
+
+            COMMENT "Generate nanoBooter HEX and BIN files for deployment, LST file for debug")
 
     endif()
         
