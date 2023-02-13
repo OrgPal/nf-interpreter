@@ -1,0 +1,56 @@
+{
+    "version": 4,
+    "include": [
+        "../../../CMake/arm-gcc.json",
+        "../../../config/user-tools-repos.json",
+        "../../../config/user-prefs.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "ORGPAL_MESH_NODE",
+            "inherits": [
+                "arm-gcc-cortex-preset",
+                "user-tools-repos",
+                "user-prefs"
+            ],
+            "hidden": false,
+            "cacheVariables": {
+                "TARGET_BOARD": "ORGPAL_MESH_NODE",
+                "TARGET_NAME": "ORGPAL_MESH_NODE",
+                "RADIO_FREQUENCY": "915",
+                "RTOS": "TI_SimpleLink",
+                "TARGET_SERIES": "CC13X2",
+                "SUPPORT_ANY_BASE_CONVERSION": "OFF",
+                "NF_TARGET_HAS_NANOBOOTER": "OFF",
+                "NF_FEATURE_DEBUGGER": "ON",
+                "NF_FEATURE_WATCHDOG": "OFF",
+                "NF_FEATURE_RTC": "ON",
+                "NF_FEATURE_HAS_SDCARD": "OFF",
+                "NF_BUILD_RTM": "OFF",
+                "NF_FEATURE_SUPPORT_REFLECTION": "OFF",
+                "NF_PLATFORM_NO_CLR_TRACE": "ON",
+                "NF_CLR_NO_IL_INLINE": "ON",
+                "API_System.Math": "OFF",
+                "API_System.Device.Gpio": "ON",
+                "API_System.Device.Spi": "OFF",
+                "API_System.Device.I2c": "OFF",
+                "API_System.Device.Pwm": "OFF",
+                "API_System.Device.Adc": "ON",
+                "API_nanoFramework.ResourceManager": "OFF",
+                "API_nanoFramework.System.Collections": "OFF",
+                "API_nanoFramework.System.Text": "ON",
+                "API_nanoFramework.TI.EasyLink": "ON",
+                "API_nanoFramework.Hardware.TI": "ON",
+                "API_System.IO.Ports": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "inherits": "base-user",
+            "name": "ORGPAL_MESH_NODE",
+            "displayName": "ORGPAL_MESH_NODE",
+            "configurePreset": "ORGPAL_MESH_NODE"
+        }
+    ]
+}
