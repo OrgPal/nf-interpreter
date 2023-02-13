@@ -35,7 +35,7 @@
                 "API_System.Device.Spi": "OFF",
                 "API_System.Device.I2c": "OFF",
                 "API_System.Device.Pwm": "OFF",
-                "API_System.Device.Adc": "ON",
+                "API_System.Device.Adc": "OFF",
                 "API_System.IO.Ports": "ON",
                 "API_nanoFramework.ResourceManager": "OFF",
                 "API_nanoFramework.System.Collections": "OFF",
