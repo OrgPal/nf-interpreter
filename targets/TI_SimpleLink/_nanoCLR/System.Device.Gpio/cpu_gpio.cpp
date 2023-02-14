@@ -10,6 +10,7 @@
 #include <ti/sysbios/knl/Clock.h>
 #include <xdc/runtime/Error.h>
 #include <ti/drivers/gpio/GPIOCC26XX.h>
+#include <ti/drivers/pin/PINCC26XX.h>
 #include <ti/drivers/GPIO.h>
 #include <ti_drivers_config.h>
 
@@ -260,8 +261,10 @@ bool CPU_GPIO_Uninitialize()
     for (uint8_t index = 0; index < GPIO_pinUpperBound + 1; index++)
     {
         // except if the pin is NOT available...
-        // ... or it's reserved for Wire Protocol UART
-        if (gpioPinConfigs[index] == 0 || index == CONFIG_GPIO_UART0_TX_CONST || index == CONFIG_GPIO_UART0_RX_CONST)
+        // ... or it's reserved for Wire Protocol UART...
+        // ... or its configured for wakeup
+        if (gpioPinConfigs[index] == 0 || index == CONFIG_GPIO_UART0_TX_CONST || index == CONFIG_GPIO_UART0_RX_CONST ||
+            gpioPinConfigs[index] == PINCC26XX_BM_WAKEUP)
         {
             continue;
         }

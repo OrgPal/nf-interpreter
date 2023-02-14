@@ -6,6 +6,9 @@
 #include "nf_hardware_ti_native.h"
 #include <nanoCLR_Hardware.h>
 
+// Array of Pin configurations
+extern "C" GPIO_PinConfig gpioPinConfigs[];
+
 // hack required to be able to config wakeup from deep sleep
 // bug introduced in SDK 5.30.01.01.
 // waiting for a proper fix in a future SDK
@@ -79,6 +82,9 @@ HRESULT Library_nf_hardware_ti_native_nanoFramework_Hardware_TI_Power::
                 // grab and set wakeup option
                 wakeupConfigurations[index] |=
                     (Power_PinWakeupEdge)pinWakeupConfig[PinWakeupConfig::FIELD___wakeupConfig].NumericByRef().u4;
+
+                // store this in the pin configuration array
+                gpioPinConfigs[PIN_ID(pinWakeupConfig[PinWakeupConfig::FIELD___pin].NumericByRef().s4)] = PINCC26XX_BM_WAKEUP;
 
                 // move to the next configuration element
                 index++;
