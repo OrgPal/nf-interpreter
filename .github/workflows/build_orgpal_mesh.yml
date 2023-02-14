@@ -55,7 +55,7 @@ jobs:
         buildPreset: 'ORGPAL_MESH_NODE'
         buildPresetAdditionalArgs: "['--config MinSizeRel']"
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: 'ORGPAL_MESH_NODE-v${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
         path: |
