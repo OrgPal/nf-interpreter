@@ -263,8 +263,7 @@ bool CPU_GPIO_Uninitialize()
         // except if the pin is NOT available...
         // ... or it's reserved for Wire Protocol UART...
         // ... or its configured for wakeup
-        if (gpioPinConfigs[index] == 0 || index == CONFIG_GPIO_UART0_TX_CONST || index == CONFIG_GPIO_UART0_RX_CONST ||
-            gpioPinConfigs[index] == PINCC26XX_BM_WAKEUP)
+        if (gpioPinConfigs[index] == 0 || index == CONFIG_GPIO_UART0_TX_CONST || index == CONFIG_GPIO_UART0_RX_CONST)
         {
             continue;
         }
