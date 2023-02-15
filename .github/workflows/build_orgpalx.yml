@@ -56,6 +56,11 @@ jobs:
         $filecontent = Get-Content($file)
         $filecontent -replace  'user-local-tools-cloud', 'user-local-tools' | Out-File $file -Encoding UTF8
 
+    - name: Add dummy CMake presets
+      working-directory: ${{ github.workspace }}/targets-community
+      run: |
+        New-Item -Path . -Name "CMakePresets.json" -ItemType "file" -Value "{`n""version"": 4,`n""include"": []`n}"
+
     - name: Build with CMake
       run: |
         cmake -B build --preset ${{ env.TARGET_NAME }} -DTOOLCHAIN_PREFIX='${{env.ARM_NONE_EABI_GCC_PATH}}' -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_VERSION='${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}' -DTARGET_BOARD=${{ env.TARGET_NAME }} -DTARGET_NAME=${{ env.TARGET_NAME }}

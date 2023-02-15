@@ -46,6 +46,11 @@ jobs:
         attrib $file -r
         $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
 
+    - name: Add dummy CMake presets
+      working-directory: ${{ github.workspace }}/targets-community
+      run: |
+        New-Item -Path . -Name "CMakePresets.json" -ItemType "file" -Value "{`n""version"": 4,`n""include"": []`n}"
+
     - run: nbgv cloud -a -c
 
     - uses: lukka/run-cmake@v10
@@ -103,6 +108,11 @@ jobs:
         $filecontent = Get-Content($file)
         attrib $file -r
         $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
+
+    - name: Add dummy CMake presets
+      working-directory: ${{ github.workspace }}/targets-community
+      run: |
+        New-Item -Path . -Name "CMakePresets.json" -ItemType "file" -Value "{`n""version"": 4,`n""include"": []`n}"
 
     - run: nbgv cloud -a -c
 
