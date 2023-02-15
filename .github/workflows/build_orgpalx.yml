@@ -21,7 +21,7 @@ jobs:
     - name: Install arm-none-eabi-gcc
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '11.3.Rel1'
+        release: '12.2.Rel1'
         path-env-var: ARM_NONE_EABI_GCC_PATH
 
     - name: Tweak GCC path
