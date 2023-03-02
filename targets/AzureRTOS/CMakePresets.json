@@ -3,6 +3,7 @@
     "include": [
         "SiliconLabs/SL_STK3701A/CMakePresets.json",
         "ST/ORGPAL_PALTHREE/CMakePresets.json",
+        "ST/ORGPAL_PALX/CMakePresets.json",
         "ST/ST_B_L475E_IOT01A/CMakePresets.json"
     ]
 }
