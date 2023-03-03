@@ -240,6 +240,10 @@ foreach(SRC_FILE ${CHIBIOS_HAL_SRCS})
 
 endforeach()
 
+# unset this warning as error required for this source file
+set_source_files_properties(${chibios_SOURCE_DIR}/os/hal/src/hal_serial_usb.c PROPERTIES COMPILE_OPTIONS "-Wno-maybe-uninitialized")
+
+
 include(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(ChibiOS_F7_HAL DEFAULT_MSG CHIBIOS_HAL_INCLUDE_DIRS CHIBIOS_HAL_SOURCES)
