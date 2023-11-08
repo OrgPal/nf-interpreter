@@ -107,6 +107,10 @@ CLR_RT_HeapBlock *CLR_RT_HeapCluster::ExtractBlocks(CLR_UINT32 dataType, CLR_UIN
             if (available >= length)
             {
                 res = ptr;
+
+                _ASSERTE((void *)res >= (void *)s_CLR_RT_Heap.m_location);
+                _ASSERTE((void *)res < (void *)(s_CLR_RT_Heap.m_location + s_CLR_RT_Heap.m_size));
+
                 break;
             }
         }
@@ -120,6 +124,11 @@ CLR_RT_HeapBlock *CLR_RT_HeapCluster::ExtractBlocks(CLR_UINT32 dataType, CLR_UIN
 
         available -= length;
 
+        _ASSERTE((void *)next >= (void *)s_CLR_RT_Heap.m_location);
+        _ASSERTE((void *)next < (void *)(s_CLR_RT_Heap.m_location + s_CLR_RT_Heap.m_size));
+        _ASSERTE((void *)prev >= (void *)s_CLR_RT_Heap.m_location);
+        _ASSERTE((void *)prev < (void *)(s_CLR_RT_Heap.m_location + s_CLR_RT_Heap.m_size));
+
         if (available != 0)
         {
             if (flags & CLR_RT_HeapBlock::HB_Event)
@@ -127,10 +136,16 @@ CLR_RT_HeapBlock *CLR_RT_HeapCluster::ExtractBlocks(CLR_UINT32 dataType, CLR_UIN
                 res->SetDataId(CLR_RT_HEAPBLOCK_RAW_ID(DATATYPE_FREEBLOCK, CLR_RT_HeapBlock::HB_Pinned, available));
 
                 res += available;
+
+                _ASSERTE((void *)res >= (void *)s_CLR_RT_Heap.m_location);
+                _ASSERTE((void *)res < (void *)(s_CLR_RT_Heap.m_location + s_CLR_RT_Heap.m_size));
             }
             else
             {
                 CLR_RT_HeapBlock_Node *ptr = &res[length];
+
+                _ASSERTE((void *)ptr >= (void *)s_CLR_RT_Heap.m_location);
+                _ASSERTE((void *)ptr < (void *)(s_CLR_RT_Heap.m_location + s_CLR_RT_Heap.m_size));
 
                 //
                 // Relink to the new free block.
@@ -199,10 +214,6 @@ void CLR_RT_HeapCluster::RecoverFromGC()
             {
                 ValidateBlock(next);
 
-#if defined(NANOCLR_PROFILE_NEW_ALLOCATIONS)
-                g_CLR_PRF_Profiler.TrackObjectDeletion(next);
-#endif
-
                 NANOCLR_CHECK_EARLY_COLLECTION(next);
 
                 int len = next->DataSize();
@@ -215,6 +226,9 @@ void CLR_RT_HeapCluster::RecoverFromGC()
 
             } while (next < end && next->IsAlive() == false);
 
+#if defined(NANOCLR_PROFILE_NEW_ALLOCATIONS)
+            g_CLR_PRF_Profiler.TrackObjectDeletion(ptr);
+#endif
             ptr->SetDataId(CLR_RT_HEAPBLOCK_RAW_ID(DATATYPE_FREEBLOCK, CLR_RT_HeapBlock::HB_Pinned, lenTot));
 
             //
@@ -231,9 +245,16 @@ void CLR_RT_HeapCluster::RecoverFromGC()
         else
         {
             if (ptr->IsEvent() == false)
+            {
                 ptr->MarkDead();
+            }
 
-            ptr += ptr->DataSize();
+            int len = ptr->DataSize();
+
+            // length of the block can not be 0, so something very wrong happened
+            _ASSERTE(len > 0);
+
+            ptr += len;
         }
     }
 
