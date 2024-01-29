@@ -56,8 +56,8 @@ jobs:
         $file = "user-prefs.json"
         Rename-Item -Path "user-prefs.TEMPLATE.json" -NewName $file
         
-        # $filecontent = Get-Content($file)
-        # attrib $file -r
+        $filecontent = Get-Content($file)
+        attrib $file -r
         $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
 
     - name: Add dummy CMake presets
