@@ -58,7 +58,7 @@ jobs:
         
         # $filecontent = Get-Content($file)
         # attrib $file -r
-        # $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
+        $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
 
     - name: Add dummy CMake presets
       working-directory: ${{ github.workspace }}/targets-community
