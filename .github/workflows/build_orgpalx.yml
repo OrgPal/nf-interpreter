@@ -56,9 +56,9 @@ jobs:
         $file = "user-prefs.json"
         Rename-Item -Path "user-prefs.TEMPLATE.json" -NewName $file
         
-        # $filecontent = Get-Content($file)
-        # attrib $file -r
-        # $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
+        $filecontent = Get-Content($file)
+        attrib $file -r
+        $filecontent -replace  'Debug', 'MinSizeRel' | Out-File $file -Encoding UTF8
 
     - name: Add dummy CMake presets
       working-directory: ${{ github.workspace }}/targets-community
@@ -68,9 +68,9 @@ jobs:
     - uses: lukka/run-cmake@v10
       with:
         configurePreset: ${{ env.TARGET_NAME }}
-        configurePresetAdditionalArgs: "['-DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}','-DCMAKE_BUILD_TYPE=Debug','-DTOOL_HEX2DFU_PREFIX=${{ env.HEX2DFU_PATH }}']"
+        configurePresetAdditionalArgs: "['-DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}','-DCMAKE_BUILD_TYPE=MinSizeRel','-DTOOL_HEX2DFU_PREFIX=${{ env.HEX2DFU_PATH }}']"
         buildPreset: ${{ env.TARGET_NAME }}
-        buildPresetAdditionalArgs: "['--config Debug']"
+        buildPresetAdditionalArgs: "['--config MinSizeRel']"
 
     - uses: actions/upload-artifact@v2
       with:
