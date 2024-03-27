@@ -125,6 +125,7 @@ macro(nf_add_platform_dependencies target)
                 ${CHIBIOS_HAL_INCLUDE_DIRS}
                 ${ChibiOSnfOverlay_INCLUDE_DIRS}
                 ${CHIBIOS_CONTRIB_INCLUDE_DIRS}
+                ${CHIBIOS_FATFS_INCLUDE_DIRS}
                 ${TARGET_CHIBIOS_COMMON_INCLUDE_DIRS}
                 ${TARGET_CHIBIOS_NANOCLR_INCLUDE_DIRS}
                 ${chibios_SOURCE_DIR}/os/hal/boards/${TARGET_BOARD})
@@ -137,6 +138,7 @@ macro(nf_add_platform_dependencies target)
                 ${CHIBIOS_HAL_INCLUDE_DIRS}
                 ${ChibiOSnfOverlay_INCLUDE_DIRS}
                 ${CHIBIOS_CONTRIB_INCLUDE_DIRS}
+                ${CHIBIOS_FATFS_INCLUDE_DIRS}
                 ${TARGET_CHIBIOS_COMMON_INCLUDE_DIRS}
                 ${TARGET_CHIBIOS_NANOCLR_INCLUDE_DIRS}
                 ${chibios_SOURCE_DIR}/os/hal/boards/${TARGET_BOARD})
@@ -151,6 +153,7 @@ macro(nf_add_platform_dependencies target)
                     ${CHIBIOS_HAL_INCLUDE_DIRS}
                     ${ChibiOSnfOverlay_INCLUDE_DIRS}
                     ${CHIBIOS_CONTRIB_INCLUDE_DIRS}
+                    ${CHIBIOS_FATFS_INCLUDE_DIRS}
                     ${lWIP_INCLUDE_DIRS}
                     ${TARGET_CHIBIOS_COMMON_INCLUDE_DIRS}
                     ${TARGET_CHIBIOS_NANOCLR_INCLUDE_DIRS}
@@ -200,6 +203,7 @@ macro(nf_add_platform_dependencies target)
                     ${TARGET_CHIBIOS_NANOCLR_INCLUDE_DIRS}
                     ${lWIP_INCLUDE_DIRS}
                     ${ChibiOSnfOverlay_INCLUDE_DIRS}
+                    ${CHIBIOS_FATFS_INCLUDE_DIRS}
                     ${CHIBIOS_CONTRIB_INCLUDE_DIRS}
                     ${${TARGET_STM32_CUBE_PACKAGE}_CubePackage_INCLUDE_DIRS}
                 EXTRA_COMPILE_DEFINITIONS -DHAL_USE_MAC=TRUE)
@@ -231,6 +235,8 @@ macro(nf_add_platform_include_directories target)
         ${TARGET_CMSIS_COMMON_INCLUDE_DIRS}
         ${TARGET_CHIBIOS_COMMON_INCLUDE_DIRS}
         ${lWIP_INCLUDE_DIRS}
+        ${SPIFFS_INCLUDE_DIRS}
+
     )
     
     # includes specific to nanoBooter
@@ -239,7 +245,6 @@ macro(nf_add_platform_include_directories target)
         target_include_directories(${target}.elf PUBLIC
 
             ${TARGET_CHIBIOS_NANOBOOTER_INCLUDE_DIRS}
-    
         )
 
     endif()
