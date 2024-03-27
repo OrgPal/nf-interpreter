@@ -13,60 +13,6 @@
 // need to define how many SPIFFS instances we'll be running
 #define SPIFFS_INSTANCES_COUNT 1
 
-//////////////////////////////////
-// defines specific for SPI1 drive
-#ifdef SPIFFS_SPI1
-
-// timeout for flash operation (4s)
-// max timing for write & erase operations (except chip erase)
-#define HAL_SPI_TIMEOUT_DEFAULT_VALUE ((uint32_t)4000)
-
-#define AT25SF641_FLASH_SIZE     0x800000 /* 64 Mbits => 8 MByte */
-#define AT25SF641_SECTOR_SIZE    0x10000  /* 128 sectors of 64kBytes */
-#define AT25SF641_SUBSECTOR_SIZE 0x1000   /* 2048 subsectors of 4kBytes */
-#define AT25SF641_PAGE_SIZE      0x100    /* 32768 pages of 256 bytes */
-
-// AT25SF641 Commands
-#define READ_CMD        0x03
-#define BLOCK_ERASE_CMD 0xD8
-
-// Program Operations
-#define PAGE_PROG_CMD     0x02
-#define WRITE_ENABLE_CMD  0x06
-#define WRITE_DISABLE_CMD 0x04
-
-// Register Operations
-#define READ_STATUS_REG1_CMD  0x05
-#define WRITE_STATUS_REG1_CMD 0x01
-#define READ_STATUS_REG2_CMD  0x35
-#define WRITE_STATUS_REG2_CMD 0x31
-
-// Erase Operations
-#define SUBSECTOR_ERASE_CMD 0x20
-#define SECTOR_ERASE_CMD    0xD8
-#define BULK_ERASE_CMD      0xC7
-#define READ_ID_CMD         0x90
-#define READ_ID_CMD2        0x9F
-
-// power commands
-#define RESUME_DEEP_PD_CMD  0xAB
-#define DEEP_POWER_DOWN_CMD 0xB9
-
-// IDs
-#define AT25SF641_MANUFACTURER_ID ((uint8_t)0x1F)
-#define AT25SF641_DEVICE_ID1      ((uint8_t)0x32)
-#define AT25SF641_DEVICE_ID2      ((uint8_t)0x17)
-
-// Status Register 1
-#define AT25SF641_SR_BUSY ((uint8_t)0x01)
-
-////////////////////////////////
-// remapping into SPIFFS defines
-#define SPIFFS0_TOTAL_SIZE         AT25SF641_FLASH_SIZE
-#define SPIFFS0_ERASE_BLOCK_SIZE   AT25SF641_SECTOR_SIZE
-#define SPIFFS0_LOGICAL_BLOCK_SIZE (64 * 1024)
-
-#endif // SPIFFS_SPI1
 
 //////////////////////////////////
 // defines specific for QSPI drive
