@@ -485,7 +485,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::ReadLine___STRING(
     {
         // check if there is a full line available to read
         GLOBAL_LOCK();
-        newLineFound = GetLineFromRxBuffer(pThis, &(palUart->RxRingBuffer), line;
+        newLineFound = GetLineFromRxBuffer(pThis, &(palUart->RxRingBuffer), line);
         GLOBAL_UNLOCK();
 
         if (newLineFound)
