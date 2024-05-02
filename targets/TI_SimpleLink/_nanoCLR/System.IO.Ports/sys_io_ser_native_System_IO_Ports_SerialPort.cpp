@@ -127,14 +127,12 @@ void SerialRxTask(UArg a0, UArg a1)
     size_t bufferIndex = 0;
     uint8_t input;
     size_t bytesRead;
-    bool watchCharFound = false;
     int_fast16_t status = 1;
 
     NF_PAL_UART *palUart = GetPalUartFromUartNum((int)a0);
 
     while (1)
     {
-
         status = UART2_read(palUart->UartDriver, &input, 1, &bytesRead);
 
         if (status == UART2_STATUS_SUCCESS)
@@ -151,7 +149,7 @@ void SerialRxTask(UArg a0, UArg a1)
                 // yes
                 // check if the requested bytes are available in the buffer...
                 //... or if the watch char was received
-                if (palUart->RxRingBuffer.Length() >= palUart->RxBytesToRead || watchCharFound)
+                if (palUart->RxRingBuffer.Length() >= palUart->RxBytesToRead || (input == palUart->WatchChar))
                 {
                     // reset Rx bytes to read count
                     palUart->RxBytesToRead = 0;
