@@ -24,7 +24,7 @@
                     "text": "file <path-to-the-repo-root-mind-the-forward-slash>/build/nanoBooter.elf"
                 },
                 {
-                    "text": "set output-radix 16",
+                    "text": "--set output-radix 16--",
                     "description": "set the default numeric base to 16",
                     "ignoreFailures": false
                 }
@@ -75,7 +75,7 @@
                     "text": "file <path-to-the-repo-root-mind-the-forward-slash>/build/nanoCLR.elf"
                 },
                 {
-                    "text": "set output-radix 16",
+                    "text": "<set output-radix 16>",
                     "description": "set the default numeric base to 16",
                     "ignoreFailures": false
                 }
