@@ -96,9 +96,6 @@ INCLUDE rules_stacks.ld
 /* RAM region to be used for nocache segment.*/
 REGION_ALIAS("NOCACHE_RAM", ram3);
 
-/* RAM region to be used for eth segment.*/
-REGION_ALIAS("ETH_RAM", ram3);
-
 SECTIONS
 {
     /* Special section for non cache-able areas.*/
@@ -111,17 +108,6 @@ SECTIONS
         . = ALIGN(4);
         __nocache_end__ = .;
     } > NOCACHE_RAM
-
-    /* Special section for Ethernet DMA non cache-able areas.*/
-    .eth (NOLOAD) : ALIGN(4)
-    {
-        __eth_base__ = .;
-        *(.eth)
-        *(.eth.*)
-        *(.bss.__eth_*)
-        . = ALIGN(4);
-        __eth_end__ = .;
-    } > ETH_RAM
 }
 
 /* Code rules inclusion.*/

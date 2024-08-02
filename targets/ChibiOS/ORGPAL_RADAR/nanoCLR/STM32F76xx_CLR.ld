@@ -36,7 +36,6 @@ MEMORY
     ram5       (wx) : org = 0x40024000, len = 4k                        /* BCKP SRAM */
     ram6       (wx) : org = 0x00000000, len = 0
     ram7       (wx) : org = 0x00000000, len = 0
-    ext_ram    (wx) : org = 0xD0000000, len = 8M                        /* external SDRAM */
     bootclpbrd (wx) : org = 0x20000000, len = 48                        /* boot clipboard area */
 }
 
@@ -100,9 +99,6 @@ INCLUDE rules_stacks.ld
 /* RAM region to be used for nocache segment.*/
 REGION_ALIAS("NOCACHE_RAM", ram3);
 
-/* RAM region to be used for eth segment.*/
-REGION_ALIAS("ETH_RAM", ram3);
-
 SECTIONS
 {
     /* Special section for non cache-able areas.*/
@@ -115,17 +111,6 @@ SECTIONS
         . = ALIGN(4);
         __nocache_end__ = .;
     } > NOCACHE_RAM
-
-    /* Special section for Ethernet DMA non cache-able areas.*/
-    .eth (NOLOAD) : ALIGN(4)
-    {
-        __eth_base__ = .;
-        *(.eth)
-        *(.eth.*)
-        *(.bss.__eth_*)
-        . = ALIGN(4);
-        __eth_end__ = .;
-    } > ETH_RAM
 }
 
 /* Code rules inclusion.*/
