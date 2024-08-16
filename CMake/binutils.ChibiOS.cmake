@@ -166,11 +166,20 @@ macro(nf_add_platform_dependencies target)
         if(API_nanoFramework.System.Security.Cryptography)
             FetchContent_GetProperties(mbedtls)
         endif()
+
+        if(API_System.Device.Acconeer.Distance)
+            FetchContent_GetProperties(acconeer)
+
+            message("acconeer_SOURCES: ${acconeer_SOURCES}")
+
+        endif()
     
         nf_add_lib_native_assemblies(
             EXTRA_SOURCES
                 ${CHIBIOS_FATFS_SOURCES}
                 ${littlefs_SOURCES}
+                ${acconeer_SOURCES}
+                
             EXTRA_INCLUDES
                 ${CHIBIOS_INCLUDE_DIRS}
                 ${CHIBIOS_HAL_INCLUDE_DIRS}
@@ -184,6 +193,8 @@ macro(nf_add_platform_dependencies target)
                 ${TARGET_CHIBIOS_NANOCLR_INCLUDE_DIRS}
                 ${chibios_SOURCE_DIR}/os/hal/boards/${TARGET_BOARD}
                 ${mbedtls_SOURCE_DIR}/include
+                ${acconeer_SOURCE_DIR}/rss/include
+                ${acconeer_SOURCE_DIR}/integration
                 ${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS)
         
         add_dependencies(${target}.elf nano::NF_NativeAssemblies)

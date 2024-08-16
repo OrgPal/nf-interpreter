@@ -8,6 +8,7 @@ include(binutils.common)
 include(binutils.arm-none-eabi)
 include(binutils.ChibiOS)
 include(STM32_CubePackage)
+include(acconeer)
 
 # Set target series
 nf_set_stm32_target_series()
@@ -221,6 +222,13 @@ endif()
 if(USE_SECURITY_MBEDTLS_OPTION OR NF_REQUIRES_MBEDTLS)
 
     nf_add_mbedtls_library()
+
+endif()
+
+# if Mbed TLS is enabled add it to the build
+if(API_System.Device.Acconeer.Distance)
+
+    nf_add_acconner_library()
 
 endif()
 

@@ -447,6 +447,14 @@ macro(nf_include_libraries_in_build target)
         # this one has to be at the very end of the list to keep the linker happy
         set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,--whole-archive -lgcc -Wl,--no-whole-archive ")
 
+        if(API_System.Device.Acconeer.Distance)
+            FetchContent_GetProperties(acconeer)
+
+            set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,--whole-archive -L${acconeer_SOURCE_DIR}/rss/lib -lacconeer_a121 -Wl,--no-whole-archive ")
+            set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,--whole-archive -L${acconeer_SOURCE_DIR}/rss/lib -lacc_detector_distance_a121 -Wl,--no-whole-archive ")
+
+        endif()
+
     endif()
 
 endmacro()

@@ -52,6 +52,10 @@ option(API_nanoFramework.Hardware.TI                    "option for nanoFramewor
 option(API_nanoFramework.GiantGecko.Adc                 "option for nanoFramework.GiantGecko.Adc")
 option(API_Hardware.GiantGecko                          "option for Hardware.GiantGecko")
 
+# Acconeer
+option(API_System.Device.Acconeer                       "option for System.Device.Acconeer API")
+option(API_System.Device.Acconeer.Distance              "option for System.Device.Acconeer.Distance API")
+
 ###################################
 # add options for private APIs here
 
@@ -398,6 +402,21 @@ endif()
 if(API_Windows.Storage)
     ##### API name here (doted name)
     PerformSettingsForApiEntry("Windows.Storage")
+endif()
+
+# System.Device.Acconeer.Distance
+if(API_System.Device.Acconeer.Distance)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("System.Device.Acconeer.Distance")
+
+    # require the Acconeer API
+    set(API_System.Device.Acconeer TRUE CACHE BOOL "Enable System.Device.Acconeer API" FORCE)
+endif()
+
+# System.Device.Acconeer
+if(API_System.Device.Acconeer)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("System.Device.Acconeer")
 endif()
 
 # Interop assemblies

@@ -1,0 +1,54 @@
+//
+// Copyright (c) .NET Foundation and Contributors
+// See LICENSE file in the project root for full license information.
+//
+
+#include "sys_dev_acconeer_distance.h"
+
+// clang-format off
+
+static const CLR_RT_MethodHandler method_lookup[] =
+{
+    NULL,
+    NULL,
+    Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::Calibrate___BOOLEAN,
+    Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::GetMeasurement___SystemDeviceAcconeerDistanceDistanceResult,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+};
+
+const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer_Distance =
+{
+    "System.Device.Acconeer.Distance",
+    0x71A07E66,
+    method_lookup,
+    { 100, 0, 0, 1 }
+};
+
+// clang-format on
