@@ -103,7 +103,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     {
         NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
     }
-    
+
     do
     {
         if (!acc_detector_distance_prepare(
@@ -147,7 +147,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     } while (!resultAvailable);
 
     // got here, so we have a valid distance result
-    NANOCLR_CHECK_HRESULT(ComposeDistanceResult(detectorDistanceResult, stack.TopValue(), pThis[FIELD___configuration]));
+    NANOCLR_CHECK_HRESULT(
+        ComposeDistanceResult(detectorDistanceResult, stack.TopValue(), pThis[FIELD___configuration]));
 
     NANOCLR_CLEANUP();
 
@@ -395,8 +396,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::ComposeDistanceResult(
     acc_detector_distance_result_t *result,
     CLR_RT_HeapBlock &distanceResultRef,
-    CLR_RT_HeapBlock &distanceConfigRef
-    )
+    CLR_RT_HeapBlock &distanceConfigRef)
 {
     NANOCLR_HEADER();
 
@@ -424,7 +424,10 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     // copy over the distances array
     arrayRef = distanceResult[DistanceResult::FIELD___distances].DereferenceArray();
-    memcpy(arrayRef->GetFirstElement(), result->distances, ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES * sizeof(float));
+    memcpy(
+        arrayRef->GetFirstElement(),
+        result->distances,
+        ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES * sizeof(float));
 
     // set the strengths array
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
@@ -434,7 +437,10 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     // copy over the strengths array
     arrayRef = distanceResult[DistanceResult::FIELD___strengths].DereferenceArray();
-    memcpy(arrayRef->GetFirstElement(), result->strengths, ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES * sizeof(float));
+    memcpy(
+        arrayRef->GetFirstElement(),
+        result->strengths,
+        ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES * sizeof(float));
 
     distanceResult[DistanceResult::FIELD___nearStartEdge].NumericByRef().u1 = result->near_start_edge_status;
     distanceResult[DistanceResult::FIELD___calibrationNeeded].NumericByRef().u1 = result->calibration_needed;
