@@ -21,7 +21,7 @@ function(nf_add_acconner_library)
         # add extra source files
         set(acconeer_SOURCES
 
-            ${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/platform_acc_hal_integration.c
+            ${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/targetHAL_acc_integration.c
             ${TARGET_BASE_LOCATION}/target_system_device_acconeer.cpp
         )
 
