@@ -85,17 +85,17 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     accSensor = Sensor::GetAccSensor(sensorId);
 
     // get the calibration buffers
-    calibrationResultBuffer = pThis[Sensor::FIELD___calibration].DereferenceArray();
+    calibrationResultBuffer = sensor[Sensor::FIELD___calibration].DereferenceArray();
     calibrationResult = (acc_cal_result_t *)calibrationResultBuffer->GetFirstElement();
 
     staticCalibrationBuffer = pThis[FIELD___staticCalibration].DereferenceArray();
     dynamicCalibrationBuffer = pThis[FIELD___dynamicCalibration].DereferenceArray();
     dynamicCalibrationResult = (acc_detector_cal_result_dynamic_t *)dynamicCalibrationBuffer->GetFirstElement();
 
-    interruptPin = (GPIO_PIN)pThis[Sensor::FIELD___interruptPinNumber].NumericByRef().s4;
+    interruptPin = (GPIO_PIN)sensor[Sensor::FIELD___interruptPinNumber].NumericByRef().s4;
 
     // create buffer for operation
-    bufferSize = pThis[Sensor::FIELD___workBufferLength].NumericByRef().u4;
+    bufferSize = sensor[Sensor::FIELD___workBufferLength].NumericByRef().u4;
 
     buffer = (uint8_t *)platform_malloc(bufferSize);
 
@@ -296,20 +296,20 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     accSensor = Sensor::GetAccSensor(sensorId);
 
     // get the calibration buffers
-    calibrationResultBuffer = pThis[Sensor::FIELD___calibration].DereferenceArray();
+    calibrationResultBuffer = sensor[Sensor::FIELD___calibration].DereferenceArray();
     calibrationResult = (acc_cal_result_t *)calibrationResultBuffer->GetFirstElement();
 
     staticCalibrationBuffer = pThis[FIELD___staticCalibration].DereferenceArray();
     dynamicCalibrationBuffer = pThis[FIELD___dynamicCalibration].DereferenceArray();
     dynamicCalibrationResult = (acc_detector_cal_result_dynamic_t *)dynamicCalibrationBuffer->GetFirstElement();
 
-    interruptPin = (GPIO_PIN)pThis[Sensor::FIELD___interruptPinNumber].NumericByRef().s4;
+    interruptPin = (GPIO_PIN)sensor[Sensor::FIELD___interruptPinNumber].NumericByRef().s4;
 
     // get the initial calibration done flag
     initialCalibrationDone = pThis[FIELD___initialCalibrationDone].NumericByRef().u1;
 
     // create buffer for calibration
-    bufferSize = pThis[Sensor::FIELD___workBufferLength].NumericByRef().u4;
+    bufferSize = sensor[Sensor::FIELD___workBufferLength].NumericByRef().u4;
 
     buffer = (uint8_t *)platform_malloc(bufferSize);
 
