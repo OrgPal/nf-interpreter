@@ -10,6 +10,7 @@
 #include <nanoCLR_Runtime.h>
 #include <nanoPackStruct.h>
 #include <corlib_native.h>
+#include <sys_dev_spi_native.h>
 
 #include <target_system_device_acconeer_config.h>
 
@@ -56,6 +57,9 @@ struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
     //--//
 
     static acc_sensor_t *GetAccSensor(uint32_t sensorId);
+    static uint32_t GetSpiHandleForAccSensor(uint32_t sensorId);
+    static int32_t GetTargetSpiCSLine(uint32_t sensorId);
+    static bool GetTargetSpiCSActiveState(uint32_t sensorId);
 };
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer;

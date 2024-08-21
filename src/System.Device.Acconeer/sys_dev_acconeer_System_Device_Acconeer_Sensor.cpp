@@ -4,17 +4,42 @@
 //
 
 #include "sys_dev_acconeer.h"
-#include <sys_dev_spi_native.h>
 
 typedef Library_sys_dev_spi_native_System_Device_Spi_SpiConnectionSettings SpiConnectionSettings;
 typedef Library_sys_dev_spi_native_System_Device_Spi_SpiDevice SpiDevice;
+typedef Library_sys_dev_acconeer_System_Device_Acconeer_Sensor Sensor;
 
 // sensor reservation: 1 bit per sensor, 0 indexed, 0 = not reserved, 1 = reserved
 static uint8_t sensorReserved;
 
 static acc_sensor_t *accSensors[ACC_SENSOR_MAX_COUNT];
+static uint32_t spiHandles[ACC_SENSOR_MAX_COUNT];
 
 // helper methods
+
+void nanoACC_HAL_Initialize()
+{
+    // initialize sensor reservation
+    sensorReserved = 0;
+
+    // initialize sensor instances
+    for (int i = 0; i < ACC_SENSOR_MAX_COUNT; i++)
+    {
+        accSensors[i] = NULL;
+    }
+}
+
+void nanoACC_HAL_Uninitialize()
+{
+    // destroy sensor instances
+    for (int i = 0; i < ACC_SENSOR_MAX_COUNT; i++)
+    {
+        if (accSensors[i] != NULL)
+        {
+            acc_sensor_destroy(accSensors[i]);
+        }
+    }
+}
 
 static uint32_t GetTargetSpiBusId(uint32_t sensorId)
 {
@@ -31,44 +56,6 @@ static uint32_t GetTargetSpiBusId(uint32_t sensorId)
 
         default:
             return 99;
-    }
-}
-
-static uint32_t GetTargetSpiCSLine(uint32_t sensorId)
-{
-    switch (sensorId)
-    {
-#ifdef ACCONEER_SENSOR_0_CS
-        case 0:
-            return ACCONEER_SENSOR_0_CS;
-#endif
-#ifdef ACCONEER_SENSOR_1_CS
-        case 1:
-            return ACCONEER_SENSOR_1_CS;
-#endif
-
-        default:
-            // this needs to be a valid GPIO pin
-            _ASSERTE(FALSE);
-            return 99;
-    }
-}
-
-static bool GetTargetSpiCSActiveState(uint32_t sensorId)
-{
-    switch (sensorId)
-    {
-#ifdef ACCONEER_SENSOR_0_CS_ACTIVE_STATE
-        case 0:
-            return ACCONEER_SENSOR_0_CS_ACTIVE_STATE;
-#endif
-#ifdef ACCONEER_SENSOR_1_CS_ACTIVE_STATE
-        case 1:
-            return ACCONEER_SENSOR_1_CS_ACTIVE_STATE;
-#endif
-        // default to CS active low
-        default:
-            return false;
     }
 }
 
@@ -135,9 +122,10 @@ static SPI_DEVICE_CONFIGURATION GetDefaultSpiConfig(uint32_t sensorId)
 {
     SPI_DEVICE_CONFIGURATION spiConfig;
 
-    spiConfig.Spi_Bus = GetTargetSpiBusId(sensorId);
-    spiConfig.DeviceChipSelect = GetTargetSpiCSLine(sensorId);
-    spiConfig.ChipSelectActiveState = GetTargetSpiCSActiveState(sensorId);
+    // internally SPI bus ID is zero based, so better take care of that here
+    spiConfig.Spi_Bus = GetTargetSpiBusId(sensorId) - 1;
+    spiConfig.DeviceChipSelect = Sensor::GetTargetSpiCSLine(sensorId);
+    spiConfig.ChipSelectActiveState = Sensor::GetTargetSpiCSActiveState(sensorId);
     spiConfig.Clock_RateHz = GetTargetSpiClock(sensorId);
     spiConfig.DataOrder16 = DataBitOrder_MSB;
     spiConfig.BusMode = SpiBusMode_master;
@@ -324,7 +312,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
         NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
     }
 
-    CPU_GPIO_EnableOutputPin(enablePin, GpioPinValue_Low, PinMode_Output);
+    CPU_GPIO_EnableOutputPin(enablePin, GpioPinValue_High, PinMode_Output);
 
     // interrupt pin
     interruptPin = (GPIO_PIN)pThis[FIELD___interruptPinNumber].NumericByRef().s4;
@@ -337,6 +325,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
 
     // store the SPI handle in the instance field
     spiDevice[SpiDevice::FIELD___deviceId].NumericByRef().s4 = handle;
+    spiHandles[sensorId] = handle;
 
     // register HALL driver, if not already done
     if (sensorReserved == 0)
@@ -346,6 +335,10 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
     }
+
+    // power on and enable sensor
+    acc_nano_hal_sensor_supply_on(sensorId);
+    acc_nano_hal_sensor_enable(sensorId);
 
     // create sensor instance
     accSensors[sensorId] = NULL;
@@ -369,6 +362,9 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
 
     // ... and store it in the instance field
     pThis[FIELD___sensorId].NumericByRef().u4 = sensorId;
+
+    // set sensor enable state to true
+    pThis[FIELD___enabled].NumericByRef().u1 = true;
 
     // return device handle
     stack.SetResult_I4(handle);
@@ -455,4 +451,53 @@ acc_sensor_t *Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::GetAccSens
     }
 
     return accSensors[sensorId];
+}
+
+uint32_t Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::GetSpiHandleForAccSensor(uint32_t sensorId)
+{
+    // sanity check for sensor ID
+    if (sensorId >= ACC_SENSOR_MAX_COUNT)
+    {
+        return 0;
+    }
+
+    return spiHandles[sensorId];
+}
+
+int32_t Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::GetTargetSpiCSLine(uint32_t sensorId)
+{
+    switch (sensorId)
+    {
+#ifdef ACCONEER_SENSOR_0_CS
+        case 0:
+            return ACCONEER_SENSOR_0_CS;
+#endif
+#ifdef ACCONEER_SENSOR_1_CS
+        case 1:
+            return ACCONEER_SENSOR_1_CS;
+#endif
+
+        default:
+            // this needs to be a valid GPIO pin
+            _ASSERTE(FALSE);
+            return 99;
+    }
+}
+
+bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::GetTargetSpiCSActiveState(uint32_t sensorId)
+{
+    switch (sensorId)
+    {
+#ifdef ACCONEER_SENSOR_0_CS_ACTIVE_STATE
+        case 0:
+            return ACCONEER_SENSOR_0_CS_ACTIVE_STATE;
+#endif
+#ifdef ACCONEER_SENSOR_1_CS_ACTIVE_STATE
+        case 1:
+            return ACCONEER_SENSOR_1_CS_ACTIVE_STATE;
+#endif
+        // default to CS active low
+        default:
+            return false;
+    }
 }

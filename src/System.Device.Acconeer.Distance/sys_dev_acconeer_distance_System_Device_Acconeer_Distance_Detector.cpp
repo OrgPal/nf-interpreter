@@ -11,14 +11,6 @@ typedef Library_sys_dev_acconeer_System_Device_Acconeer_Sensor Sensor;
 static acc_detector_distance_handle_t *accDetectors[ACC_SENSOR_MAX_COUNT];
 static acc_detector_distance_config_t *accDistanceConfig[ACC_SENSOR_MAX_COUNT];
 
-// static acc_detector_distance_config_t *ComposeDistanceConfig(CLR_RT_HeapBlock *distanceConfig)
-// {
-//     acc_detector_distance_config_t *config = NULL;
-
-// config
-
-//     return config;
-// }
 static void SetDistanceConfig(acc_detector_distance_config_t *config, CLR_RT_HeapBlock *distanceConfig)
 {
     acc_detector_distance_config_start_set(
