@@ -67,6 +67,11 @@ struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detecto
     NANOCLR_NATIVE_DECLARE(NativeUpdateCalibration___BOOLEAN);
 
     //--//
+
+    static HRESULT ComposeDistanceResult(
+        acc_detector_distance_result_t *result,
+        CLR_RT_HeapBlock &distanceResult,
+        CLR_RT_HeapBlock &distanceConfigRef);
 };
 
 struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_DistanceConfiguration
