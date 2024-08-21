@@ -17,7 +17,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibration___BOOLEAN__I4,
-    Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4__U4__BOOLEAN,
+    Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOID__U4__BOOLEAN,
     Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeDeInit___VOID,
     Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeSetEnable___VOID__BOOLEAN,
 };
@@ -25,7 +25,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer =
 {
     "System.Device.Acconeer",
-    0x3B4B464E,
+    0x5E99B092,
     method_lookup,
     { 100, 0, 0, 1 }
 };

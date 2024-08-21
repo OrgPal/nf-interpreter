@@ -221,7 +221,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
     NANOCLR_CLEANUP_END();
 }
 
-HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4__U4__BOOLEAN(CLR_RT_StackFrame &stack)
+HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOID__U4__BOOLEAN(CLR_RT_StackFrame &stack)
 {
     NANOCLR_HEADER();
 
@@ -323,8 +323,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
 
     CPU_GPIO_EnableInputPin(interruptPin, 0, NULL, NULL, GPIO_INT_LEVEL_LOW, PinMode_Input);
 
-    // store the SPI handle in the instance field
-    spiDevice[SpiDevice::FIELD___deviceId].NumericByRef().s4 = handle;
+    // store the SPI handle
     spiHandles[sensorId] = handle;
 
     // register HALL driver, if not already done
@@ -366,9 +365,6 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
     // set sensor enable state to true
     pThis[FIELD___enabled].NumericByRef().u1 = true;
 
-    // return device handle
-    stack.SetResult_I4(handle);
-
     NANOCLR_CLEANUP();
 
     // destroy sensor in case of failure, only possible if we already have a sensor ID
@@ -395,6 +391,9 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeDeInit___V
 
     // destroy the sensor instance
     acc_sensor_destroy(accSensors[sensorId]);
+
+    // clear handle
+    spiHandles[sensorId] = 0;
 
     // clear the reservation for this sensor ID
     sensorReserved &= ~(1 << sensorId);

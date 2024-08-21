@@ -39,18 +39,17 @@ extern "C"
 
 struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
 {
-    static const int FIELD___spiHandle = 1;
-    static const int FIELD___calibration = 2;
-    static const int FIELD___disposedValue = 3;
-    static const int FIELD___enabled = 4;
-    static const int FIELD___workBufferLength = 5;
-    static const int FIELD___sensorId = 6;
-    static const int FIELD___spiDevice = 7;
-    static const int FIELD___enablePinNumber = 8;
-    static const int FIELD___interruptPinNumber = 9;
+    static const int FIELD___calibration = 1;
+    static const int FIELD___workBufferLength = 2;
+    static const int FIELD___sensorId = 3;
+    static const int FIELD___spiDevice = 4;
+    static const int FIELD___enablePinNumber = 5;
+    static const int FIELD___interruptPinNumber = 6;
+    static const int FIELD___disposedValue = 7;
+    static const int FIELD___enabled = 8;
 
     NANOCLR_NATIVE_DECLARE(PerformCalibration___BOOLEAN__I4);
-    NANOCLR_NATIVE_DECLARE(NativeInit___I4__U4__BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(NativeInit___VOID__U4__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(NativeDeInit___VOID);
     NANOCLR_NATIVE_DECLARE(NativeSetEnable___VOID__BOOLEAN);
 
