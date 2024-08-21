@@ -130,8 +130,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     NANOCLR_CLEANUP();
 
-    // cleanup in case of failure, only possible if we already have a sensor ID
-    if (sensorId != -1)
+    // destroy driver instances in case of failure, only possible if we already have a sensor ID
+    if (hr != S_OK && sensorId != -1)
     {
         if (accDistanceConfig[sensorId] != NULL)
         {

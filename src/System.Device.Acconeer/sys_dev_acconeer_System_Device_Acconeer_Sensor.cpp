@@ -375,7 +375,8 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___I4_
 
     NANOCLR_CLEANUP();
 
-    if (sensorId != -1 && accSensors[sensorId] != NULL)
+    // destroy sensor in case of failure, only possible if we already have a sensor ID
+    if (hr != S_OK && sensorId != -1 && accSensors[sensorId] != NULL)
     {
         acc_sensor_destroy(accSensors[sensorId]);
     }
