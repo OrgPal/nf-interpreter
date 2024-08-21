@@ -11,8 +11,14 @@ static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
     NULL,
-    Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::Calibrate___BOOLEAN,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::GetMeasurement___SystemDeviceAcconeerDistanceDistanceResult,
+    Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::NativeInitDetector___VOID,
+    Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::NativeDispose___VOID,
+    Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::NativeUpdateCalibration___BOOLEAN,
     NULL,
     NULL,
     NULL,
@@ -46,7 +52,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer_Distance =
 {
     "System.Device.Acconeer.Distance",
-    0x71A07E66,
+    0xE97315D3,
     method_lookup,
     { 100, 0, 0, 1 }
 };

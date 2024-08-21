@@ -18,9 +18,9 @@ list(APPEND System.Device.Acconeer_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/System
 # source files
 set(System.Device.Acconeer_SRCS
 
+    hal_system_device_acconeer.cpp
+
     sys_dev_acconeer.cpp
-
-
     sys_dev_acconeer_System_Device_Acconeer_Sensor.cpp
 
 )

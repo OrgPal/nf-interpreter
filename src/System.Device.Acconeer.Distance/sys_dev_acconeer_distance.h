@@ -11,6 +11,11 @@
 #include <nanoPackStruct.h>
 #include <corlib_native.h>
 
+#include <target_system_device_acconeer_config.h>
+#include <sys_dev_acconeer.h>
+
+extern "C"
+{
 #include <acc_definitions_a121.h>
 #include <acc_detector_distance.h>
 #include <acc_hal_definitions_a121.h>
@@ -20,6 +25,7 @@
 #include <acc_rss_a121.h>
 #include <acc_sensor.h>
 #include <acc_version.h>
+}
 
 // matches declaration of acc_detector_distance_peak_sorting_t
 // typedef enum __nfpack PeakSorting
@@ -28,7 +34,7 @@
 //     PeakSorting_Strongest = 1,
 // } PeakSorting;
 
-// matched declaration of acc_config_profile_t
+// matches declaration of acc_config_profile_t
 // typedef enum __nfpack Profile
 // {
 //     Profile_None = 0,
@@ -50,25 +56,32 @@ struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detecto
 {
     static const int FIELD___sensor = 1;
     static const int FIELD___configuration = 2;
+    static const int FIELD___staticCalibration = 3;
+    static const int FIELD___dynamicCalibration = 4;
+    static const int FIELD___disposedValue = 5;
+    static const int FIELD___initialCalibrationDone = 6;
 
-    NANOCLR_NATIVE_DECLARE(Calibrate___BOOLEAN);
     NANOCLR_NATIVE_DECLARE(GetMeasurement___SystemDeviceAcconeerDistanceDistanceResult);
+    NANOCLR_NATIVE_DECLARE(NativeInitDetector___VOID);
+    NANOCLR_NATIVE_DECLARE(NativeDispose___VOID);
+    NANOCLR_NATIVE_DECLARE(NativeUpdateCalibration___BOOLEAN);
 
     //--//
 };
 
 struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_DistanceConfiguration
 {
-    static const int FIELD___startOfMeasuredInterval = 1;
-    static const int FIELD___endOfMeasuredInterval = 2;
-    static const int FIELD___maxStepLength = 3;
-    static const int FIELD___maxProfile = 4;
-    static const int FIELD___numberOfFrames = 5;
-    static const int FIELD___peakSorting = 6;
-    static const int FIELD___reflectorShape = 7;
-    static const int FIELD___thresholdSensivity = 8;
-    static const int FIELD___signalQuality = 9;
-    static const int FIELD___closeRangeLeakageCancellation = 10;
+    static const int FIELD___configured = 1;
+    static const int FIELD___startOfMeasuredInterval = 2;
+    static const int FIELD___endOfMeasuredInterval = 3;
+    static const int FIELD___maxStepLength = 4;
+    static const int FIELD___maxProfile = 5;
+    static const int FIELD___numberOfFrames = 6;
+    static const int FIELD___peakSorting = 7;
+    static const int FIELD___reflectorShape = 8;
+    static const int FIELD___thresholdSensivity = 9;
+    static const int FIELD___signalQuality = 10;
+    static const int FIELD___closeRangeLeakageCancellation = 11;
 
     //--//
 };

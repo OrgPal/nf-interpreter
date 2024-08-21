@@ -22,6 +22,7 @@ function(nf_add_acconner_library)
         set(acconeer_SOURCES
 
             ${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/platform_acc_hal_integration.c
+            ${TARGET_BASE_LOCATION}/target_system_device_acconeer.cpp
         )
 
         # make var global
