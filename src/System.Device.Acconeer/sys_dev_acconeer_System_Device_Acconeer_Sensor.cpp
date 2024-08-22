@@ -17,7 +17,7 @@ static uint32_t spiHandles[ACC_SENSOR_MAX_COUNT];
 
 // helper methods
 
-void nanoACC_HAL_Initialize()
+void Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::Initialize()
 {
     // initialize sensor reservation
     sensorReserved = 0;
@@ -29,7 +29,7 @@ void nanoACC_HAL_Initialize()
     }
 }
 
-void nanoACC_HAL_Uninitialize()
+void Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::Uninitialize()
 {
     // destroy sensor instances
     for (int i = 0; i < ACC_SENSOR_MAX_COUNT; i++)

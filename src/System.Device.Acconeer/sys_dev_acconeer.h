@@ -59,6 +59,8 @@ struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
     static uint32_t GetSpiHandleForAccSensor(uint32_t sensorId);
     static int32_t GetTargetSpiCSLine(uint32_t sensorId);
     static bool GetTargetSpiCSActiveState(uint32_t sensorId);
+    static void Initialize();
+    static void Uninitialize();
 };
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer;

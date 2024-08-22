@@ -18,14 +18,14 @@ extern "C"
      *
      * @param[in] powerPin The GPIO number to power on the sensor
      */
-    void __nfweak acc_nano_hal_sensor_supply_on(GPIO_PIN powerPin);
+    void acc_nano_hal_sensor_supply_on(GPIO_PIN powerPin);
 
     /**
      * @brief Power off sensor supply
      *
      * @param[in] powerPin The GPIO number to power off the sensor
      */
-    void __nfweak acc_nano_hal_sensor_supply_off(GPIO_PIN powerPin);
+    void acc_nano_hal_sensor_supply_off(GPIO_PIN powerPin);
 
     /**
      * @brief Enable sensor
@@ -36,18 +36,18 @@ extern "C"
      *
      * @param[in] enablePin The GPIO number to enable the sensor
      */
-    void __nfweak acc_nano_hal_sensor_enable(GPIO_PIN enablePin);
+    void acc_nano_hal_sensor_enable(GPIO_PIN enablePin);
 
     /**
      * @brief Disable sensor
      *
      * @param[in] enablePin The GPIO number to disable the sensor
      */
-    void __nfweak acc_nano_hal_sensor_disable(GPIO_PIN enablePin);
+    void acc_nano_hal_sensor_disable(GPIO_PIN enablePin);
 
-    void nanoACC_HAL_Initialize();
-    void nanoACC_HAL_Uninitialize();
-    void __nfweak acc_nano_hal_integration_log(acc_log_level_t level, const char *module, const char *format, ...);
+    void nanoACC_HAL_Initialize(void);
+    void nanoACC_HAL_Uninitialize(void);
+    void acc_nano_hal_integration_log(acc_log_level_t level, const char *module, const char *format, ...);
     void acc_nano_hal_sensor_transfer16(acc_sensor_id_t sensor_id, uint16_t *buffer, size_t buffer_length);
 
 #ifdef __cplusplus
