@@ -27,6 +27,9 @@
 #if (HAL_USE_UART == TRUE)
 #include <sys_io_ser_native_target.h>
 #endif
+#if (HAL_NF_USE_ACCONEER == TRUE)
+#include <sys_dev_acconeer.h>
+#endif
 
 // global mutex protecting the internal state of the interpreter, including event flags
 // mutex_t interpreterGlobalMutex;
@@ -142,6 +145,10 @@ void nanoHAL_Initialize()
     memset(&Uart8_PAL, 0, sizeof(Uart8_PAL));
 #endif
 
+#endif
+
+#if (HAL_NF_USE_ACCONEER == TRUE)
+    Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::Initialize();
 #endif
 
 #if (NANOCLR_GRAPHICS == TRUE)
@@ -274,6 +281,10 @@ void nanoHAL_Uninitialize(bool isPoweringDown)
     uartStop(&UARTD8);
 #endif
 
+#endif
+
+#if (HAL_NF_USE_ACCONEER == TRUE)
+    Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::Uninitialize();
 #endif
 
     CPU_GPIO_Uninitialize();

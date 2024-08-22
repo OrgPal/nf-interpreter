@@ -749,6 +749,13 @@ endif()
 
 #################################################################
 
+if(API_System.Device.Acconeer)
+    set(HAL_NF_USE_ACCONEER_OPTION TRUE CACHE INTERNAL "HAL Acconeer for System.Device.Acconeer")
+    message(STATUS "Support for Acconeer enabled")
+else()
+    set(HAL_NF_USE_ACCONEER_OPTION FALSE CACHE INTERNAL "HAL Acconeer for System.Device.Acconeer")
+    message(STATUS "Support for Acconeer **IS NOT** enabled")
+endif()
 
 #################################################################
 # RTC (real time clock) (default is OFF so RTC is NOT included)
