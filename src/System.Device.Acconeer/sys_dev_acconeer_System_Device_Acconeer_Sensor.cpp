@@ -39,6 +39,9 @@ void Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::Uninitialize()
             acc_sensor_destroy(accSensors[i]);
         }
     }
+
+    // reset sensor reservation
+    sensorReserved = 0;
 }
 
 static uint32_t GetTargetSpiBusId(uint32_t sensorId)
@@ -147,6 +150,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
     acc_cal_result_t *calibrationResult = NULL;
     uint8_t *buffer = NULL;
     GPIO_PIN interruptPin;
+    GpioPinValue interruptState;
 
     CLR_RT_HeapBlock_Array *calibrationBuffer;
 
@@ -176,6 +180,8 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
         NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
     }
 
+    memset(buffer, 0, bufferSize);
+
     for (int i = 0; i < calibrationRetries; i++)
     {
         // Reset sensor before calibration by disabling/enabling it
@@ -184,6 +190,10 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
 
         do
         {
+            interruptState = CPU_GPIO_GetPinState(interruptPin);
+
+            status = (interruptState == GpioPinValue_High);
+
             status = acc_sensor_calibrate(accSensors[sensorId], &cal_complete, calibrationResult, buffer, bufferSize);
 
             // arbitrary delay to allow sensor to complete calibration
@@ -191,7 +201,9 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
 
             if (status && !cal_complete)
             {
-                status = CPU_GPIO_GetPinState(interruptPin) == GpioPinValue_High;
+                interruptState = CPU_GPIO_GetPinState(interruptPin);
+
+                status = (interruptState == GpioPinValue_High);
             }
 
         } while (status && !cal_complete);
