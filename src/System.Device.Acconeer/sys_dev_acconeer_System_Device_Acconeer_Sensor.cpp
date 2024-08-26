@@ -201,8 +201,8 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
             // calibration successful
 
             // reset sensor after calibration by disabling/enabling it
-            acc_nano_hal_sensor_disable(sensorId);
-            acc_nano_hal_sensor_enable(sensorId);
+            acc_nano_hal_sensor_disable(pThis[FIELD___enablePinNumber].NumericByRef().u4);
+            acc_nano_hal_sensor_enable(pThis[FIELD___enablePinNumber].NumericByRef().u4);
 
             // exit the loop now
             break;
@@ -336,8 +336,8 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOI
     }
 
     // power on and enable sensor
-    acc_nano_hal_sensor_supply_on(sensorId);
-    acc_nano_hal_sensor_enable(sensorId);
+    acc_nano_hal_sensor_supply_on(enablePin);
+    acc_nano_hal_sensor_enable(enablePin);
 
     // create sensor instance
     accSensors[sensorId] = NULL;
@@ -409,7 +409,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeSetEnable_
     NANOCLR_HEADER();
 
     bool enable;
-    uint32_t sensorId;
+    GPIO_PIN enablePin;
 
     // access the managed object instance
     CLR_RT_HeapBlock *pThis = stack.This();
@@ -424,18 +424,18 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeSetEnable_
     // get the enable state from the argument
     enable = stack.Arg1().NumericByRef().u1;
 
-    // get the sensor ID
-    sensorId = pThis[FIELD___sensorId].NumericByRef().u4;
+    // get the enable pin
+    enablePin = pThis[FIELD___enablePinNumber].NumericByRef().s4;
 
     if (enable)
     {
-        acc_nano_hal_sensor_supply_on(sensorId);
-        acc_nano_hal_sensor_enable(sensorId);
+        acc_nano_hal_sensor_supply_on(enablePin);
+        acc_nano_hal_sensor_enable(enablePin);
     }
     else
     {
-        acc_nano_hal_sensor_disable(sensorId);
-        acc_nano_hal_sensor_supply_off(sensorId);
+        acc_nano_hal_sensor_disable(enablePin);
+        acc_nano_hal_sensor_supply_off(enablePin);
     }
 
     NANOCLR_NOCLEANUP();
