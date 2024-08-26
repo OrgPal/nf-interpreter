@@ -436,7 +436,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOI
         NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
     }
 
-    CPU_GPIO_EnableOutputPin(enablePin, GpioPinValue_High, PinMode_Output);
+    CPU_GPIO_EnableOutputPin(enablePin, GpioPinValue_Low, PinMode_Output);
 
     // interrupt pin
     interruptPin = (GPIO_PIN)pThis[FIELD___interruptPinNumber].NumericByRef().s4;
@@ -445,7 +445,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOI
         NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
     }
 
-    CPU_GPIO_EnableInputPin(interruptPin, 0, NULL, NULL, GPIO_INT_LEVEL_LOW, PinMode_Input);
+    CPU_GPIO_EnableInputPin(interruptPin, 0, NULL, NULL, GPIO_INT_LEVEL_LOW, PinMode_InputPullDown);
 
     // store the SPI handle
     spiHandles[sensorId] = handle;
