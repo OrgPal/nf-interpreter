@@ -411,7 +411,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOI
     accHal = acc_hal_rss_integration_get_implementation();
 
     // set the data length accroding to platform implementation
-    spiConfig.DataIs16bits = accHal->max_spi_transfer_size == 16;
+    spiConfig.DataIs16bits = accHal->transfer == NULL ? true : false;
 
     // open device
     hr = nanoSPI_OpenDevice(spiConfig, handle);
