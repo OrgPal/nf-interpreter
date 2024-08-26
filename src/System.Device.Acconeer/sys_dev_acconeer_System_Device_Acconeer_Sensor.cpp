@@ -441,6 +441,27 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeSetEnable_
     NANOCLR_NOCLEANUP();
 }
 
+HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::get_EnableDebugMessages___STATIC__BOOLEAN(
+    CLR_RT_StackFrame &stack)
+{
+    NANOCLR_HEADER();
+
+    stack.SetResult_Boolean(acc_nano_hal_integration_get_debug_output());
+
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
+
+HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::set_EnableDebugMessages___STATIC__VOID__BOOLEAN(
+    CLR_RT_StackFrame &stack)
+{
+    NANOCLR_HEADER();
+
+    bool enable = stack.Arg0().NumericByRef().u1;
+    acc_nano_hal_integration_set_debug_output(enable);
+
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
+
 acc_sensor_t *Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::GetAccSensor(uint32_t sensorId)
 {
     // sanity check for sensor ID

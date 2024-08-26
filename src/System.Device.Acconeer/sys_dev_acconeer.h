@@ -13,6 +13,7 @@
 #include <sys_dev_spi_native.h>
 
 #include <target_system_device_acconeer_config.h>
+#include "hal_system_device_acconeer.h"
 
 extern "C"
 {
@@ -52,6 +53,8 @@ struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
     NANOCLR_NATIVE_DECLARE(NativeInit___VOID__U4__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(NativeDeInit___VOID);
     NANOCLR_NATIVE_DECLARE(NativeSetEnable___VOID__BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(get_EnableDebugMessages___STATIC__BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(set_EnableDebugMessages___STATIC__VOID__BOOLEAN);
 
     //--//
 

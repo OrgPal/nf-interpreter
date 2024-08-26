@@ -393,6 +393,27 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     NANOCLR_CLEANUP_END();
 }
 
+HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::
+    get_EnableDebugMessages___STATIC__BOOLEAN(CLR_RT_StackFrame &stack)
+{
+    NANOCLR_HEADER();
+
+    stack.SetResult_Boolean(acc_nano_hal_integration_get_debug_output());
+
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
+
+HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::
+    set_EnableDebugMessages___STATIC__VOID__BOOLEAN(CLR_RT_StackFrame &stack)
+{
+    NANOCLR_HEADER();
+
+    bool enable = stack.Arg0().NumericByRef().u1;
+    acc_nano_hal_integration_set_debug_output(enable);
+
+    NANOCLR_NOCLEANUP_NOLABEL();
+}
+
 HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::ComposeDistanceResult(
     acc_detector_distance_result_t *result,
     CLR_RT_HeapBlock &distanceResultRef,

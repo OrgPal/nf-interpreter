@@ -48,7 +48,10 @@ extern "C"
     void nanoACC_HAL_Initialize(void);
     void nanoACC_HAL_Uninitialize(void);
     void acc_nano_hal_integration_log(acc_log_level_t level, const char *module, const char *format, ...);
+    void acc_nano_hal_sensor_transfer(acc_sensor_id_t sensor_id, uint8_t *buffer, size_t buffer_length);
     void acc_nano_hal_sensor_transfer16(acc_sensor_id_t sensor_id, uint16_t *buffer, size_t buffer_length);
+    void acc_nano_hal_integration_set_debug_output(bool enable);
+    bool acc_nano_hal_integration_get_debug_output();
 
 #ifdef __cplusplus
 }

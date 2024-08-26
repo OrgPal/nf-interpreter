@@ -6,12 +6,15 @@
 #include "sys_dev_acconeer.h"
 #include "hal_system_device_acconeer.h"
 #include <nanoWeak.h>
+#include <nanoprintf.h>
 
 #define LOG_BUFFER_MAX_SIZE 150
 
 #define LOG_FORMAT "(%c) (%s) %s\r\n"
 
 typedef Library_sys_dev_acconeer_System_Device_Acconeer_Sensor Sensor;
+
+static bool outputDebugMessages = false;
 
 //////////////////////////////////////////////////////////////////////////////
 // all functions are weak so they can be replaced at target level if needed //
@@ -61,30 +64,65 @@ void __nfweak acc_nano_hal_sensor_disable(GPIO_PIN enablePin)
 
 void __nfweak acc_nano_hal_integration_log(acc_log_level_t level, const char *module, const char *format, ...)
 {
-#if !defined(BUILD_RTM)
-
     char log_buffer[LOG_BUFFER_MAX_SIZE];
     va_list ap;
     char level_ch;
     va_start(ap, format);
 
-    int ret = snprintf(log_buffer, LOG_BUFFER_MAX_SIZE, format, ap);
-
-    if (ret >= LOG_BUFFER_MAX_SIZE)
+    if (!outputDebugMessages)
     {
-        log_buffer[LOG_BUFFER_MAX_SIZE - 4] = '.';
-        log_buffer[LOG_BUFFER_MAX_SIZE - 3] = '.';
-        log_buffer[LOG_BUFFER_MAX_SIZE - 2] = '.';
-        log_buffer[LOG_BUFFER_MAX_SIZE - 1] = 0;
+        // output is disabled
+        return;
+    }
+    else
+    {
+        // output is enabled
+        // start composing the log entry
+
+        int ret = vsnprintf(log_buffer, LOG_BUFFER_MAX_SIZE, format, ap);
+
+        if (ret >= LOG_BUFFER_MAX_SIZE)
+        {
+            log_buffer[LOG_BUFFER_MAX_SIZE - 4] = '.';
+            log_buffer[LOG_BUFFER_MAX_SIZE - 3] = '.';
+            log_buffer[LOG_BUFFER_MAX_SIZE - 2] = '.';
+            log_buffer[LOG_BUFFER_MAX_SIZE - 1] = 0;
+        }
+
+        level_ch = (level <= ACC_LOG_LEVEL_DEBUG) ? "EWIVD"[level] : '?';
+
+        CLR_Debug::Printf(LOG_FORMAT, level_ch, module, log_buffer);
     }
 
-    level_ch = (level <= ACC_LOG_LEVEL_DEBUG) ? "EWIVD"[level] : '?';
-
-    CLR_Debug::Printf(LOG_FORMAT, level_ch, module, log_buffer);
-
     va_end(ap);
+}
 
-#endif
+void acc_nano_hal_integration_set_debug_output(bool enable)
+{
+    outputDebugMessages = enable;
+}
+
+bool acc_nano_hal_integration_get_debug_output()
+{
+    return outputDebugMessages;
+}
+
+void acc_nano_hal_sensor_transfer(acc_sensor_id_t sensor_id, uint8_t *buffer, size_t buffer_length)
+{
+    uint32_t spiHandle;
+
+    SPI_WRITE_READ_SETTINGS swrs = {
+        .fullDuplex = false,
+        .readOffset = 0,
+        .Bits16ReadWrite = false,
+        .callback = NULL,
+        .DeviceChipSelect = Sensor::GetTargetSpiCSLine((uint32_t)sensor_id),
+        .ChipSelectActiveState = Sensor::GetTargetSpiCSActiveState((uint32_t)sensor_id)};
+
+    // get the ACC sensor
+    spiHandle = Sensor::GetSpiHandleForAccSensor(sensor_id);
+
+    nanoSPI_Write_Read(spiHandle, swrs, buffer, buffer_length, buffer, buffer_length);
 }
 
 void acc_nano_hal_sensor_transfer16(acc_sensor_id_t sensor_id, uint16_t *buffer, size_t buffer_length)
@@ -102,5 +140,5 @@ void acc_nano_hal_sensor_transfer16(acc_sensor_id_t sensor_id, uint16_t *buffer,
     // get the ACC sensor
     spiHandle = Sensor::GetSpiHandleForAccSensor(sensor_id);
 
-    nanoSPI_Write_Read(spiHandle, swrs, (uint8_t*)buffer, buffer_length, (uint8_t*)buffer, buffer_length);
+    nanoSPI_Write_Read(spiHandle, swrs, (uint8_t *)buffer, buffer_length, (uint8_t *)buffer, buffer_length);
 }

@@ -13,6 +13,7 @@
 
 #include <target_system_device_acconeer_config.h>
 #include <sys_dev_acconeer.h>
+#include <hal_system_device_acconeer.h>
 
 extern "C"
 {
@@ -58,13 +59,15 @@ struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detecto
     static const int FIELD___configuration = 2;
     static const int FIELD___staticCalibration = 3;
     static const int FIELD___dynamicCalibration = 4;
-    static const int FIELD___disposedValue = 5;
-    static const int FIELD___initialCalibrationDone = 6;
+    static const int FIELD___initialCalibrationDone = 5;
+    static const int FIELD___disposedValue = 6;
 
     NANOCLR_NATIVE_DECLARE(GetMeasurement___SystemDeviceAcconeerDistanceDistanceResult);
     NANOCLR_NATIVE_DECLARE(NativeInitDetector___VOID);
     NANOCLR_NATIVE_DECLARE(NativeDispose___VOID);
     NANOCLR_NATIVE_DECLARE(NativeUpdateCalibration___BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(get_EnableDebugMessages___STATIC__BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(set_EnableDebugMessages___STATIC__VOID__BOOLEAN);
 
     //--//
 
