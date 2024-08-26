@@ -221,6 +221,118 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
     NANOCLR_CLEANUP_END();
 }
 
+HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformAssemblyTest___VOID(CLR_RT_StackFrame &stack)
+{
+    NANOCLR_HEADER();
+
+    int32_t sensorId = -1;
+    uint8_t *buffer = NULL;
+
+    acc_rss_assembly_test_t *assembly_test = NULL;
+    acc_config_t *config = NULL;
+
+    // get a pointer to the managed object instance and check that it's not NULL
+    CLR_RT_HeapBlock *pThis = stack.This();
+    FAULT_ON_NULL(pThis);
+
+    // grab the sensor ID
+    sensorId = pThis[FIELD___sensorId].NumericByRef().u4;
+
+    CLR_Debug::Printf("Acconeer software version %s\n", acc_version_get());
+
+    // allocate work buffer
+    buffer = (uint8_t *)platform_malloc(ACC_RSS_ASSEMBLY_TEST_MIN_BUFFER_SIZE);
+
+    // sanity check
+    if (buffer == NULL)
+    {
+        NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
+    }
+
+    // Create test
+    assembly_test = acc_rss_assembly_test_create(sensorId, buffer, ACC_RSS_ASSEMBLY_TEST_MIN_BUFFER_SIZE);
+    if (assembly_test == NULL)
+    {
+        CLR_Debug::Printf("Could not create assembly test");
+        NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    }
+
+    // Basic read test
+    acc_rss_assembly_test_disable_all_tests(assembly_test);
+    acc_rss_assembly_test_enable(assembly_test, ACC_RSS_ASSEMBLY_TEST_ID_BASIC_READ);
+    if (!RunTest(assembly_test, sensorId))
+    {
+        CLR_Debug::Printf("Basic read test failed");
+        NANOCLR_SET_AND_LEAVE(S_OK);
+    }
+
+    // Communication test
+    acc_rss_assembly_test_disable_all_tests(assembly_test);
+    acc_rss_assembly_test_enable(assembly_test, ACC_RSS_ASSEMBLY_TEST_ID_COMMUNICATION);
+    if (!RunTest(assembly_test, sensorId))
+    {
+        CLR_Debug::Printf("Communication test failed");
+        NANOCLR_SET_AND_LEAVE(S_OK);
+    }
+
+    // Enable test
+    acc_rss_assembly_test_disable_all_tests(assembly_test);
+    acc_rss_assembly_test_enable(assembly_test, ACC_RSS_ASSEMBLY_TEST_ID_ENABLE_PIN);
+    if (!RunTest(assembly_test, sensorId))
+    {
+        CLR_Debug::Printf("Enable test failed");
+        NANOCLR_SET_AND_LEAVE(S_OK);
+    }
+
+    // Interrupt test
+    acc_rss_assembly_test_disable_all_tests(assembly_test);
+    acc_rss_assembly_test_enable(assembly_test, ACC_RSS_ASSEMBLY_TEST_ID_INTERRUPT);
+    if (!RunTest(assembly_test, sensorId))
+    {
+        CLR_Debug::Printf("Interrupt test failed");
+        NANOCLR_SET_AND_LEAVE(S_OK);
+    }
+
+    // Clock and Supply test
+    acc_rss_assembly_test_disable_all_tests(assembly_test);
+    acc_rss_assembly_test_enable(assembly_test, ACC_RSS_ASSEMBLY_TEST_ID_CLOCK_AND_SUPPLY);
+    if (!RunTest(assembly_test, sensorId))
+    {
+        CLR_Debug::Printf("Clock and Supply test failed");
+        NANOCLR_SET_AND_LEAVE(S_OK);
+    }
+
+    // Sensor calibration test
+    acc_rss_assembly_test_disable_all_tests(assembly_test);
+    acc_rss_assembly_test_enable(assembly_test, ACC_RSS_ASSEMBLY_TEST_ID_SENSOR_CALIBRATION);
+    if (!RunTest(assembly_test, sensorId))
+    {
+        CLR_Debug::Printf("Sensor calibration test failed");
+        NANOCLR_SET_AND_LEAVE(S_OK);
+    }
+
+    CLR_Debug::Printf("All tests passed\n");
+
+    NANOCLR_CLEANUP();
+
+    if (assembly_test != NULL)
+    {
+        acc_rss_assembly_test_destroy(assembly_test);
+    }
+
+    if (config != NULL)
+    {
+        acc_config_destroy(config);
+    }
+
+    if (buffer != NULL)
+    {
+        platform_free(buffer);
+    }
+
+    NANOCLR_CLEANUP_END();
+}
+
 HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeInit___VOID__U4__BOOLEAN(CLR_RT_StackFrame &stack)
 {
     NANOCLR_HEADER();
@@ -520,4 +632,79 @@ bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::GetTargetSpiCSActiv
         default:
             return false;
     }
+}
+
+bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::RunTest(
+    acc_rss_assembly_test_t *assembly_test,
+    acc_sensor_id_t sensor_id)
+{
+    bool all_passed = true;
+    GPIO_PIN interruptPin = (GPIO_PIN)GetTargetInterruptPin(sensor_id);
+    GPIO_PIN enablePin = (GPIO_PIN)GetTargetEnablePin(sensor_id);
+    GpioPinValue interruptState;
+
+    // power on and enable sensor
+    acc_nano_hal_sensor_supply_on(enablePin);
+    acc_nano_hal_sensor_enable(enablePin);
+
+    acc_rss_test_state_t assembly_test_state = ACC_RSS_TEST_STATE_ONGOING;
+    acc_rss_test_integration_status_t integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_OK;
+
+    do
+    {
+        assembly_test_state = acc_rss_assembly_test_execute(assembly_test, integration_status);
+
+        switch (assembly_test_state)
+        {
+            case ACC_RSS_TEST_STATE_TOGGLE_ENABLE_PIN:
+                acc_nano_hal_sensor_disable(enablePin);
+                acc_nano_hal_sensor_enable(enablePin);
+                integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_OK;
+                break;
+
+            case ACC_RSS_TEST_STATE_WAIT_FOR_INTERRUPT:
+
+                interruptState = CPU_GPIO_GetPinState(interruptPin);
+
+                // if (!acc_hal_integration_wait_for_sensor_interrupt(sensor_id, SENSOR_TIMEOUT_MS))
+                if (interruptState != GpioPinValue_High)
+                {
+                    /* Wait for interrupt failed */
+                    integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_TIMEOUT;
+                }
+                else
+                {
+                    integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_OK;
+                }
+
+                break;
+
+            default:
+                integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_OK;
+                break;
+        }
+
+    } while (assembly_test_state != ACC_RSS_TEST_STATE_COMPLETE);
+
+    acc_nano_hal_sensor_disable(enablePin);
+    acc_nano_hal_sensor_supply_off(enablePin);
+
+    uint16_t nbr_of_test_results = 0U;
+
+    const acc_rss_assembly_test_result_t *test_results =
+        acc_rss_assembly_test_get_results(assembly_test, &nbr_of_test_results);
+
+    for (uint16_t idx = 0; idx < nbr_of_test_results; idx++)
+    {
+        CLR_Debug::Printf(
+            "'%s' [%s]\r\n",
+            test_results[idx].test_name,
+            test_results[idx].test_result ? "PASS" : "FAIL");
+        if (!test_results[idx].test_result)
+        {
+            all_passed = false;
+        }
+    }
+
+    return all_passed;
 }
