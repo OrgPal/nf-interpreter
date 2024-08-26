@@ -17,12 +17,15 @@
 
 extern "C"
 {
+#include "acc_config_subsweep.h"
+#include "acc_definitions_common.h"
 #include <acc_definitions_a121.h>
 #include <acc_detector_distance.h>
 #include <acc_hal_definitions_a121.h>
 #include <acc_hal_integration_a121.h>
 #include <acc_integration.h>
 #include <acc_integration_log.h>
+#include <acc_processing.h>
 #include <acc_rss_a121.h>
 #include <acc_sensor.h>
 #include <acc_version.h>
@@ -50,6 +53,7 @@ struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
     static const int FIELD___enabled = 8;
 
     NANOCLR_NATIVE_DECLARE(PerformCalibration___BOOLEAN__I4);
+    NANOCLR_NATIVE_DECLARE(PerformAssemblyTest___VOID);
     NANOCLR_NATIVE_DECLARE(NativeInit___VOID__U4__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(NativeDeInit___VOID);
     NANOCLR_NATIVE_DECLARE(NativeSetEnable___VOID__BOOLEAN);
@@ -64,6 +68,7 @@ struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
     static bool GetTargetSpiCSActiveState(uint32_t sensorId);
     static void Initialize();
     static void Uninitialize();
+    static bool RunTest(acc_rss_assembly_test_t *assembly_test, acc_sensor_id_t sensor_id);
 };
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer;
