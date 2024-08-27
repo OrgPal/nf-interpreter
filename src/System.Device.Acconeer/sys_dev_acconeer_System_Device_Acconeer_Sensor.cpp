@@ -133,6 +133,7 @@ static SPI_DEVICE_CONFIGURATION GetDefaultSpiConfig(uint32_t sensorId)
     spiConfig.DataOrder16 = DataBitOrder_MSB;
     spiConfig.BusMode = SpiBusMode_master;
     spiConfig.Spi_Mode = SpiMode_Mode0;
+    spiConfig.BusConfiguration = SpiBusConfiguration_FullDuplex;
 
     return spiConfig;
 }

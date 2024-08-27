@@ -141,7 +141,7 @@ void acc_nano_hal_sensor_transfer(acc_sensor_id_t sensor_id, uint8_t *buffer, si
     uint32_t spiHandle;
 
     SPI_WRITE_READ_SETTINGS swrs = {
-        .fullDuplex = false,
+        .fullDuplex = true,
         .readOffset = 0,
         .Bits16ReadWrite = false,
         .callback = NULL,
@@ -159,7 +159,7 @@ void acc_nano_hal_sensor_transfer16(acc_sensor_id_t sensor_id, uint16_t *buffer,
     uint32_t spiHandle;
 
     SPI_WRITE_READ_SETTINGS swrs = {
-        .fullDuplex = false,
+        .fullDuplex = true,
         .readOffset = 0,
         .Bits16ReadWrite = true,
         .callback = NULL,
