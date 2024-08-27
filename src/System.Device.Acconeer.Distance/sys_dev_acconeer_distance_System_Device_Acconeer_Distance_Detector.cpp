@@ -333,20 +333,12 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 dynamicCalibrationResult,
                 &done);
 
-            if (done)
+            if (status && !done)
             {
-                break;
+                status = acc_nano_hal_integration_wait_for_sensor_interrupt(interruptPin, ACC_SENSOR_TIMEOUT_MS);
             }
 
-            if (status)
-            {
-                // arbitrary delay to allow sensor to complete calibration
-                PLATFORM_DELAY(10);
-
-                status = CPU_GPIO_GetPinState(interruptPin) == GpioPinValue_High;
-            }
-
-        } while (status);
+        } while (status && !done);
     }
     else
     {
@@ -372,15 +364,12 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 break;
             }
 
-            if (status)
+            if (status && !done)
             {
-                // arbitrary delay to allow sensor to complete calibration
-                PLATFORM_DELAY(10);
-
-                status = CPU_GPIO_GetPinState(interruptPin) == GpioPinValue_High;
+                status = acc_nano_hal_integration_wait_for_sensor_interrupt(interruptPin, ACC_SENSOR_TIMEOUT_MS);
             }
 
-        } while (status);
+        } while (status && !done);
     }
 
     NANOCLR_CLEANUP();

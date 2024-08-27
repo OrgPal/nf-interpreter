@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-    #include <acc_definitions_common.h>
+#include <acc_definitions_common.h>
 
     /**
      * @brief Power on sensor supply
@@ -44,6 +44,15 @@ extern "C"
      * @param[in] enablePin The GPIO number to disable the sensor
      */
     void acc_nano_hal_sensor_disable(GPIO_PIN enablePin);
+
+    /**
+     * @brief Wait for a sensor interrupt
+     *
+     * @param[in] enablePin The GPIO number of the interrupt on
+     * @param[in] timeout_ms The maximum time to wait in milliseconds
+     * @return True if an interrupt has occurred within timeout, false if timeout occurred
+     */
+    bool acc_nano_hal_integration_wait_for_sensor_interrupt(GPIO_PIN interruptPin, uint32_t timeoutMilliseconds);
 
     void nanoACC_HAL_Initialize(void);
     void nanoACC_HAL_Uninitialize(void);

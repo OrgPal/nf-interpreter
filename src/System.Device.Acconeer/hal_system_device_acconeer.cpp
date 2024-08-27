@@ -7,10 +7,13 @@
 #include "hal_system_device_acconeer.h"
 #include <nanoWeak.h>
 #include <nanoprintf.h>
+#include <nanoHAL_v2.h>
 
 #define LOG_BUFFER_MAX_SIZE 150
 
 #define LOG_FORMAT "(%c) (%s) %s\r\n"
+
+#define INT_WAIT_POOL_TIMESLOT 10U
 
 typedef Library_sys_dev_acconeer_System_Device_Acconeer_Sensor Sensor;
 
@@ -51,7 +54,8 @@ void __nfweak acc_nano_hal_sensor_enable(GPIO_PIN enablePin)
 {
     CPU_GPIO_SetPinState(enablePin, GpioPinValue_High);
 
-    // TBD: need to wait 2 ms to make sure that the sensor crystal have time to stabilize
+    // wait 2 ms to make sure that the sensor crystal have time to stabilize
+    OS_DELAY(2);
 }
 
 // this is the equivalent implementation of Acconeer's HAL function acc_hal_integration_sensor_disable
@@ -59,7 +63,32 @@ void __nfweak acc_nano_hal_sensor_disable(GPIO_PIN enablePin)
 {
     CPU_GPIO_SetPinState(enablePin, GpioPinValue_Low);
 
-    // TBD: need to wait 2 ms to make sure that the sensor crystal have time to stabilize
+    // wait 2 ms to make sure that the sensor crystal have time to stabilize
+    OS_DELAY(2);
+}
+
+// this is the equivalent implementation of Acconeer's HAL function acc_hal_integration_wait_for_sensor_interrupt
+bool __nfweak acc_nano_hal_integration_wait_for_sensor_interrupt(GPIO_PIN interruptPin, uint32_t timeoutMilliseconds)
+{
+    // read current ticks
+    int32_t passes = timeoutMilliseconds / INT_WAIT_POOL_TIMESLOT;
+
+    // read interrupt pin state
+    GpioPinValue pinState = CPU_GPIO_GetPinState(interruptPin);
+
+    while (pinState == GpioPinValue_Low && passes > 0)
+    {
+        // read interrupt pin state
+        pinState = CPU_GPIO_GetPinState(interruptPin);
+
+        // decress counter
+        passes--;
+
+        OS_DELAY(INT_WAIT_POOL_TIMESLOT);
+    }
+
+    // check if interrupt was triggered
+    return pinState == GpioPinValue_High;
 }
 
 void __nfweak acc_nano_hal_integration_log(acc_log_level_t level, const char *module, const char *format, ...)

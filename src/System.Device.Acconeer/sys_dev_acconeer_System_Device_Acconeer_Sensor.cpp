@@ -150,7 +150,6 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
     acc_cal_result_t *calibrationResult = NULL;
     uint8_t *buffer = NULL;
     GPIO_PIN interruptPin;
-    GpioPinValue interruptState;
 
     CLR_RT_HeapBlock_Array *calibrationBuffer;
 
@@ -190,20 +189,11 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
 
         do
         {
-            interruptState = CPU_GPIO_GetPinState(interruptPin);
-
-            status = (interruptState == GpioPinValue_High);
-
             status = acc_sensor_calibrate(accSensors[sensorId], &cal_complete, calibrationResult, buffer, bufferSize);
-
-            // arbitrary delay to allow sensor to complete calibration
-            PLATFORM_DELAY(10);
 
             if (status && !cal_complete)
             {
-                interruptState = CPU_GPIO_GetPinState(interruptPin);
-
-                status = (interruptState == GpioPinValue_High);
+                status = acc_nano_hal_integration_wait_for_sensor_interrupt(interruptPin, ACC_SENSOR_TIMEOUT_MS);
             }
 
         } while (status && !cal_complete);
@@ -651,9 +641,7 @@ bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::RunTest(
     acc_sensor_id_t sensor_id)
 {
     bool all_passed = true;
-    GPIO_PIN interruptPin = (GPIO_PIN)GetTargetInterruptPin(sensor_id);
     GPIO_PIN enablePin = (GPIO_PIN)GetTargetEnablePin(sensor_id);
-    GpioPinValue interruptState;
 
     // power on and enable sensor
     acc_nano_hal_sensor_supply_on(enablePin);
@@ -675,13 +663,9 @@ bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::RunTest(
                 break;
 
             case ACC_RSS_TEST_STATE_WAIT_FOR_INTERRUPT:
-
-                interruptState = CPU_GPIO_GetPinState(interruptPin);
-
-                // if (!acc_hal_integration_wait_for_sensor_interrupt(sensor_id, SENSOR_TIMEOUT_MS))
-                if (interruptState != GpioPinValue_High)
+                if (!acc_nano_hal_integration_wait_for_sensor_interrupt(sensor_id, ACC_SENSOR_TIMEOUT_MS))
                 {
-                    /* Wait for interrupt failed */
+                    // Wait for interrupt failed
                     integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_TIMEOUT;
                 }
                 else
