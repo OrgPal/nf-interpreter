@@ -77,7 +77,7 @@ static uint32_t GetTargetSpiClock(uint32_t sensorId)
 
         // default to 10MHz
         default:
-            return 10000000;
+            return 1000000;
     }
 }
 
