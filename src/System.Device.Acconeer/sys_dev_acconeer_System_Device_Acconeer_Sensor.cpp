@@ -642,6 +642,7 @@ bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::RunTest(
 {
     bool all_passed = true;
     GPIO_PIN enablePin = (GPIO_PIN)GetTargetEnablePin(sensor_id);
+    GPIO_PIN interruptPin = (GPIO_PIN)GetTargetInterruptPin(sensor_id);
 
     // power on and enable sensor
     acc_nano_hal_sensor_supply_on(enablePin);
@@ -663,7 +664,7 @@ bool Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::RunTest(
                 break;
 
             case ACC_RSS_TEST_STATE_WAIT_FOR_INTERRUPT:
-                if (!acc_nano_hal_integration_wait_for_sensor_interrupt(sensor_id, ACC_SENSOR_TIMEOUT_MS))
+                if (!acc_nano_hal_integration_wait_for_sensor_interrupt(interruptPin, ACC_SENSOR_TIMEOUT_MS))
                 {
                     // Wait for interrupt failed
                     integration_status = ACC_RSS_TEST_INTEGRATION_STATUS_TIMEOUT;
