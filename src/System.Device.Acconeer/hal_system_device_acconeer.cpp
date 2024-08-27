@@ -13,7 +13,7 @@
 
 #define LOG_FORMAT "(%c) (%s) %s\r\n"
 
-#define INT_WAIT_POOL_TIMESLOT 10U
+#define INT_WAIT_POOL_TIMESLOT 1U
 
 typedef Library_sys_dev_acconeer_System_Device_Acconeer_Sensor Sensor;
 
