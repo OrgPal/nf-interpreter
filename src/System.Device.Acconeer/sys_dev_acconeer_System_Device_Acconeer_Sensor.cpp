@@ -510,6 +510,14 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::NativeDeInit___V
     // clear handle
     spiHandles[sensorId] = 0;
 
+    // disable and power off sensor
+    acc_nano_hal_sensor_disable(pThis[FIELD___enablePinNumber].NumericByRef().s4);
+    acc_nano_hal_sensor_supply_off(pThis[FIELD___enablePinNumber].NumericByRef().s4);
+
+    // clear the GPIOs reservations
+    CPU_GPIO_ReservePin(pThis[FIELD___enablePinNumber].NumericByRef().s4, false);
+    CPU_GPIO_ReservePin(pThis[FIELD___interruptPinNumber].NumericByRef().s4, false);
+
     // clear the reservation for this sensor ID
     sensorReserved &= ~(1 << sensorId);
 
