@@ -61,11 +61,6 @@ int main(void)
     palClearLine(LINE_LED1);
     palClearLine(LINE_LED2);
     palClearLine(LINE_LED3);
-    palClearLine(LINE_RELAY_CTRL);
-    palClearLine(LINE_SPI_SEL0);
-    palClearLine(LINE_SPI_SEL1);
-    palClearLine(LINE_SPI_SEL2);
-    palClearLine(LINE_A121_SPI_SS);
 
 // init SWO as soon as possible to make it available to output ASAP
 #if (SWO_OUTPUT == TRUE)
