@@ -29,10 +29,10 @@
 /*
  * Memory attributes settings.
  */
-#define STM32_NOCACHE_ENABLE                FALSE
-// #define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
-// #define STM32_NOCACHE_RBAR                  0x2004C000U
-// #define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_16K
+#define STM32_NOCACHE_ENABLE                TRUE
+#define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
+#define STM32_NOCACHE_RBAR                  0x20020000U
+#define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_256K
 
 /*
  * HAL driver system settings.
@@ -95,7 +95,7 @@
 #define STM32_CK48MSEL         STM32_CK48MSEL_PLL
 #define STM32_SDMMC1SEL        STM32_SDMMC1SEL_SYSCLK
 #define STM32_SDMMC2SEL        STM32_SDMMC2SEL_SYSCLK
-#define STM32_SRAM2_NOCACHE    FALSE
+#define STM32_SRAM2_NOCACHE    TRUE
 
 /*
  * IRQ system settings.
