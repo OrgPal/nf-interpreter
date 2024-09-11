@@ -114,22 +114,25 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 buffer,
                 bufferSize))
         {
+            // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
         if (!acc_sensor_measure(accSensor))
         {
+            // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
-        if (CPU_GPIO_GetPinState(interruptPin) == GpioPinValue_High)
+        if (!acc_nano_hal_integration_wait_for_sensor_interrupt(interruptPin, ACC_SENSOR_TIMEOUT_MS))
         {
-            // done
-            break;
+            // failure, need to exit now, returning null already on the stack
+            NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
         if (!acc_sensor_read(accSensor, buffer, bufferSize))
         {
+            // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
@@ -141,6 +144,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 &resultAvailable,
                 detectorDistanceResult))
         {
+            // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
