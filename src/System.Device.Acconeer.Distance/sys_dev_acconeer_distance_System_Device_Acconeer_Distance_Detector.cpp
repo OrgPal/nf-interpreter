@@ -372,6 +372,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
         } while (status && !done);
     }
 
+    stack.SetResult_Boolean(done);
+
     NANOCLR_CLEANUP();
 
     if (buffer != NULL)
