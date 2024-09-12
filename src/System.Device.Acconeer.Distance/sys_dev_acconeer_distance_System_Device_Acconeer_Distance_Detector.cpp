@@ -56,19 +56,21 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     NANOCLR_HEADER();
 
     uint32_t sensorId;
-    uint32_t bufferSize = 0;
     bool resultAvailable = false;
     acc_sensor_t *accSensor;
     acc_cal_result_t *calibrationResult = NULL;
     acc_detector_cal_result_dynamic_t *dynamicCalibrationResult = NULL;
-    acc_detector_distance_result_t *detectorDistanceResult = NULL;
-    uint8_t *buffer = NULL;
+    acc_detector_distance_result_t detectorDistanceResult;
     GPIO_PIN interruptPin;
 
     CLR_RT_HeapBlock_Array *calibrationResultBuffer;
     CLR_RT_HeapBlock_Array *staticCalibrationBuffer;
     CLR_RT_HeapBlock_Array *dynamicCalibrationBuffer;
+    CLR_RT_HeapBlock_Array *workBuffer;
     CLR_RT_HeapBlock *sensor = NULL;
+
+    // clear the result struct
+    memset(&detectorDistanceResult, 0, sizeof(detectorDistanceResult));
 
     // get a pointer to the managed object instance
     CLR_RT_HeapBlock *pThis = stack.This();
@@ -94,15 +96,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     interruptPin = (GPIO_PIN)sensor[Sensor::FIELD___interruptPinNumber].NumericByRef().s4;
 
-    // create buffer for operation
-    bufferSize = sensor[Sensor::FIELD___workBufferLength].NumericByRef().u4;
-
-    buffer = (uint8_t *)platform_malloc(bufferSize);
-
-    if (buffer == NULL)
-    {
-        NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-    }
+    // get work buffer
+    workBuffer = sensor[Sensor::FIELD___workBuffer].DereferenceArray();
 
     do
     {
@@ -111,8 +106,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 accDistanceConfig[sensorId],
                 accSensor,
                 calibrationResult,
-                buffer,
-                bufferSize))
+                workBuffer->GetFirstElement(),
+                workBuffer->m_numOfElements))
         {
             // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
@@ -130,19 +125,23 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
             NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
-        if (!acc_sensor_read(accSensor, buffer, bufferSize))
+        __NOP();
+
+        if (!acc_sensor_read(accSensor, workBuffer->GetFirstElement(), workBuffer->m_numOfElements))
         {
             // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
         }
 
+        __NOP();
+
         if (!acc_detector_distance_process(
                 accDetectors[sensorId],
-                buffer,
+                workBuffer->GetFirstElement(),
                 staticCalibrationBuffer->GetFirstElement(),
                 dynamicCalibrationResult,
                 &resultAvailable,
-                detectorDistanceResult))
+                &detectorDistanceResult))
         {
             // failure, need to exit now, returning null already on the stack
             NANOCLR_SET_AND_LEAVE(S_OK);
@@ -152,16 +151,16 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     // got here, so we have a valid distance result
     NANOCLR_CHECK_HRESULT(
-        ComposeDistanceResult(detectorDistanceResult, stack.TopValue(), pThis[FIELD___configuration]));
+        ComposeDistanceResult(&detectorDistanceResult, stack.TopValue(), pThis[FIELD___configuration]));
 
-    NANOCLR_CLEANUP();
+    NANOCLR_NOCLEANUP();
 
-    if (buffer != NULL)
-    {
-        platform_free(buffer);
-    }
+    // if (buffer != NULL)
+    // {
+    //     platform_free(buffer);
+    // }
 
-    NANOCLR_CLEANUP_END();
+    // NANOCLR_CLEANUP_END();
 }
 
 HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::NativeInitDetector___VOID(
@@ -211,15 +210,17 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
         NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
     }
 
-    // store the sizes
-    sensor[Sensor::FIELD___workBufferLength].NumericByRef().u4 = bufferSize;
+    // create buffers
+    NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
+        sensor[Sensor::FIELD___workBuffer],
+        bufferSize,
+        g_CLR_RT_WellKnownTypes.m_UInt8));
 
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
         pThis[FIELD___staticCalibration],
         calibrationSize,
         g_CLR_RT_WellKnownTypes.m_UInt8));
 
-    // create calibration buffers
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
         pThis[FIELD___dynamicCalibration],
         sizeof(acc_detector_cal_result_dynamic_t),
@@ -276,17 +277,16 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     uint32_t sensorId;
     bool initialCalibrationDone;
     bool done = false;
-    uint32_t bufferSize = 0;
     bool status;
     acc_sensor_t *accSensor;
     acc_cal_result_t *calibrationResult = NULL;
     acc_detector_cal_result_dynamic_t *dynamicCalibrationResult = NULL;
-    uint8_t *buffer = NULL;
     GPIO_PIN interruptPin;
 
     CLR_RT_HeapBlock_Array *calibrationResultBuffer;
     CLR_RT_HeapBlock_Array *staticCalibrationBuffer;
     CLR_RT_HeapBlock_Array *dynamicCalibrationBuffer;
+    CLR_RT_HeapBlock_Array *workBuffer;
     CLR_RT_HeapBlock *sensor = NULL;
 
     // get a pointer to the managed object instance
@@ -313,15 +313,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     // get the initial calibration done flag
     initialCalibrationDone = pThis[FIELD___initialCalibrationDone].NumericByRef().u1;
 
-    // create buffer for calibration
-    bufferSize = sensor[Sensor::FIELD___workBufferLength].NumericByRef().u4;
-
-    buffer = (uint8_t *)platform_malloc(bufferSize);
-
-    if (buffer == NULL)
-    {
-        NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-    }
+    // get work buffer
+    workBuffer = sensor[Sensor::FIELD___workBuffer].DereferenceArray();
 
     if (initialCalibrationDone)
     {
@@ -332,8 +325,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 accSensor,
                 accDetectors[sensorId],
                 calibrationResult,
-                buffer,
-                bufferSize,
+                workBuffer->GetFirstElement(),
+                workBuffer->m_numOfElements,
                 dynamicCalibrationResult,
                 &done);
 
@@ -353,8 +346,8 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
                 accSensor,
                 accDetectors[sensorId],
                 calibrationResult,
-                buffer,
-                bufferSize,
+                workBuffer->GetFirstElement(),
+                workBuffer->m_numOfElements,
                 staticCalibrationBuffer->GetFirstElement(),
                 staticCalibrationBuffer->m_numOfElements,
                 dynamicCalibrationResult,
@@ -378,14 +371,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     stack.SetResult_Boolean(done);
 
-    NANOCLR_CLEANUP();
-
-    if (buffer != NULL)
-    {
-        platform_free(buffer);
-    }
-
-    NANOCLR_CLEANUP_END();
+    NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector::
@@ -435,7 +421,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     // set the distances array
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
         distanceResult[DistanceResult::FIELD___distances],
-        ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES,
+        result->num_distances,
         g_CLR_RT_WellKnownTypes.m_Single));
 
     // copy over the distances array
@@ -443,12 +429,12 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     memcpy(
         arrayRef->GetFirstElement(),
         result->distances,
-        ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES * sizeof(float));
+        result->num_distances * sizeof(float));
 
     // set the strengths array
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
         distanceResult[DistanceResult::FIELD___strengths],
-        ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES,
+        result->num_distances,
         g_CLR_RT_WellKnownTypes.m_Single));
 
     // copy over the strengths array
@@ -456,7 +442,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
     memcpy(
         arrayRef->GetFirstElement(),
         result->strengths,
-        ACC_DETECTOR_DISTANCE_RESULT_MAX_NUM_DISTANCES * sizeof(float));
+        result->num_distances * sizeof(float));
 
     distanceResult[DistanceResult::FIELD___nearStartEdge].NumericByRef().u1 = result->near_start_edge_status;
     distanceResult[DistanceResult::FIELD___calibrationNeeded].NumericByRef().u1 = result->calibration_needed;

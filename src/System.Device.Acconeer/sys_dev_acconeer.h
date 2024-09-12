@@ -44,7 +44,7 @@ extern "C"
 struct Library_sys_dev_acconeer_System_Device_Acconeer_Sensor
 {
     static const int FIELD___calibration = 1;
-    static const int FIELD___workBufferLength = 2;
+    static const int FIELD___workBuffer = 2;
     static const int FIELD___sensorId = 3;
     static const int FIELD___spiDevice = 4;
     static const int FIELD___enablePinNumber = 5;

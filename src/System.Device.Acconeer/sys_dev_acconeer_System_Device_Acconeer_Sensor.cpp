@@ -145,14 +145,13 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
 
     int32_t sensorId = -1;
     int32_t calibrationRetries;
-    uint32_t bufferSize = 0;
     bool status = false;
     bool cal_complete = false;
     acc_cal_result_t *calibrationResult = NULL;
-    uint8_t *buffer = NULL;
     GPIO_PIN interruptPin;
 
     CLR_RT_HeapBlock_Array *calibrationBuffer;
+    CLR_RT_HeapBlock_Array *workBuffer;
 
     // get a pointer to the managed object instance and check that it's not NULL
     CLR_RT_HeapBlock *pThis = stack.This();
@@ -165,22 +164,13 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
     calibrationBuffer = pThis[FIELD___calibration].DereferenceArray();
     calibrationResult = (acc_cal_result_t *)calibrationBuffer->GetFirstElement();
 
-    bufferSize = pThis[FIELD___workBufferLength].NumericByRef().u4;
+    // get the work buffer
+    workBuffer = pThis[FIELD___workBuffer].DereferenceArray();
 
     interruptPin = (GPIO_PIN)pThis[FIELD___interruptPinNumber].NumericByRef().s4;
 
     // number of calibration retries
     calibrationRetries = stack.Arg1().NumericByRef().s4;
-
-    // create buffer for calibration
-    buffer = (uint8_t *)platform_malloc(bufferSize);
-
-    if (buffer == NULL)
-    {
-        NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_MEMORY);
-    }
-
-    memset(buffer, 0, bufferSize);
 
     for (int i = 0; i < calibrationRetries; i++)
     {
@@ -190,7 +180,12 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
 
         do
         {
-            status = acc_sensor_calibrate(accSensors[sensorId], &cal_complete, calibrationResult, buffer, bufferSize);
+            status = acc_sensor_calibrate(
+                accSensors[sensorId],
+                &cal_complete,
+                calibrationResult,
+                workBuffer->GetFirstElement(),
+                workBuffer->m_numOfElements);
 
             if (status && !cal_complete)
             {
@@ -214,14 +209,7 @@ HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformCalibrati
 
     stack.SetResult_Boolean(status);
 
-    NANOCLR_CLEANUP();
-
-    if (buffer != NULL)
-    {
-        platform_free(buffer);
-    }
-
-    NANOCLR_CLEANUP_END();
+    NANOCLR_NOCLEANUP();
 }
 
 HRESULT Library_sys_dev_acconeer_System_Device_Acconeer_Sensor::PerformAssemblyTest___VOID(CLR_RT_StackFrame &stack)
