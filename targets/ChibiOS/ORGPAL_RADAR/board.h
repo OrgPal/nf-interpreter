@@ -700,7 +700,7 @@ The user should also disable the MCO pin of the clock output if not used.
 * PD1  - PIN1                      (input pullup).
 * PD2  - PIN2                      (input pullup).
 * PD3  - RS485_TERM_DE             (output pushpull).
-* PD4  - USART2_DE                 (output pushpull).
+* PD4  - USART2_DE                 (alternate 7).
 * PD5  - USART2_TX                 (alternate 7).
 * PD6  - USART2_RX                 (alternate 7).
 * PD7  - PIN7                      (input pullup).
@@ -713,21 +713,21 @@ The user should also disable the MCO pin of the clock output if not used.
 * PD14 - PIN14                     (input pullup).
 * PD15 - PIN15                     (input pullup).
 */
-#define VAL_GPIOD_MODER             (PIN_MODE_ANALOG(GPIOD_PIN0) |      \
-                                     PIN_MODE_ANALOG(GPIOD_PIN1) |      \
-                                     PIN_MODE_ANALOG(GPIOD_PIN2) |      \
+#define VAL_GPIOD_MODER             (PIN_MODE_ANALOG(GPIOD_PIN0) |          \
+                                     PIN_MODE_ANALOG(GPIOD_PIN1) |          \
+                                     PIN_MODE_ANALOG(GPIOD_PIN2) |          \
                                      PIN_MODE_OUTPUT(GPIOD_RS485_TERM_DE) | \
-                                     PIN_MODE_OUTPUT(GPIOD_USART2_DE) | \
-                                     PIN_MODE_ALTERNATE(GPIOD_USART2_TX) | \
-                                     PIN_MODE_ALTERNATE(GPIOD_USART2_RX) | \
-                                     PIN_MODE_ANALOG(GPIOD_PIN7) |      \
-                                     PIN_MODE_ANALOG(GPIOD_PIN8) |      \
-                                     PIN_MODE_ANALOG(GPIOD_PIN9) |      \
-                                     PIN_MODE_ANALOG(GPIOD_PIN10) |     \
-                                     PIN_MODE_ANALOG(GPIOD_PIN11) |     \
-                                     PIN_MODE_ANALOG(GPIOD_PIN12) |     \
-                                     PIN_MODE_ANALOG(GPIOD_PIN13) |     \
-                                     PIN_MODE_ANALOG(GPIOD_PIN14) |     \
+                                     PIN_MODE_ALTERNATE(GPIOD_USART2_DE) |  \
+                                     PIN_MODE_ALTERNATE(GPIOD_USART2_TX) |  \
+                                     PIN_MODE_ALTERNATE(GPIOD_USART2_RX) |  \
+                                     PIN_MODE_ANALOG(GPIOD_PIN7) |          \
+                                     PIN_MODE_ANALOG(GPIOD_PIN8) |          \
+                                     PIN_MODE_ANALOG(GPIOD_PIN9) |          \
+                                     PIN_MODE_ANALOG(GPIOD_PIN10) |         \
+                                     PIN_MODE_ANALOG(GPIOD_PIN11) |         \
+                                     PIN_MODE_ANALOG(GPIOD_PIN12) |         \
+                                     PIN_MODE_ANALOG(GPIOD_PIN13) |         \
+                                     PIN_MODE_ANALOG(GPIOD_PIN14) |         \
                                      PIN_MODE_ANALOG(GPIOD_PIN15))
 
 #define VAL_GPIOD_OTYPER            (PIN_OTYPE_OPENDRAIN(GPIOD_PIN0) |  \
@@ -798,16 +798,18 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_ODR_HIGH(GPIOD_PIN14) |            \
                                      PIN_ODR_HIGH(GPIOD_PIN15))
 
-#define VAL_GPIOD_AFRL              (PIN_AFIO_AF(GPIOD_USART2_TX, 7U) |     \
-                                     PIN_AFIO_AF(GPIOD_USART2_RX, 7U) |     \
+#define VAL_GPIOD_AFRL              (PIN_AFIO_AF(GPIOD_PIN0, 0U) |          \
+                                     PIN_AFIO_AF(GPIOD_PIN1, 0U) |          \
                                      PIN_AFIO_AF(GPIOD_PIN2, 0U) |          \
                                      PIN_AFIO_AF(GPIOD_RS485_TERM_DE, 0U) | \
-                                     PIN_AFIO_AF(GPIOD_USART2_DE, 0U) |     \
-                                     PIN_AFIO_AF(GPIOD_PIN7, 0U) |          \
-                                     PIN_AFIO_AF(GPIOD_PIN8, 0U) |          \
-                                     PIN_AFIO_AF(GPIOD_PIN9, 0U))
+                                     PIN_AFIO_AF(GPIOD_USART2_DE, 7U) |     \
+                                     PIN_AFIO_AF(GPIOD_USART2_TX, 7U) |     \
+                                     PIN_AFIO_AF(GPIOD_USART2_RX, 7U) |     \
+                                     PIN_AFIO_AF(GPIOD_PIN7, 0U))
 
-#define VAL_GPIOD_AFRH              (PIN_AFIO_AF(GPIOD_PIN10, 0U) |         \
+#define VAL_GPIOD_AFRH              (PIN_AFIO_AF(GPIOD_PIN8, 0U)  |         \
+                                     PIN_AFIO_AF(GPIOD_PIN9, 0U)  |         \
+                                     PIN_AFIO_AF(GPIOD_PIN10, 0U) |         \
                                      PIN_AFIO_AF(GPIOD_PIN11, 0U) |         \
                                      PIN_AFIO_AF(GPIOD_PIN12, 0U) |         \
                                      PIN_AFIO_AF(GPIOD_PIN13, 0U) |         \
