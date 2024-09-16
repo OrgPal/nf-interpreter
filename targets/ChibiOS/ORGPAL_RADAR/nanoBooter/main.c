@@ -104,7 +104,7 @@ int main(void)
     //  Normal main() thread
     while (true)
     {
-        palToggleLine(LINE_LED1);
+        palToggleLine(LINE_LED2);
         osDelay(500);
     }
 }
