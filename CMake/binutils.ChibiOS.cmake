@@ -83,7 +83,6 @@ macro(nf_add_platform_packages)
 
     # littlefs
     if(NF_FEATURE_USE_LITTLEFS_OPTION)
-        find_package(STM32F7_CubePackage REQUIRED QUIET)
         find_package(littlefs REQUIRED QUIET)
     endif()
 
