@@ -1,27 +1,27 @@
-name: Build ORGPAL_PALX
+name: Build ORGPAL_RADAR
 
 on:
   workflow_dispatch
 
 jobs:
-  build_ORGPALX_CHIBIOS:
+  build_ORGPAL_RADAR:
     runs-on: windows-latest
 
     env:
       TARGET_NAME: 'ORGPAL_RADAR'
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        ref: 'orgpal-palx'
+        ref: 'orgpal-radar'
 
     - uses: lukka/get-cmake@latest
 
     - name: Install arm-none-eabi-gcc
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '13.3.rel1'
+        release: '13.3.Rel1'
         path-env-var: ARM_NONE_EABI_GCC_PATH
 
     - name: Tweak GCC path
@@ -72,7 +72,7 @@ jobs:
         buildPreset: ${{ env.TARGET_NAME }}
         buildPresetAdditionalArgs: "['--config MinSizeRel']"
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: '${{ env.TARGET_NAME }}-v${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}'
         path: |
