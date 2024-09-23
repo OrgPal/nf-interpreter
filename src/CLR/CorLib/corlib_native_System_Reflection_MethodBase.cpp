@@ -26,7 +26,7 @@ HRESULT Library_corlib_native_System_Reflection_MethodBase::get_DeclaringType___
     NANOCLR_HEADER();
 
     CLR_RT_MethodDef_Instance md;
-    CLR_RT_TypeDef_Instance cls;
+    CLR_RT_TypeDef_Instance cls{};
     CLR_RT_HeapBlock *hbMeth = stack.Arg0().Dereference();
 
     NANOCLR_CHECK_HRESULT(GetMethodDescriptor(stack, *hbMeth, md));
@@ -194,9 +194,9 @@ HRESULT Library_corlib_native_System_Reflection_MethodBase::GetParametersNative_
 {
     NANOCLR_HEADER();
 
-    CLR_RT_MethodDef_Instance inst;
-    CLR_RT_MethodDef_Index idx;
-    CLR_RT_SignatureParser sigParser;
+    CLR_RT_MethodDef_Instance inst{};
+    CLR_RT_MethodDef_Index idx{};
+    CLR_RT_SignatureParser sigParser{};
     CLR_RT_TypeDef_Index paramInfoTypeDef;
     CLR_RT_SignatureParser::Element paramElement;
     CLR_RT_HeapBlock *hbObj;
@@ -255,6 +255,12 @@ HRESULT Library_corlib_native_System_Reflection_MethodBase::GetParametersNative_
             g_CLR_RT_ExecutionEngine.NewObjectFromIndex(paraTypeHB, g_CLR_RT_WellKnownTypes.m_TypeStatic));
         hbObj = paraTypeHB.Dereference();
         hbObj->SetReflection(paramElement.m_cls);
+
+        // deal with array types
+        if (paramElement.m_levels > 0)
+        {
+            hbObj->ReflectionData().m_levels = (CLR_UINT16)paramElement.m_levels;
+        }
 
         // move pointer to the next element
         paramInfoElement++;

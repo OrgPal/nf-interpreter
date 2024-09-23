@@ -14,6 +14,7 @@ option(AZURERTOS_USBX_REQUIRED "option to include Azure RTOS USBX")
 option(AZURERTOS_FILEX_REQUIRED "option to include Azure RTOS FileX")
 option(AZURERTOS_NETXDUO_REQUIRED "option to include Azure RTOS NetX Duo")
 option(USBX_FEATURE_CDC "option to use USBX CDC class")
+option(USBX_FEATURE_HID "option to use USBX HID class")
 
 if(USBX_FEATURE_CDC)
 
@@ -28,6 +29,21 @@ if(USBX_FEATURE_CDC)
 
 else()
     set(USBX_FEATURE_CDC_OPTION FALSE CACHE INTERNAL "USBX_FEATURE_CDC_OPTION for USBX_FEATURE_CDC")
+endif()
+
+if(USBX_FEATURE_HID)
+
+    set(USBX_FEATURE_HID_OPTION TRUE CACHE INTERNAL "USBX_FEATURE_HID_OPTION for USBX_FEATURE_HID")
+    # requires:
+    # AZURERTOS_USBX_REQUIRED
+    set(AZURERTOS_USBX_REQUIRED ON CACHE INTERNAL "AZURERTOS_USBX_REQUIRED for USBX_FEATURE_HID")
+    # AZURERTOS_FILEX_REQUIRED
+    set(AZURERTOS_FILEX_REQUIRED ON CACHE INTERNAL "AZURERTOS_FILEX_REQUIRED for USBX_FEATURE_HID")
+    # AZURERTOS_NETXDUO_REQUIRED
+    set(AZURERTOS_NETXDUO_REQUIRED ON CACHE INTERNAL "AZURERTOS_NETXDUO_REQUIRED for USBX_FEATURE_HID")
+
+else()
+    set(USBX_FEATURE_HID_OPTION FALSE CACHE INTERNAL "USBX_FEATURE_HID_OPTION for USBX_FEATURE_HID")
 endif()
 
 if(USE_NETWORKING_OPTION)
@@ -60,7 +76,8 @@ endif()
 # check if build was requested with a specifc AzureRTOS version
 if(RTOS_VERSION_EMPTY)
     # no AzureRTOS version actualy specified, must be empty which is fine, we'll default to a known good version
-    set(RTOS_VERSION "v6.1.12_rel")
+    # WHEN CHANGING THIS MAKE SURE TO UPDATE THE DEV CONTAINERS
+    set(RTOS_VERSION "v6.4.0_rel")
 endif()
 
 if(NO_AZURERTOS_SOURCE_FOLDER)
@@ -70,7 +87,7 @@ if(NO_AZURERTOS_SOURCE_FOLDER)
 
     FetchContent_Declare(
         azure_rtos
-        GIT_REPOSITORY https://github.com/azure-rtos/threadx.git
+        GIT_REPOSITORY https://github.com/eclipse-threadx/threadx.git
         GIT_TAG ${RTOS_VERSION}
     )
 
@@ -83,7 +100,7 @@ else()
 
         FetchContent_Declare(
             azure_rtos
-            SOURCE_DIR $(AZURERTOS_SOURCE_FOLDER)
+            SOURCE_DIR ${AZURERTOS_SOURCE_FOLDER}
         )
 
     else()
@@ -92,7 +109,11 @@ else()
 
 endif()
 
-FetchContent_Populate(azure_rtos)
+FetchContent_GetProperties(azure_rtos)
+if(NOT azure_rtos_POPULATED)
+    # Fetch the content using previously declared details
+    FetchContent_Populate(azure_rtos)
+endif()
 
 ###########################
 # Azure RTOS USBX
@@ -129,7 +150,8 @@ if(AZURERTOS_USBX_REQUIRED)
 
         FetchContent_Declare(
             azure_rtos_usbx
-            SOURCE_DIR https://github.com/azure-rtos/usbx.git
+            GIT_REPOSITORY https://github.com/eclipse-threadx/usbx.git
+            GIT_TAG ${RTOS_VERSION}
         )
 
     else()
@@ -141,7 +163,7 @@ if(AZURERTOS_USBX_REQUIRED)
 
             FetchContent_Declare(
                 azure_rtos_usbx
-                SOURCE_DIR $(USBX_SOURCE_FOLDER)
+                SOURCE_DIR ${USBX_SOURCE_FOLDER}
             )
 
         else()
@@ -150,7 +172,11 @@ if(AZURERTOS_USBX_REQUIRED)
 
     endif()
 
-    FetchContent_Populate(azure_rtos_usbx)
+    FetchContent_GetProperties(azure_rtos_usbx)
+    if(NOT azure_rtos_usbx_POPULATED)
+        # Fetch the content using previously declared details
+        FetchContent_Populate(azure_rtos_usbx)
+    endif()
 
 endif()
 
@@ -189,7 +215,7 @@ if(AZURERTOS_FILEX_REQUIRED)
 
         FetchContent_Declare(
             azure_rtos_filex
-            GIT_REPOSITORY https://github.com/azure-rtos/filex.git
+            GIT_REPOSITORY https://github.com/eclipse-threadx/filex.git
             GIT_TAG ${FILEX_VERSION}
         )
 
@@ -202,7 +228,7 @@ if(AZURERTOS_FILEX_REQUIRED)
 
             FetchContent_Declare(
                 azure_rtos_filex
-                SOURCE_DIR $(FILEX_SOURCE_FOLDER)
+                SOURCE_DIR ${FILEX_SOURCE_FOLDER}
             )
 
         else()
@@ -211,7 +237,11 @@ if(AZURERTOS_FILEX_REQUIRED)
 
     endif()
 
-    FetchContent_Populate(azure_rtos_filex)
+    FetchContent_GetProperties(azure_rtos_filex)
+    if(NOT azure_rtos_filex_POPULATED)
+        # Fetch the content using previously declared details
+        FetchContent_Populate(azure_rtos_filex)
+    endif()
 
 endif()
 
@@ -250,7 +280,7 @@ if(AZURERTOS_NETXDUO_REQUIRED)
 
         FetchContent_Declare(
             azure_rtos_netxduo
-            GIT_REPOSITORY https://github.com/azure-rtos/netxduo.git
+            GIT_REPOSITORY https://github.com/eclipse-threadx/netxduo.git
             GIT_TAG ${NETXDUO_VERSION}
         )
 
@@ -263,7 +293,7 @@ if(AZURERTOS_NETXDUO_REQUIRED)
 
             FetchContent_Declare(
                 azure_rtos_netxduo
-                SOURCE_DIR $(NETXDUO_SOURCE_FOLDER)
+                SOURCE_DIR ${NETXDUO_SOURCE_FOLDER}
             )
 
         else()
@@ -275,7 +305,11 @@ if(AZURERTOS_NETXDUO_REQUIRED)
     # enable BSD layer in NetX Duo
     set(NXD_ENABLE_BSD TRUE)
 
-    FetchContent_Populate(azure_rtos_netxduo)
+    FetchContent_GetProperties(azure_rtos_netxduo)
+    if(NOT azure_rtos_netxduo_POPULATED)
+        # Fetch the content using previously declared details
+        FetchContent_Populate(azure_rtos_netxduo)
+    endif()
 
 endif()
 
@@ -359,6 +393,20 @@ elseif(EXISTS ${PROJECT_SOURCE_DIR}/targets/AzureRTOS/Maxim/${TARGET_BOARD})
     set(TARGET_BASE_LOCATION ${PROJECT_SOURCE_DIR}/targets/AzureRTOS/Maxim/${TARGET_BOARD})
 
     set(TARGET_VENDOR Maxim)
+
+# try to find SiliconLabs board in the targets folder
+elseif(EXISTS ${PROJECT_SOURCE_DIR}/targets/AzureRTOS/SiliconLabs/${TARGET_BOARD})
+
+    # board found
+    message(STATUS "Support for target board '${TARGET_BOARD}' found")
+
+    # Define base path for the class libraries
+    nf_set_base_path_for_libraries_modules(${PROJECT_SOURCE_DIR}/targets/AzureRTOS/SiliconLabs/_nanoCLR)
+
+    # set target base location
+    set(TARGET_BASE_LOCATION ${PROJECT_SOURCE_DIR}/targets/AzureRTOS/SiliconLabs/${TARGET_BOARD})
+
+    set(TARGET_VENDOR SiliconLabs)
 
 else()
 

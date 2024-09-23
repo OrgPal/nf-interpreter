@@ -6,7 +6,7 @@
 #include "sys_io_ser_native_target.h"
 
 /////////////////////////////////////////////////////////
-// UART PAL strucs delcared in win_dev_serial_native.h //
+// UART PAL structs declared in win_dev_serial_native.h //
 /////////////////////////////////////////////////////////
 
 static LPUART_Type *const lpuart_bases[] = LPUART_BASE_PTRS;
@@ -422,11 +422,12 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::ReadLine___STRING(
     uint8_t uartNum = 0;
 
     uint8_t *line = NULL;
-    const char *newLine;
+    const char *newLine = NULL;
     uint32_t newLineLength;
 
     int64_t *timeoutTicks;
     bool eventResult = true;
+    bool newLineFound = false;
 
     // get a pointer to the managed object instance and check that it's not NULL
     CLR_RT_HeapBlock *pThis = stack.This();
@@ -455,7 +456,12 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::ReadLine___STRING(
     if (stack.m_customState == 1)
     {
         // check if there is a full line available to read
-        if (GetLineFromRxBuffer(pThis, &(palUart->RxRingBuffer), line))
+        GLOBAL_LOCK();
+        newLineFound = GetLineFromRxBuffer(pThis, &(palUart->RxRingBuffer), line);
+        GLOBAL_UNLOCK();
+
+        // check if there is a full line available to read
+        if (newLineFound)
         {
             // got one!
             eventResult = false;
@@ -464,13 +470,19 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::ReadLine___STRING(
         {
             // get new line from field
             newLine = pThis[FIELD___newLine].RecoverString();
+
+            // sanity check for NULL string
+            if (newLine == NULL)
+            {
+                NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
+            }
+
             newLineLength = hal_strlen_s(newLine);
-            // need to subtract one because we are 0 indexed
-            newLineLength--;
 
             // set new line char as the last one in the string
             // only if this one is found it will have a chance of the others being there
-            palUart->NewLineChar = newLine[newLineLength];
+            // need to subtract one because we are 0 indexed
+            palUart->NewLineChar = newLine[newLineLength - 1];
 
             stack.m_customState = 2;
         }
@@ -487,7 +499,9 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::ReadLine___STRING(
 
         if (eventResult)
         {
+            GLOBAL_LOCK();
             GetLineFromRxBuffer(pThis, &(palUart->RxRingBuffer), line);
+            GLOBAL_UNLOCK();
 
             // done here
             break;
@@ -961,6 +975,9 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
         // push onto the eval stack how many bytes are being pushed to the UART
         stack.PushValueI4(bufferLength);
 
+        // push onto the eval stack if the buffer was allocated
+        stack.PushValueI4(isNewAllocation ? 1 : 0);
+
         // store pointer
         palUart->TxBuffer = (uint8_t *)buffer;
 
@@ -987,6 +1004,10 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
         if (eventResult)
         {
             // event occurred
+
+            // pop "isNewAllocation" from the eval stack
+            isNewAllocation = stack.m_evalStack[2].NumericByRef().s4 == 1 ? true : false;
+
             // get from the eval stack how many bytes were buffered to Tx
             length = stack.m_evalStack[1].NumericByRef().s4;
 
@@ -1007,15 +1028,18 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
     // pop "length" heap block from stack
     stack.PopValue();
 
+    // pop "isNewAllocation" heap block from stack
+    stack.PopValue();
+
     // pop "hbTimeout" heap block from stack
     stack.PopValue();
 
     stack.SetResult_U4(length);
 
     // free memory, if it was allocated
-    if (isNewAllocation && buffer)
+    if (isNewAllocation)
     {
-        platform_free(buffer);
+        platform_free(palUart->TxBuffer);
     }
 
     // null pointers and vars

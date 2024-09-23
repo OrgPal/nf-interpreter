@@ -9,38 +9,58 @@
 # and the namespace designation is 'System.Device.Gpio'
 ###########################################################################################
 
-option(API_nanoFramework.Device.Can             "option for nanoFramework.Device.Can")
-option(API_nanoFramework.Device.OneWire         "option for nanoFramework.Device.OneWire")
-option(API_nanoFramework.Networking.Sntp        "option for nanoFramework.Networking.Sntp")
-option(API_nanoFramework.Runtime.Events         "option for nanoFramework.Runtime.Events API")
-option(API_nanoFramework.ResourceManager        "option for nanoFramework.ResourceManager")
-option(API_nanoFramework.System.Collections     "option for nanoFramework.System.Collections")
-option(API_nanoFramework.System.Text            "option for nanoFramework.System.Text")
-option(API_System.IO.FileSystem                 "option for System.IO.FileSystem")
-option(API_System.Math                          "option for System.Math")
-option(API_System.Net                           "option for System.Net")
-option(API_System.Device.Adc                    "option for System.Device.Adc API")
-option(API_System.Device.Dac                    "option for System.Device.Dac API")
-option(API_System.Device.Gpio                   "option for System.Device.Gpio API")
-option(API_System.Device.I2c                    "option for System.Device.I2c API")
-option(API_System.Device.Pwm                    "option for System.Device.Pwm API")
-option(API_System.IO.Ports                      "option for System.IO.Ports API")
-option(API_System.Device.Spi                    "option for System.Device.Spi API")
-option(API_Windows.Storage                      "option for Windows.Storage")
-option(API_nanoFramework.Graphics               "option for nanoFramework.Graphics")
-option(API_nanoFramework.Device.Bluetooth       "option for nanoFramework.Device.Bluetooth")
+option(API_nanoFramework.Device.Can                     "option for nanoFramework.Device.Can")
+option(API_nanoFramework.Device.OneWire                 "option for nanoFramework.Device.OneWire")
+option(API_nanoFramework.Networking.Sntp                "option for nanoFramework.Networking.Sntp")
+option(API_nanoFramework.Runtime.Events                 "option for nanoFramework.Runtime.Events API")
+option(API_nanoFramework.ResourceManager                "option for nanoFramework.ResourceManager")
+option(API_nanoFramework.System.Collections             "option for nanoFramework.System.Collections")
+option(API_nanoFramework.System.Text                    "option for nanoFramework.System.Text")
+option(API_System.IO.FileSystem                         "option for System.IO.FileSystem")
+option(API_System.Math                                  "option for System.Math")
+option(API_System.Net                                   "option for System.Net")
+option(API_System.Device.Adc                            "option for System.Device.Adc API")
+option(API_System.Device.Dac                            "option for System.Device.Dac API")
+option(API_System.Device.Gpio                           "option for System.Device.Gpio API")
+option(API_System.Device.I2c                            "option for System.Device.I2c API")
+option(API_System.Device.I2c.Slave                      "option for System.Device.I2c.Slave API")
+option(API_System.Device.I2s                            "option for System.Device.I2s API")
+option(API_System.Device.Pwm                            "option for System.Device.Pwm API")
+option(API_System.IO.Ports                              "option for System.IO.Ports API")
+option(API_System.Device.Spi                            "option for System.Device.Spi API")
+option(API_System.Runtime.Serialization                 "option for System.Runtime.Serialization API")
+option(API_Windows.Storage                              "option for Windows.Storage")
+option(API_nanoFramework.Graphics                       "option for nanoFramework.Graphics")
+option(API_nanoFramework.Device.Bluetooth               "option for nanoFramework.Device.Bluetooth")
+option(API_System.Device.UsbStream                      "option for System.Device.UsbStream API")
+option(API_nanoFramework.System.IO.Hashing              "option for nanoFramework.System.IO.Hashing API")
+option(API_nanoFramework.System.Security.Cryptography   "option for nanoFramework.System.Security.Cryptography API")
 
 # Esp32 only
-option(API_Hardware.Esp32                       "option for Hardware.Esp32")
-option(API_nanoFramework.Hardware.Esp32.Rmt     "option for nanoFramework.Hardware.Esp32.Rmt")
-
+option(API_Hardware.Esp32                               "option for Hardware.Esp32")
+option(API_nanoFramework.Hardware.Esp32.Rmt             "option for nanoFramework.Hardware.Esp32.Rmt")
+option(API_nanoFramework.Networking.Thread              "option for nanoFramework.Networking.Thread API")
 
 # Stm32 only
-option(API_Hardware.Stm32                       "option for Hardware.Stm32")
+option(API_Hardware.Stm32                               "option for Hardware.Stm32")
 
 # TI CC13xxCC26xx
-option(API_nanoFramework.TI.EasyLink            "option for nanoFramework.TI.EasyLink API")
-option(API_nanoFramework.Hardware.TI            "option for nanoFramework.Hardware.TI API")
+option(API_nanoFramework.TI.EasyLink                    "option for nanoFramework.TI.EasyLink API")
+option(API_nanoFramework.Hardware.TI                    "option for nanoFramework.Hardware.TI API")
+
+# Silabs Giant Gecko only
+option(API_nanoFramework.GiantGecko.Adc                 "option for nanoFramework.GiantGecko.Adc")
+option(API_Hardware.GiantGecko                          "option for Hardware.GiantGecko")
+
+###################################
+# add options for private APIs here
+
+###################################
+
+###################################
+# add options for private APIs here
+
+###################################
 
 #################################################################
 # macro to perform individual settings to add an API to the build
@@ -171,6 +191,12 @@ if(API_nanoFramework.Hardware.Esp32.Rmt)
     PerformSettingsForApiEntry("nanoFramework.Hardware.Esp32.Rmt")
 endif()
 
+# nanoFramework.Networking.Thread
+if(API_nanoFramework.Networking.Thread)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("nanoFramework.Networking.Thread")
+endif()
+
 # nanoFramework.Device.Bluetooth
 if(API_nanoFramework.Device.Bluetooth)
     ##### API name here (doted name)
@@ -237,6 +263,33 @@ if(API_nanoFramework.Hardware.TI)
     PerformSettingsForApiEntry("nanoFramework.Hardware.TI")
 endif()
 
+# nanoFramework.Hardware.TI
+if(API_nanoFramework.GiantGecko.Adc)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("nanoFramework.GiantGecko.Adc")
+endif()
+
+# nanoFramework.Hardware.GiantGecko
+if(API_Hardware.GiantGecko)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("nanoFramework.Hardware.GiantGecko")
+endif()
+
+# nanoFramework.System.IO.Hashing
+if(API_nanoFramework.System.IO.Hashing)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("nanoFramework.System.IO.Hashing")
+endif()
+
+# nanoFramework.System.Security.Cryptography
+if(API_nanoFramework.System.Security.Cryptography)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("nanoFramework.System.Security.Cryptography")
+
+    # enable adding Mbed TLS to the build
+    set(NF_REQUIRES_MBEDTLS TRUE CACHE BOOL "Enable Mbed TLS for nanoFramework.System.Security.Cryptography" FORCE)
+endif()
+
 # nanoFramework.Runtime.Events
 if(API_nanoFramework.Runtime.Events)
     ##### API name here (doted name)
@@ -293,6 +346,18 @@ if(API_System.Device.I2c)
     PerformSettingsForApiEntry("System.Device.I2c")
 endif()
 
+# System.Device.I2c.Slave
+if(API_System.Device.I2c.Slave)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("System.Device.I2c.Slave")
+endif()
+
+# System.Device.I2s
+if(API_System.Device.I2s)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("System.Device.I2s")
+endif()
+
 # System.Device.Pwm
 if(API_System.Device.Pwm)
     ##### API name here (doted name)
@@ -311,10 +376,22 @@ if(API_System.Device.Spi)
     PerformSettingsForApiEntry("System.Device.Spi")
 endif()
 
+# System.Runtime.Serialization
+if(API_System.Runtime.Serialization)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("System.Runtime.Serialization")
+endif()
+
 # System.Device.Wifi
 if(API_System.Device.Wifi)
     ##### API name here (doted name)
     PerformSettingsForApiEntry("System.Device.Wifi")
+endif()
+
+# System.Device.UsbStream
+if(API_System.Device.UsbStream)
+    ##### API name here (doted name)
+    PerformSettingsForApiEntry("System.Device.UsbStream")
 endif()
 
 # Windows.Storage
@@ -326,6 +403,10 @@ endif()
 # Interop assemblies
 ParseInteropAssemblies()
 
+##################################
+# add parsing of private APIs here
+
+##################################
 
 # parse the declarations to have new lines and ';'
 string(REPLACE ";;" ";\n" CLR_RT_NativeAssemblyDataDeclarations "${CLR_RT_NativeAssemblyDataList}")
@@ -373,19 +454,21 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(NF_NativeAssemblies DEFAULT_MSG NF_NativeAssemblies_INCLUDE_DIRS NF_NativeAssemblies_SOURCES)
 
 # macro to be called from binutils to add Core CLR library
+# optional EXTRA_SOURCES with source files to be added to the library
 # optional EXTRA_INCLUDES with include paths to be added to the library
 # optional EXTRA_COMPILE_DEFINITIONS with compiler definitions to be added to the library
 macro(nf_add_lib_native_assemblies)
 
     # parse arguments
-    cmake_parse_arguments(NFALNA "" "" "EXTRA_INCLUDES;EXTRA_COMPILE_DEFINITIONS" ${ARGN})
+    cmake_parse_arguments(NFALNA "" "" "EXTRA_SOURCES;EXTRA_INCLUDES;EXTRA_COMPILE_DEFINITIONS" ${ARGN})
 
     # add this has a library
     set(LIB_NAME NF_NativeAssemblies)
 
     add_library(
         ${LIB_NAME} STATIC 
-            ${NF_NativeAssemblies_SOURCES})   
+            ${NF_NativeAssemblies_SOURCES}
+            ${NFALNA_EXTRA_SOURCES})   
 
     target_include_directories(
         ${LIB_NAME} 
@@ -399,7 +482,7 @@ macro(nf_add_lib_native_assemblies)
     if(RTOS_ESP32_CHECK)
         # this is the only one different
 
-        nf_set_compile_options(TARGET ${LIB_NAME} BUILD_TARGET ${NANOCLR_PROJECT_NAME})
+        nf_set_compile_options(TARGET ${LIB_NAME})
 
         nf_set_compile_definitions(
             TARGET ${LIB_NAME} 
@@ -411,7 +494,7 @@ macro(nf_add_lib_native_assemblies)
         nf_set_link_options(TARGET ${LIB_NAME})
 
     else() 
-        nf_set_compile_options(TARGET ${LIB_NAME} BUILD_TARGET ${NANOCLR_PROJECT_NAME})
+        nf_set_compile_options(TARGET ${LIB_NAME})
         nf_set_compile_definitions(TARGET ${LIB_NAME} EXTRA_COMPILE_DEFINITIONS ${NFALNA_EXTRA_COMPILE_DEFINITIONS} BUILD_TARGET ${NANOCLR_PROJECT_NAME})
         nf_set_link_options(TARGET ${LIB_NAME})
     endif()

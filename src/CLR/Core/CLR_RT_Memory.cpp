@@ -13,7 +13,7 @@ static CLR_UINT32 s_TotalAllocated;
 
 CLR_RT_MemoryRange s_CLR_RT_Heap = {0, 0};
 
-static int s_PreHeapInitIndex = 0;
+static size_t s_PreHeapInitIndex = 0;
 
 ////////////////////////////////////////////////////////////
 
@@ -25,8 +25,8 @@ void CLR_RT_Memory::Reset()
     ::HeapLocation(s_CLR_RT_Heap.m_location, s_CLR_RT_Heap.m_size);
 
     // adjust GC thresholds
-    g_CLR_RT_GarbageCollector.c_memoryThreshold = s_CLR_RT_Heap.m_size * HEAP_SIZE_THRESHOLD_RATIO;
-    g_CLR_RT_GarbageCollector.c_memoryThreshold2 = s_CLR_RT_Heap.m_size * HEAP_SIZE_THRESHOLD_UPPER_RATIO;
+    g_CLR_RT_GarbageCollector.c_memoryThreshold = (CLR_UINT32)(s_CLR_RT_Heap.m_size * HEAP_SIZE_THRESHOLD_RATIO);
+    g_CLR_RT_GarbageCollector.c_memoryThreshold2 = (CLR_UINT32)(s_CLR_RT_Heap.m_size * HEAP_SIZE_THRESHOLD_UPPER_RATIO);
 
 #if defined(NANOCLR_TRACE_MALLOC)
     s_TotalAllocated = 0;
@@ -55,7 +55,7 @@ void *CLR_RT_Memory::SubtractFromSystem(size_t len)
 #define DEBUG_POINTER_INCREMENT(ptr, size) ptr = (void *)((char *)ptr + (size))
 #define DEBUG_POINTER_DECREMENT(ptr, size) ptr = (void *)((char *)ptr - (size))
 
-const CLR_UINT32 c_extra = sizeof(CLR_RT_HeapBlock) * 2;
+const CLR_UINT32 c_extra = sizeof(struct CLR_RT_HeapBlock) * 2;
 
 #endif
 
@@ -205,7 +205,7 @@ void *CLR_RT_Memory::ReAllocate(void *ptr, size_t len)
     {
         CLR_RT_HeapBlock_BinaryBlob *pThis = CLR_RT_HeapBlock_BinaryBlob::GetBlob(ptr);
 
-        size_t prevLen = pThis->DataSize() * sizeof(CLR_RT_HeapBlock);
+        size_t prevLen = pThis->DataSize() * sizeof(struct CLR_RT_HeapBlock);
 
         memcpy(p, ptr, len > prevLen ? prevLen : len);
 

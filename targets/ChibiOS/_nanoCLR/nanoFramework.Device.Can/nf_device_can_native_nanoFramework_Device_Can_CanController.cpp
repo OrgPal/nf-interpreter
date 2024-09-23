@@ -57,7 +57,7 @@ static void RxMessage(CANDriver *canp, uint32_t flags)
 }
 
 /////////////////////////////////////////////////////////
-// CAN PAL strucs delcared in nf_device_can_native.h  //
+// CAN PAL structs declared in nf_device_can_native.h  //
 /////////////////////////////////////////////////////////
 #if defined(STM32_CAN_USE_CAN1) && (STM32_CAN_USE_CAN1 == TRUE)
 NF_PAL_CAN Can1_PAL;
@@ -101,7 +101,7 @@ HRESULT Library_nf_device_can_native_nanoFramework_Device_Can_CanController::
                                                  .NumericByRefConst()
                                                  .u1);
 
-        // get message to transmite
+        // get message to transmit
         message = pMessage[Library_nf_device_can_native_nanoFramework_Device_Can_CanMessage::FIELD___message]
                       .DereferenceArray();
 
@@ -109,7 +109,7 @@ HRESULT Library_nf_device_can_native_nanoFramework_Device_Can_CanController::
         if (message->m_numOfElements > 8)
             NANOCLR_SET_AND_LEAVE(CLR_E_OUT_OF_RANGE);
 
-        // compose the transmite packet to send
+        // compose the transmit packet to send
         if (message != NULL)
         {
             // copy message to structure
@@ -249,18 +249,15 @@ HRESULT Library_nf_device_can_native_nanoFramework_Device_Can_CanController::
             *id = canFrame.EID;
         }
 
-        // get data if any
-        if (canFrame.data8)
-        {
-            CLR_RT_HeapBlock &dataArrayField = canMessage[ManagedCanMessage::FIELD___message];
-            // create an array of <bytes>
-            NANOCLR_CHECK_HRESULT(
-                CLR_RT_HeapBlock_Array::CreateInstance(dataArrayField, 8, g_CLR_RT_WellKnownTypes.m_UInt8));
+        // grab data and copy over to managed array
+        CLR_RT_HeapBlock &dataArrayField = canMessage[ManagedCanMessage::FIELD___message];
+        // create an array of <bytes>
+        NANOCLR_CHECK_HRESULT(
+            CLR_RT_HeapBlock_Array::CreateInstance(dataArrayField, 8, g_CLR_RT_WellKnownTypes.m_UInt8));
 
-            // get a pointer to the first object in the array
-            CLR_UINT8 *dataBuffer = (CLR_UINT8 *)(dataArrayField.DereferenceArray()->GetFirstElement());
-            memcpy(dataBuffer, &canFrame.data8[0], 8);
-        }
+        // get a pointer to the first object in the array
+        CLR_UINT8 *dataBuffer = (CLR_UINT8 *)(dataArrayField.DereferenceArray()->GetFirstElement());
+        memcpy(dataBuffer, &canFrame.data8[0], 8);
     }
     else
     {

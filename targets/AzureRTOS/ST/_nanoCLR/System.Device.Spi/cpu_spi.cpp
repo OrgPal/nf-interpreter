@@ -6,7 +6,7 @@
 #include <sys_dev_spi_native_target.h>
 
 /////////////////////////////////////////////////////
-// SPI PAL strucs declared in win_dev_spi_native.h //
+// SPI PAL structs declared in win_dev_spi_native.h //
 /////////////////////////////////////////////////////
 #if STM32_SPI_USE_SPI1
 NF_PAL_SPI SPI1_PAL;
@@ -486,11 +486,12 @@ HRESULT CPU_SPI_nWrite_nRead(
         // just to satisfy the driver ceremony, no actual implementation for STM32
         spiSelect(palSpi->Driver);
 
+        palSpi->ChipSelect = wrc.DeviceChipSelect;
         // if CS is to be controlled by the driver, set the GPIO
-        if (palSpi->ChipSelect >= 0)
+        if (wrc.DeviceChipSelect >= 0)
         {
             // assert pin based on CS active level
-            CPU_GPIO_SetPinState(palSpi->ChipSelect, (GpioPinValue)sdev.ChipSelectActive);
+            CPU_GPIO_SetPinState(wrc.DeviceChipSelect, (GpioPinValue)wrc.ChipSelectActiveState);
         }
 
         if (sync)
@@ -562,10 +563,10 @@ HRESULT CPU_SPI_nWrite_nRead(
             CompleteTranfer(palSpi);
 
             // if CS is to be controlled by the driver, set the GPIO
-            if (palSpi->ChipSelect >= 0)
+            if (wrc.DeviceChipSelect >= 0)
             {
                 // de-assert pin based on CS active level
-                CPU_GPIO_SetPinState(palSpi->ChipSelect, (GpioPinValue)sdev.ChipSelectActive);
+                CPU_GPIO_SetPinState(wrc.DeviceChipSelect, (GpioPinValue)wrc.ChipSelectActiveState);
             }
         }
         else
@@ -575,10 +576,10 @@ HRESULT CPU_SPI_nWrite_nRead(
             // Completed on calling Spi Callback
 
             // if CS is to be controlled by the driver, set the GPIO
-            if (palSpi->ChipSelect >= 0)
+            if (wrc.DeviceChipSelect >= 0)
             {
                 // assert pin based on CS active level
-                CPU_GPIO_SetPinState(palSpi->ChipSelect, (GpioPinValue)sdev.ChipSelectActive);
+                CPU_GPIO_SetPinState(wrc.DeviceChipSelect, (GpioPinValue)wrc.ChipSelectActiveState);
             }
 
             // this is a Async operation

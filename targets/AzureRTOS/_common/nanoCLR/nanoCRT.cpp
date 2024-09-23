@@ -6,6 +6,8 @@
 
 #include <nanoHAL.h>
 #include <target_stdio_config.h>
+#include <nanoprintf.h>
+
 //--//
 /* STDIO stubs                                                              */
 //--//
@@ -127,10 +129,6 @@ extern "C"
         va_end(arg_ptr);
     }
 
-#else
-    __inline void debug_printf(const char *format, ...)
-    {
-    }
 #endif // !defined(BUILD_RTM)
 }
 

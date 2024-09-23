@@ -237,7 +237,7 @@ HRESULT CLR_RT_StackFrame::Push(CLR_RT_Thread *th, const CLR_RT_MethodDef_Instan
     //
     if (extraBlocks < 0)
     {
-#if defined(_WIN32)
+#if defined(VIRTUAL_DEVICE)
         if (caller->m_evalStackPos > caller->m_evalStackEnd)
         {
             NANOCLR_SET_AND_LEAVE(CLR_E_STACK_OVERFLOW);
@@ -251,7 +251,7 @@ HRESULT CLR_RT_StackFrame::Push(CLR_RT_Thread *th, const CLR_RT_MethodDef_Instan
 
         caller->m_evalStackPos = stack->m_arguments;
 
-#if defined(_WIN32)
+#if defined(VIRTUAL_DEVICE)
         if (stack->m_arguments < caller->m_evalStack)
         {
             NANOCLR_SET_AND_LEAVE(CLR_E_STACK_UNDERFLOW);
@@ -573,12 +573,14 @@ HRESULT CLR_RT_StackFrame::MakeCall(
     int argsOffset = 0;
     CLR_RT_StackFrame *stackSub;
     CLR_RT_HeapBlock tmp;
+
+    memset(&tmp, 0, sizeof(struct CLR_RT_HeapBlock));
     tmp.SetObjectReference(NULL);
     CLR_RT_ProtectFromGC gc(tmp);
 
     if (mdR->flags & CLR_RECORD_METHODDEF::MD_Constructor)
     {
-        CLR_RT_TypeDef_Instance owner;
+        CLR_RT_TypeDef_Instance owner{};
         owner.InitializeFromMethod(md);
 
         _ASSERTE(obj == NULL);
@@ -652,7 +654,7 @@ HRESULT CLR_RT_StackFrame::MakeCall(
 
         if (numArgs)
         {
-            memcpy(&stackSub->m_arguments[argsOffset], args, sizeof(CLR_RT_HeapBlock) * numArgs);
+            memcpy(&stackSub->m_arguments[argsOffset], args, sizeof(struct CLR_RT_HeapBlock) * numArgs);
         }
     }
 
@@ -678,7 +680,7 @@ HRESULT CLR_RT_StackFrame::FixCall()
     //
     if (numArgs)
     {
-        CLR_RT_SignatureParser parser;
+        CLR_RT_SignatureParser parser{};
         parser.Initialize_MethodSignature(m_call.m_assm, target);
         CLR_RT_SignatureParser::Element res;
         CLR_RT_HeapBlock *args = m_arguments;
@@ -702,7 +704,7 @@ HRESULT CLR_RT_StackFrame::FixCall()
 
             if (args->DataType() == DATATYPE_OBJECT)
             {
-                CLR_RT_TypeDef_Instance inst;
+                CLR_RT_TypeDef_Instance inst{};
                 inst.InitializeFromIndex(res.m_cls);
                 CLR_DataType dtT = (CLR_DataType)inst.m_target->dataType;
                 const CLR_RT_DataTypeLookup &dtl = c_CLR_RT_DataTypeLookup[dtT];
@@ -754,6 +756,9 @@ HRESULT CLR_RT_StackFrame::HandleSynchronized(bool fAcquire, bool fGlobal)
     CLR_RT_HeapBlock ref;
     CLR_RT_HeapBlock **ppGlobalLock;
     CLR_RT_HeapBlock *pGlobalLock;
+
+    memset(&refType, 0, sizeof(struct CLR_RT_HeapBlock));
+    memset(&ref, 0, sizeof(struct CLR_RT_HeapBlock));
 
     if (fGlobal)
     {
@@ -968,10 +973,10 @@ void CLR_RT_StackFrame::Pop()
                 }
                 else if (m_call.m_target->retVal != DATATYPE_VOID)
                 {
-                    CLR_RT_SignatureParser sig;
+                    CLR_RT_SignatureParser sig{};
                     sig.Initialize_MethodSignature(this->m_call.m_assm, this->m_call.m_target);
                     CLR_RT_SignatureParser::Element res;
-                    CLR_RT_TypeDescriptor desc;
+                    CLR_RT_TypeDescriptor desc{};
 
                     dst->Assign(this->TopValue());
 

@@ -488,6 +488,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_corlib_native_System_Diagnostics_Debug::WriteLineNative___STATIC__VOID__STRING__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::get_IsAttached___STATIC__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::Break___STATIC__VOID,
@@ -596,8 +597,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_corlib_native_System_MathInternal::Abs___STATIC__I4__I4,
-    Library_corlib_native_System_MathInternal::Min___STATIC__I4__I4__I4,
-    Library_corlib_native_System_MathInternal::Max___STATIC__I4__I4__I4,
+    NULL,
+    NULL,
     NULL,
     NULL,
     Library_corlib_native_System_MulticastDelegate::op_Equality___STATIC__BOOLEAN__SystemMulticastDelegate__SystemMulticastDelegate,
@@ -1233,6 +1234,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_corlib_native_System_Diagnostics_Debug::WriteLineNative___STATIC__VOID__STRING__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::get_IsAttached___STATIC__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::Break___STATIC__VOID,
@@ -1318,8 +1320,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_corlib_native_System_MathInternal::Abs___STATIC__I4__I4,
-    Library_corlib_native_System_MathInternal::Min___STATIC__I4__I4__I4,
-    Library_corlib_native_System_MathInternal::Max___STATIC__I4__I4__I4,
+    NULL,
+    NULL,
     NULL,
     NULL,
     Library_corlib_native_System_MulticastDelegate::op_Equality___STATIC__BOOLEAN__SystemMulticastDelegate__SystemMulticastDelegate,
@@ -1481,18 +1483,18 @@ const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_mscorlib =
 
 #if (NANOCLR_REFLECTION == TRUE)
 
-    0x004CF1CE,
+    0x445C7AF9,
 
 #elif (NANOCLR_REFLECTION == FALSE)
 
-    0x3F4EB772,
+    0xE3A4B52F,
 
 #else
 #error "NANOCLR_REFLECTION has to be define either TRUE or FALSE. Check the build options."
 #endif
 
     method_lookup,
-    { 100, 5, 0, 17 }
+    { 100, 5, 0, 19 }
 };
 
 // clang-format on

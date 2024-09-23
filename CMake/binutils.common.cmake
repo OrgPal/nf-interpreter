@@ -49,7 +49,7 @@ macro(nf_common_compiler_definitions)
     endif()
 
     # build types that have debugging capabilities AND are NOT RTM have to have the define 'NANOCLR_ENABLE_SOURCELEVELDEBUGGING'
-    if((NOT NF_BUILD_RTM) OR NF_FEATURE_DEBUGGER)
+    if((NOT NF_BUILD_RTM) AND NF_FEATURE_DEBUGGER)
         target_compile_definitions(${NFCCF_TARGET} PUBLIC -DNANOCLR_ENABLE_SOURCELEVELDEBUGGING)
     endif()
 
@@ -108,17 +108,17 @@ endmacro()
 # To be called from target CMakeList.txt
 macro(nf_add_common_dependencies target)
 
+    configure_file(${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/target_platform.h.in
+                   ${CMAKE_BINARY_DIR}/targets/${RTOS}/${TARGET_VENDOR}/${TARGET_BOARD}/target_platform.h @ONLY)
+
     # dependencies specific to nanoBooter
     if("${target}" STREQUAL "${NANOBOOTER_PROJECT_NAME}")
 
     endif()
-    
+
     # dependencies specific to nanoCLR
     if("${target}" STREQUAL "${NANOCLR_PROJECT_NAME}")
-    
-        configure_file(${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/target_platform.h.in
-                       ${CMAKE_BINARY_DIR}/targets/${RTOS}/${TARGET_BOARD}/target_platform.h @ONLY)
-
+        
     endif()
 
 endmacro()
@@ -221,11 +221,18 @@ macro(nf_add_common_sources)
         target_link_libraries(${NFACS_TARGET}.elf
             nano::NF_CoreCLR
             nano::NF_NativeAssemblies
-            nano::NF_Debugger
             nano::WireProtocol
             
             ${NFACS_EXTRA_LIBRARIES}
         )
+
+        if(NF_FEATURE_DEBUGGER)
+
+            target_link_libraries(${NFACS_TARGET}.elf
+                nano::NF_Debugger
+            )
+
+        endif()  
 
         target_sources(${NFACS_TARGET}.elf PUBLIC
 
@@ -298,7 +305,9 @@ function(nf_generate_bin_package file1 file2 offset outputfilename)
         ${file2} -Binary -offset 0x${offset}
         -o ${outputfilename} -Binary
 
-        WORKING_DIRECTORY ${TOOL_SRECORD_PREFIX} 
+        WORKING_DIRECTORY ${TOOL_SRECORD_PREFIX}
+
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/${outputfilename}
 
         COMMENT "exporting hex files to one binary file" 
     )
@@ -315,33 +324,32 @@ function(nf_generate_build_output_files target)
     string(SUBSTRING ${target} 0 ${TARGET_EXTENSION_DOT_INDEX} TARGET_SHORT)
 
     set(TARGET_HEX_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.hex)
-    set(TARGET_S19_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.s19)
     set(TARGET_BIN_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.bin)
     set(TARGET_DUMP_FILE ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.lst)
 
-    if(CMAKE_BUILD_TYPE EQUAL "Release" OR CMAKE_BUILD_TYPE EQUAL "MinSizeRel")
+    if(CMAKE_BUILD_TYPE MATCHES "Release" OR CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
 
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
-                # copy target image to other formats
-                COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
-                COMMAND ${CMAKE_OBJCOPY} -Osrec $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_S19_FILE}
-                COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
+            # copy target image to other formats
+            COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
+            COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
+            COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
 
-                # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
+            BYPRODUCTS 
+                ${TARGET_HEX_FILE} 
+                ${TARGET_BIN_FILE}
 
-                COMMENT "Generate nanoBooter HEX and BIN files for deployment")
+            COMMENT "Generate nanoBooter HEX and BIN files for deployment")
 
     else()
 
         add_custom_command(TARGET ${TARGET_SHORT}.elf POST_BUILD
                 # copy target image to other formats
                 COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_HEX_FILE}
-                COMMAND ${CMAKE_OBJCOPY} -Osrec $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_S19_FILE}
                 COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET_SHORT}.elf> ${TARGET_BIN_FILE}
 
                 # copy target file to build folder (this is only useful for debugging in VS Code because of path in launch.json)
-                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_SOURCE_DIR}/build/${TARGET_SHORT}.elf
+                COMMAND ${CMAKE_OBJCOPY} $<TARGET_FILE:${TARGET_SHORT}.elf> ${CMAKE_BINARY_DIR}/${TARGET_SHORT}.elf
 
                 # dump target image as source code listing 
                 # ONLY when DEBUG info is available, this is on 'Debug' and 'RelWithDebInfo'
@@ -350,8 +358,6 @@ function(nf_generate_build_output_files target)
                 COMMENT "Generate nanoBooter HEX and BIN files for deployment, LST file for debug")
 
     endif()
-
-    nf_add_hex_bin_dump_targets(${target})
         
     # add this to print the size of the output targets
     nf_print_target_size(${target})
@@ -566,6 +572,11 @@ macro(nf_setup_target_build_common)
     nf_add_platform_packages(TARGET ${NANOCLR_PROJECT_NAME})
     nf_add_platform_dependencies(${NANOCLR_PROJECT_NAME})
 
+    if(API_nanoFramework.System.Security.Cryptography)
+        # need to add MbedTLS configuration file
+        target_sources(NF_NativeAssemblies PRIVATE ${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS/nf_mbedtls_config.h)
+    endif()
+
     nf_add_common_sources(TARGET ${NANOCLR_PROJECT_NAME} EXTRA_LIBRARIES ${CLR_EXTRA_LIBRARIES})
     nf_add_platform_sources(${NANOCLR_PROJECT_NAME})
 
@@ -578,32 +589,68 @@ macro(nf_setup_target_build_common)
 
     if(USE_SECURITY_MBEDTLS_OPTION AND NOT RTOS_ESP32_CHECK)
 
-        # mbedTLS requires setting a compiler definition in order to pass a config file
-        target_compile_definitions(mbedcrypto PUBLIC "-DMBEDTLS_CONFIG_FILE=\"${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/mbedTLS/nf_mbedtls_config.h\"")
-        
-        # need to add extra include directories for mbedTLS
-        target_include_directories(
-            mbedcrypto PUBLIC
+        # MbedTLS requires setting a compiler definition in order to pass a config file
+        target_compile_definitions(mbedtls PUBLIC -DMBEDTLS_CONFIG_FILE=\"${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS/nf_mbedtls_config.h\")
+        target_compile_definitions(mbedcrypto PUBLIC -DMBEDTLS_CONFIG_FILE=\"${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS/nf_mbedtls_config.h\")
+        target_compile_definitions(mbedx509 PUBLIC -DMBEDTLS_CONFIG_FILE=\"${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS/nf_mbedtls_config.h\")
+        target_compile_definitions(p256m PUBLIC -DMBEDTLS_CONFIG_FILE=\"${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS/nf_mbedtls_config.h\")
+        target_compile_definitions(everest PUBLIC -DMBEDTLS_CONFIG_FILE=\"${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS/nf_mbedtls_config.h\")
+
+        # set include directories for MbedTLS
+        set(MBEDTLS_INCLUDE_DIRECTORIES
             ${CMAKE_SOURCE_DIR}/src/CLR/Include
             ${CMAKE_SOURCE_DIR}/src/HAL/Include
             ${CMAKE_SOURCE_DIR}/src/PAL
             ${CMAKE_SOURCE_DIR}/src/PAL/Include
             ${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets
-            ${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/mbedTLS
+            ${CMAKE_SOURCE_DIR}/src/PAL/COM/sockets/ssl/MbedTLS
             ${CMAKE_SOURCE_DIR}/src/DeviceInterfaces/Networking.Sntp
             ${CMAKE_SOURCE_DIR}/targets/${RTOS}/_include
             ${TARGET_BASE_LOCATION}/nanoCLR
             ${TARGET_BASE_LOCATION}
+            ${CMAKE_BINARY_DIR}/targets/${RTOS}/${TARGET_BOARD}
         )
+
+        # need to add extra include directories for MbedTLS
+        target_include_directories(
+            mbedtls PRIVATE
+                ${MBEDTLS_INCLUDE_DIRECTORIES}
+        )
+
+        target_include_directories(
+            mbedcrypto PRIVATE
+                ${MBEDTLS_INCLUDE_DIRECTORIES}
+        )
+
+        target_include_directories(
+            mbedx509 PRIVATE
+                ${MBEDTLS_INCLUDE_DIRECTORIES}
+        )
+
+        target_include_directories(
+            p256m PRIVATE
+                ${MBEDTLS_INCLUDE_DIRECTORIES}
+        )
+
+        target_include_directories(
+            everest PRIVATE
+                ${MBEDTLS_INCLUDE_DIRECTORIES}
+        )
+
         # platform implementation of hardware random provider
         target_sources(mbedcrypto PRIVATE ${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/mbedtls_entropy_hardware_pool.c)
 
-        nf_set_compile_options(TARGET mbedcrypto BUILD_TARGET ${NANOCLR_PROJECT_NAME})
-        nf_set_compile_options(TARGET mbedx509 BUILD_TARGET ${NANOCLR_PROJECT_NAME})
-        nf_set_compile_options(TARGET mbedtls BUILD_TARGET ${NANOCLR_PROJECT_NAME})
+        nf_set_compile_options(TARGET mbedcrypto)
+        nf_set_compile_options(TARGET mbedx509)
+        nf_set_compile_options(TARGET mbedtls)
         nf_set_compile_definitions(TARGET mbedcrypto BUILD_TARGET ${NANOCLR_PROJECT_NAME})
         nf_set_compile_definitions(TARGET mbedx509 BUILD_TARGET ${NANOCLR_PROJECT_NAME})
         nf_set_compile_definitions(TARGET mbedtls BUILD_TARGET ${NANOCLR_PROJECT_NAME})
+
+        # need to unset several flags for MbedTLS to compile correctly
+        target_compile_options(mbedtls PRIVATE -Wno-undef -Wno-error=unused-function -Wno-error=discarded-qualifiers -Wno-error=unused-parameter)
+        target_compile_options(mbedcrypto PRIVATE -Wno-undef -Wno-error=unused-function -Wno-error=discarded-qualifiers -Wno-error=unused-parameter)
+        target_compile_options(mbedx509 PRIVATE -Wno-undef -Wno-error=unused-function -Wno-error=discarded-qualifiers -Wno-error=unused-parameter)
 
     endif()
 
@@ -672,3 +719,143 @@ macro(nf_clear_common_output_files_nanoclr)
     )
 
 endmacro()
+
+# function to check the path limit in Windows
+function(nf_check_path_limits)
+
+    # only need to check in Windows
+    if (WIN32)
+        set(FILESYSTEM_REG_PATH "HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem")
+        
+        cmake_host_system_information(RESULT WIN_LONG_PATH_OPTION QUERY WINDOWS_REGISTRY ${FILESYSTEM_REG_PATH} VALUE LongPathsEnabled)
+        if(${WIN_LONG_PATH_OPTION} EQUAL 0)
+            message(STATUS "******* WARNING ******\n\nWindows path limit is too short.\nPlease enable long paths in Windows registry.\nSee https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later\n\n")
+        
+            # try setting limits to overcome this 
+            set(CMAKE_OBJECT_PATH_MAX 260)
+            set(CMAKE_OBJECT_NAME_MAX 255)
+        endif()
+
+    endif()
+
+endfunction()
+
+function(nf_add_mbedtls_library)
+
+    # check if MBEDTLS_SOURCE was specified or if it's empty (default is empty)
+    set(NO_MBEDTLS_SOURCE TRUE)
+
+    if(MBEDTLS_SOURCE)
+        if(NOT ${MBEDTLS_SOURCE} STREQUAL "")
+            set(NO_MBEDTLS_SOURCE FALSE)
+        endif()
+    endif()
+
+    # set tag for currently supported version
+    # WHEN CHANGING THIS MAKE SURE TO UPDATE THE DEV CONTAINERS
+    set(MBEDTLS_GIT_TAG "mbedtls-3.6.0")
+
+    # set options for Mbed TLS
+    option(ENABLE_TESTING "no testing when building Mbed TLS." OFF)
+
+    if(NO_MBEDTLS_SOURCE)
+        # no Mbed TLS source specified, download it from it's repo
+        message(STATUS "Mbed TLS ${MBEDTLS_GIT_TAG} from GitHub repo")
+
+        FetchContent_Declare(
+            mbedtls
+            GIT_REPOSITORY https://github.com/ARMmbed/mbedtls
+            GIT_TAG ${MBEDTLS_GIT_TAG}
+        )
+
+    else()
+        # MbedTLS source was specified
+
+        message(STATUS "Mbed TLS ${MBEDTLS_GIT_TAG} (source from: ${MBEDTLS_SOURCE})")
+            
+        FetchContent_Declare(
+            mbedtls
+            SOURCE_DIR ${MBEDTLS_SOURCE}
+        )
+
+    endif()
+
+    # don't include tests or programs, only build libraries
+    set(ENABLE_TESTING CACHE BOOL OFF)
+    set(ENABLE_PROGRAMS CACHE BOOL OFF)
+
+    cmake_policy(SET CMP0048 NEW)
+
+    # Check if population has already been performed
+    FetchContent_GetProperties(mbedtls)
+    if(NOT mbedtls_POPULATED)
+        # Fetch the content using previously declared details
+        FetchContent_Populate(mbedtls)
+    endif()
+
+    set(MBEDTLS_AS_SUBPROJECT TRUE)
+    set(DISABLE_PACKAGE_CONFIG_AND_INSTALL OFF)
+
+    # add the MbedTLS library
+    add_subdirectory(${mbedtls_SOURCE_DIR} MbedTLS_Source)
+
+endfunction()
+
+# PLATFORM_INCLUDES with platform and target include paths to be added to lwIP
+function(nf_add_lwip_library)
+
+    # parse arguments
+    cmake_parse_arguments(NFLWIP "" "" "PLATFORM_INCLUDES" ${ARGN})
+
+    message(STATUS "NFLWIP_PLATFORM_INCLUDES ${NFLWIP_PLATFORM_INCLUDES}")
+    
+    # check if LWIP_SOURCE was specified or if it's empty (default is empty)
+    set(NO_LWIP_SOURCE TRUE)
+
+    if(LWIP_SOURCE)
+        if(NOT ${LWIP_SOURCE} STREQUAL "")
+            set(NO_LWIP_SOURCE FALSE)
+        endif()
+    endif()
+
+    # set tag for currently supported version
+    # WHEN CHANGING THIS MAKE SURE TO UPDATE THE DEV CONTAINERS
+    set(LWIP_GIT_TAG "STABLE-2_1_3_RELEASE")
+
+    if(NO_LWIP_SOURCE)
+        # no lwIP source specified, download it from it's repo
+        message(STATUS "LWIP ${LWIP_GIT_TAG} from Git repo")
+
+        FetchContent_Declare(
+            lwIP
+            GIT_REPOSITORY https://github.com/lwip-tcpip/lwip.git
+            GIT_TAG ${LWIP_GIT_TAG}
+        )
+
+    else()
+        # lwIP source was specified
+
+        message(STATUS "LWIP ${LWIP_GIT_TAG} (source from: ${LWIP_SOURCE})")
+            
+        FetchContent_Declare(
+            lwIP
+            SOURCE_DIR ${LWIP_SOURCE}
+        )
+
+    endif()
+
+    # Check if population has already been performed
+    FetchContent_GetProperties(lwip)
+
+    if(NOT lwIP_POPULATED)
+        # Fetch the content using previously declared details
+        FetchContent_MakeAvailable(lwIP)
+    endif()
+
+    ########################################################################
+    # add lwipdocs target, just to keep cmake happy
+    # after moving to a more recent lwIP versions this is not needed anymore
+    add_custom_target(lwipdocs)
+    ########################################################################
+
+endfunction()

@@ -39,14 +39,13 @@ struct Library_corlib_native_System_Boolean
     static const int FIELD_STATIC__FalseString = 0;
     static const int FIELD_STATIC__TrueString = 1;
 
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Globalization_CultureInfo
 {
-
     static const int FIELD___numInfo = 1;
     static const int FIELD___dateTimeInfo = 2;
     static const int FIELD___cultureInfoName = 3;
@@ -61,30 +60,12 @@ struct Library_corlib_native_System_Globalization_CultureInfo
 
 struct Library_corlib_native_System_Globalization_NumberFormatInfo
 {
-
     static const int FIELD___numberGroupSizes = 1;
     static const int FIELD___positiveSign = 2;
     static const int FIELD___negativeSign = 3;
     static const int FIELD___numberDecimalSeparator = 4;
     static const int FIELD___numberGroupSeparator = 5;
     static const int FIELD___cultureInfo = 6;
-
-    //--//
-};
-
-struct Library_corlib_native_System_Reflection_BindingFlags
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
-struct Library_corlib_native_System_Reflection_ConstructorInfo
-{
-
-    NANOCLR_NATIVE_DECLARE(GetCustomAttributes___SZARRAY_OBJECT__BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(Invoke___OBJECT__SZARRAY_OBJECT);
 
     //--//
 };
@@ -109,7 +90,6 @@ struct Library_corlib_native_System_Reflection_FieldInfo
 
 struct Library_corlib_native_System_Type
 {
-
     NANOCLR_NATIVE_DECLARE(get_DeclaringType___SystemType);
     NANOCLR_NATIVE_DECLARE(GetMethod___SystemReflectionMethodInfo__STRING__SystemReflectionBindingFlags);
     NANOCLR_NATIVE_DECLARE(IsInstanceOfType___BOOLEAN__OBJECT);
@@ -182,7 +162,6 @@ struct Library_corlib_native_System_Type
 
 struct Library_corlib_native_System_Object
 {
-
     NANOCLR_NATIVE_DECLARE(Equals___BOOLEAN__OBJECT);
     NANOCLR_NATIVE_DECLARE(GetHashCode___I4);
     NANOCLR_NATIVE_DECLARE(GetType___SystemType);
@@ -192,18 +171,23 @@ struct Library_corlib_native_System_Object
     //--//
 };
 
+struct Library_corlib_native_System_Int64
+{
+    static const int FIELD__m_value = 1;
+
+    //--//
+};
+
 struct Library_corlib_native_System_Int32
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Char
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
@@ -298,7 +282,6 @@ struct Library_corlib_native_System_String
 
 struct Library_corlib_native_System_Exception
 {
-
     static const int FIELD___message = 1;
     static const int FIELD___innerException = 2;
     static const int FIELD___stackTrace = 3;
@@ -339,7 +322,6 @@ struct Library_corlib_native_System_Exception
 
 struct Library_corlib_native_System_ArgumentException
 {
-
     static const int FIELD___paramName = 5;
 
     //--//
@@ -347,7 +329,6 @@ struct Library_corlib_native_System_ArgumentException
 
 struct Library_corlib_native_System_Array
 {
-
     NANOCLR_NATIVE_DECLARE(System_Collections_IList_get_Item___OBJECT__I4);
     NANOCLR_NATIVE_DECLARE(System_Collections_IList_set_Item___VOID__I4__OBJECT);
     NANOCLR_NATIVE_DECLARE(get_Length___I4);
@@ -380,7 +361,6 @@ struct Library_corlib_native_System_Array
 
 struct Library_corlib_native_System_Array__SzArrayEnumerator
 {
-
     static const int FIELD___array = 1;
     static const int FIELD___index = 2;
     static const int FIELD___endIndex = 3;
@@ -390,17 +370,8 @@ struct Library_corlib_native_System_Array__SzArrayEnumerator
     //--//
 };
 
-struct Library_corlib_native_System_Base64FormattingOptions
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
 struct Library_corlib_native_System_BitConverter
 {
-
     NANOCLR_NATIVE_DECLARE(get_IsLittleEndian___STATIC__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(DoubleToInt64Bits___STATIC__I8__R8);
     NANOCLR_NATIVE_DECLARE(GetBytes___STATIC__SZARRAY_U1__BOOLEAN);
@@ -434,16 +405,16 @@ struct Library_corlib_native_System_BitConverter
 struct Library_corlib_native_System_Byte
 {
 
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Collections_ArrayList
 {
-
     static const int FIELD___items = 1;
     static const int FIELD___size = 2;
+    static const int FIELD___syncRoot = 3;
 
     NANOCLR_NATIVE_DECLARE(get_Item___OBJECT__I4);
     NANOCLR_NATIVE_DECLARE(set_Item___VOID__I4__OBJECT);
@@ -463,51 +434,16 @@ struct Library_corlib_native_System_ComponentModel_EditorBrowsableState
 
     //--//
 };
-
-struct Library_corlib_native_System_Int64
-{
-
-    static const int FIELD___value = 1;
-
-    //--//
-};
-
 struct Library_corlib_native_System_Double
 {
 
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     NANOCLR_NATIVE_DECLARE(CompareTo___STATIC__I4__R8__R8);
     NANOCLR_NATIVE_DECLARE(IsInfinity___STATIC__BOOLEAN__R8);
     NANOCLR_NATIVE_DECLARE(IsNaN___STATIC__BOOLEAN__R8);
     NANOCLR_NATIVE_DECLARE(IsNegativeInfinity___STATIC__BOOLEAN__R8);
     NANOCLR_NATIVE_DECLARE(IsPositiveInfinity___STATIC__BOOLEAN__R8);
-
-    //--//
-};
-
-struct Library_corlib_native_System_Convert
-{
-    NANOCLR_NATIVE_DECLARE(NativeToInt64___STATIC__I8__STRING__BOOLEAN__I8__I8__I4__BOOLEAN__BYREF_BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(NativeToDouble___STATIC__R8__STRING__BOOLEAN__BYREF_BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(NativeToDateTime___STATIC__SystemDateTime__STRING__BOOLEAN__BYREF_BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(ToBase64String___STATIC__STRING__SZARRAY_U1__I4__I4__BOOLEAN);
-    NANOCLR_NATIVE_DECLARE(FromBase64String___STATIC__SZARRAY_U1__STRING);
-
-    //--//
-
-    static double GetDoubleFractionalPart(char *str, int length);
-    static int64_t GetIntegerPart(char *str, int length);
-    static int64_t GetIntegerFromHexString(char *str);
-    static char *Nano_strptime(const char *buf, const char *fmt, uint64_t *ticks);
-};
-
-struct Library_corlib_native_System_Globalization_DateTimeFormatInfo
-{
-
-    static const int FIELD___generalShortTimePattern = 1;
-    static const int FIELD___generalLongTimePattern = 2;
-    static const int FIELD___fullDateTimePattern = 3;
 
     //--//
 };
@@ -531,7 +467,7 @@ struct Library_corlib_native_System_TimeSpan
 
     //--//
 
-    static CLR_INT64 *NewObject(CLR_RT_StackFrame &stack);
+    static CLR_INT64 *NewObject(CLR_RT_HeapBlock &ref);
     static CLR_INT64 *GetValuePtr(CLR_RT_StackFrame &stack);
     static CLR_INT64 *GetValuePtr(CLR_RT_HeapBlock &ref);
 
@@ -542,14 +478,6 @@ struct Library_corlib_native_System_TimeSpan
         CLR_INT32 minutes,
         CLR_INT32 seconds,
         CLR_INT32 ms);
-};
-
-struct Library_corlib_native_System_DateTimeKind
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
 };
 
 struct Library_corlib_native_System_DateTime
@@ -568,6 +496,7 @@ struct Library_corlib_native_System_DateTime
 
     //--//
 
+    static CLR_INT64 *NewObject(CLR_RT_HeapBlock &ref);
     static CLR_INT64 *GetValuePtr(CLR_RT_StackFrame &stack);
     static CLR_INT64 *GetValuePtr(CLR_RT_HeapBlock &ref);
 
@@ -575,17 +504,23 @@ struct Library_corlib_native_System_DateTime
     static void Compress(CLR_RT_StackFrame &stack, const SYSTEMTIME &st);
 };
 
-struct Library_corlib_native_System_DayOfWeek
+struct Library_corlib_native_System_Convert
 {
-
-    static const int FIELD__value__ = 1;
+    NANOCLR_NATIVE_DECLARE(NativeToInt64___STATIC__I8__STRING__BOOLEAN__I8__I8__I4__BOOLEAN__BYREF_BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(NativeToDouble___STATIC__R8__STRING__BOOLEAN__BYREF_BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(NativeToDateTime___STATIC__SystemDateTime__STRING__BOOLEAN__BYREF_BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(ToBase64String___STATIC__STRING__SZARRAY_U1__I4__I4__BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(FromBase64String___STATIC__SZARRAY_U1__STRING);
 
     //--//
+    static double GetDoubleFractionalPart(char *str, int length);
+    static int64_t GetIntegerPart(char *str, int length);
+    static int64_t GetIntegerFromHexString(char *str);
+    static char *Nano_strptime(const char *buf, const char *fmt, uint64_t *ticks);
 };
 
 struct Library_corlib_native_System_Delegate
 {
-
     NANOCLR_NATIVE_DECLARE(Equals___BOOLEAN__OBJECT);
     NANOCLR_NATIVE_DECLARE(Combine___STATIC__SystemDelegate__SystemDelegate__SystemDelegate);
     NANOCLR_NATIVE_DECLARE(Remove___STATIC__SystemDelegate__SystemDelegate__SystemDelegate);
@@ -612,7 +547,6 @@ struct Library_corlib_native_System_Diagnostics_Debug
 
 struct Library_corlib_native_System_Diagnostics_Debugger
 {
-
     NANOCLR_NATIVE_DECLARE(get_IsAttached___STATIC__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(Break___STATIC__VOID);
 
@@ -621,31 +555,20 @@ struct Library_corlib_native_System_Diagnostics_Debugger
 
 struct Library_corlib_native_System_Diagnostics_DebuggerBrowsableAttribute
 {
-
     static const int FIELD___state = 1;
-
-    //--//
-};
-
-struct Library_corlib_native_System_Diagnostics_DebuggerBrowsableState
-{
-
-    static const int FIELD__value__ = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_UInt16
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Reflection_Assembly
 {
-
     NANOCLR_NATIVE_DECLARE(get_FullName___STRING);
     NANOCLR_NATIVE_DECLARE(GetType___SystemType__STRING);
     NANOCLR_NATIVE_DECLARE(GetTypes___SZARRAY_SystemType);
@@ -678,7 +601,6 @@ struct Library_corlib_native_System_EventArgs
 
 struct Library_corlib_native_System_GC
 {
-
     NANOCLR_NATIVE_DECLARE(AnyPendingFinalizers___STATIC__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(SuppressFinalize___STATIC__VOID__OBJECT);
     NANOCLR_NATIVE_DECLARE(ReRegisterForFinalize___STATIC__VOID__OBJECT);
@@ -688,7 +610,6 @@ struct Library_corlib_native_System_GC
 
 struct Library_corlib_native_System_Globalization_DateTimeFormat
 {
-
     NANOCLR_NATIVE_DECLARE(FormatDigits___STATIC__STRING__I4__I4);
 
     //--//
@@ -696,23 +617,21 @@ struct Library_corlib_native_System_Globalization_DateTimeFormat
 
 struct Library_corlib_native_System_UInt32
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Int16
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Guid
 {
-    static const int FIELD_STATIC__Empty = 9;
+    static const int FIELD_STATIC__Empty = 10;
 
     static const int FIELD___a = 1;
     static const int FIELD___b = 2;
@@ -731,35 +650,15 @@ struct Library_corlib_native_System_Guid
     //--//
 };
 
-struct Library_corlib_native_System_IO_IOException__IOExceptionErrorCode
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
-struct Library_corlib_native_System_IO_SeekOrigin
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
 struct Library_corlib_native_System_MathInternal
 {
-
     NANOCLR_NATIVE_DECLARE(Abs___STATIC__I4__I4);
-    NANOCLR_NATIVE_DECLARE(Min___STATIC__I4__I4__I4);
-    NANOCLR_NATIVE_DECLARE(Max___STATIC__I4__I4__I4);
 
     //--//
 };
 
 struct Library_corlib_native_System_MulticastDelegate
 {
-
     NANOCLR_NATIVE_DECLARE(op_Equality___STATIC__BOOLEAN__SystemMulticastDelegate__SystemMulticastDelegate);
     NANOCLR_NATIVE_DECLARE(op_Inequality___STATIC__BOOLEAN__SystemMulticastDelegate__SystemMulticastDelegate);
 
@@ -768,7 +667,6 @@ struct Library_corlib_native_System_MulticastDelegate
 
 struct Library_corlib_native_System_Number
 {
-
     NANOCLR_NATIVE_DECLARE(FormatNative___STATIC__STRING__OBJECT__BOOLEAN__STRING__STRING__STRING__STRING__SZARRAY_I4);
 
     //--//
@@ -815,11 +713,11 @@ struct Library_corlib_native_System_Number
         char *decimalSeparator,
         char *numberGroupSeparator,
         CLR_RT_HeapBlock_Array *numberGroupSizes);
+    static int Format_E(char *buffer, CLR_RT_HeapBlock *value, int precision, char formatChar);
 };
 
 struct Library_corlib_native_System_Random
 {
-
     static const int FIELD___random = 1;
 
     NANOCLR_NATIVE_DECLARE(Next___I4);
@@ -836,24 +734,15 @@ struct Library_corlib_native_System_Random
 
 struct Library_corlib_native_System_Reflection_AssemblyName
 {
-
     static const int FIELD___assembly = 1;
 
     //--//
 };
 
-struct Library_corlib_native_System_Reflection_AssemblyNameFlags
+struct Library_corlib_native_System_Reflection_ConstructorInfo
 {
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
-struct Library_corlib_native_System_Reflection_MemberTypes
-{
-
-    static const int FIELD__value__ = 1;
+    NANOCLR_NATIVE_DECLARE(GetCustomAttributes___SZARRAY_OBJECT__BOOLEAN);
+    NANOCLR_NATIVE_DECLARE(Invoke___OBJECT__SZARRAY_OBJECT);
 
     //--//
 };
@@ -892,17 +781,8 @@ struct Library_corlib_native_System_Reflection_ParameterInfo
 };
 #endif // NANOCLR_REFLECTION
 
-struct Library_corlib_native_System_Reflection_ProcessorArchitecture
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
 struct Library_corlib_native_System_Reflection_PropertyInfo
 {
-
     NANOCLR_NATIVE_DECLARE(GetValue___OBJECT__OBJECT__SZARRAY_OBJECT);
     NANOCLR_NATIVE_DECLARE(SetValue___VOID__OBJECT__OBJECT__SZARRAY_OBJECT);
 
@@ -911,7 +791,6 @@ struct Library_corlib_native_System_Reflection_PropertyInfo
 
 struct Library_corlib_native_System_Reflection_RuntimeFieldInfo
 {
-
     NANOCLR_NATIVE_DECLARE(get_Name___STRING);
     NANOCLR_NATIVE_DECLARE(get_DeclaringType___SystemType);
     NANOCLR_NATIVE_DECLARE(get_FieldType___SystemType);
@@ -934,7 +813,6 @@ struct Library_corlib_native_System_Reflection_RuntimeMethodInfo
 
 struct Library_corlib_native_System_Runtime_CompilerServices_AccessedThroughPropertyAttribute
 {
-
     static const int FIELD___propertyName = 1;
 
     //--//
@@ -942,7 +820,6 @@ struct Library_corlib_native_System_Runtime_CompilerServices_AccessedThroughProp
 
 struct Library_corlib_native_System_Runtime_CompilerServices_RuntimeHelpers
 {
-
     NANOCLR_NATIVE_DECLARE(InitializeArray___STATIC__VOID__SystemArray__SystemRuntimeFieldHandle);
     NANOCLR_NATIVE_DECLARE(GetObjectValue___STATIC__OBJECT__OBJECT);
     NANOCLR_NATIVE_DECLARE(RunClassConstructor___STATIC__VOID__SystemRuntimeTypeHandle);
@@ -953,7 +830,6 @@ struct Library_corlib_native_System_Runtime_CompilerServices_RuntimeHelpers
 
 struct Library_corlib_native_System_Runtime_Remoting_RemotingServices
 {
-
     NANOCLR_NATIVE_DECLARE(IsTransparentProxy___STATIC__BOOLEAN__OBJECT);
 
     //--//
@@ -961,7 +837,6 @@ struct Library_corlib_native_System_Runtime_Remoting_RemotingServices
 
 struct Library_corlib_native_System_Runtime_Versioning_TargetFrameworkAttribute
 {
-
     static const int FIELD___frameworkName = 1;
     static const int FIELD___frameworkDisplayName = 2;
 
@@ -999,15 +874,14 @@ struct Library_corlib_native_System_RuntimeType
 struct Library_corlib_native_System_SByte
 {
 
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_Single
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
@@ -1023,7 +897,6 @@ struct Library_corlib_native_System_SpanByte
 
 struct Library_corlib_native_System_Threading_AutoResetEvent
 {
-
     NANOCLR_NATIVE_DECLARE(_ctor___VOID__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(Reset___BOOLEAN);
     NANOCLR_NATIVE_DECLARE(Set___BOOLEAN);
@@ -1033,7 +906,6 @@ struct Library_corlib_native_System_Threading_AutoResetEvent
 
 struct Library_corlib_native_System_Threading_Interlocked
 {
-
     NANOCLR_NATIVE_DECLARE(Increment___STATIC__I4__BYREF_I4);
     NANOCLR_NATIVE_DECLARE(Decrement___STATIC__I4__BYREF_I4);
     NANOCLR_NATIVE_DECLARE(Exchange___STATIC__I4__BYREF_I4__I4);
@@ -1044,7 +916,6 @@ struct Library_corlib_native_System_Threading_Interlocked
 
 struct Library_corlib_native_System_Threading_ManualResetEvent
 {
-
     NANOCLR_NATIVE_DECLARE(_ctor___VOID__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(Reset___BOOLEAN);
     NANOCLR_NATIVE_DECLARE(Set___BOOLEAN);
@@ -1054,7 +925,6 @@ struct Library_corlib_native_System_Threading_ManualResetEvent
 
 struct Library_corlib_native_System_Threading_Monitor
 {
-
     NANOCLR_NATIVE_DECLARE(Enter___STATIC__VOID__OBJECT);
     NANOCLR_NATIVE_DECLARE(Exit___STATIC__VOID__OBJECT);
 
@@ -1074,7 +944,6 @@ struct Library_corlib_native_System_Threading_SpinWait
 
 struct Library_corlib_native_System_Threading_Thread
 {
-
     static const int FIELD___delegate = 1;
     static const int FIELD___priority = 2;
     static const int FIELD___thread = 3;
@@ -1111,32 +980,15 @@ struct Library_corlib_native_System_Threading_Thread
     static HRESULT Join(CLR_RT_StackFrame &stack, const CLR_INT64 &timeExpire);
 };
 
-struct Library_corlib_native_System_Threading_ThreadPriority
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
-struct Library_corlib_native_System_Threading_ThreadState
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
 struct Library_corlib_native_System_Threading_Timeout
 {
-    static const int FIELD_STATIC__InfiniteTimeSpan = 10;
+    static const int FIELD_STATIC__InfiniteTimeSpan = 11;
 
     //--//
 };
 
 struct Library_corlib_native_System_Threading_Timer
 {
-
     static const int FIELD___timer = 1;
     static const int FIELD___state = 2;
     static const int FIELD___callback = 3;
@@ -1155,7 +1007,6 @@ struct Library_corlib_native_System_Threading_Timer
 
 struct Library_corlib_native_System_Threading_WaitHandle
 {
-
     NANOCLR_NATIVE_DECLARE(WaitOne___BOOLEAN__I4__BOOLEAN);
     NANOCLR_NATIVE_DECLARE(WaitMultiple___STATIC__I4__SZARRAY_SystemThreadingWaitHandle__I4__BOOLEAN__BOOLEAN);
 
@@ -1173,25 +1024,15 @@ struct Library_corlib_native_System_Threading_WaitHandle
         bool fWaitAll);
 };
 
-struct Library_corlib_native_System_TypeCode
-{
-
-    static const int FIELD__value__ = 1;
-
-    //--//
-};
-
 struct Library_corlib_native_System_UInt64
 {
-
-    static const int FIELD___value = 1;
+    static const int FIELD__m_value = 1;
 
     //--//
 };
 
 struct Library_corlib_native_System_ValueType
 {
-
     NANOCLR_NATIVE_DECLARE(Equals___BOOLEAN__OBJECT);
 
     //--//
@@ -1199,7 +1040,6 @@ struct Library_corlib_native_System_ValueType
 
 struct Library_corlib_native_System_Version
 {
-
     static const int FIELD___Major = 1;
     static const int FIELD___Minor = 2;
     static const int FIELD___Build = 3;
@@ -1210,7 +1050,6 @@ struct Library_corlib_native_System_Version
 
 struct Library_corlib_native_System_WeakReference
 {
-
     NANOCLR_NATIVE_DECLARE(get_IsAlive___BOOLEAN);
     NANOCLR_NATIVE_DECLARE(get_Target___OBJECT);
     NANOCLR_NATIVE_DECLARE(set_Target___VOID__OBJECT);

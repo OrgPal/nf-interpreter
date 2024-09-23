@@ -13,8 +13,8 @@ function(nf_set_optimization_options target)
     # debug compile options: -Og (optimize for debugging) and -ggdb (produce debug symbols specifically for gdb)
     target_compile_options(${target} PRIVATE
         $<$<CONFIG:Debug>:-Og -ggdb>
-        $<$<CONFIG:Release>:-O3 -flto -fuse-linker-plugin -fno-fat-lto-objects>
-        $<$<CONFIG:MinSizeRel>:-Os -flto -fuse-linker-plugin -fno-fat-lto-objects>
+        $<$<CONFIG:Release>:-O3 -flto>
+        $<$<CONFIG:MinSizeRel>:-Os -flto>
         $<$<CONFIG:RelWithDebInfo>:-Os -ggdb>
     )
 
@@ -55,20 +55,12 @@ endmacro()
 function(nf_check_radio_frequency)
 
     if(NOT DEFINED RADIO_FREQUENCY)
-        message(FATAL_ERROR "Radio frequncy NOT defined. Please set build option 'RADIO_FREQUENCY'. Valid values are 868 and 915.")
+        message(FATAL_ERROR "\nRadio frequency NOT defined!!\nPlease set the build option 'RADIO_FREQUENCY' in 'config\\user-prefs.json' or in the user CMake preset. Valid values are 868 and 915.\n")
     endif()
 
-    find_file(
-        SYS-CONFIG-FILE 
-        *_${RADIO_FREQUENCY}.syscfg
-        
-        PATHS 
-            ${TARGET_BASE_LOCATION}
-        )
-
-    # check if file was found
-    if(SYS-CONFIG-FILE-NOTFOUND)
-        message(FATAL_ERROR "Couldn't find a sysconfig file for radio frequency ${RADIO_FREQUENCY}. Valid values are 868 and 915.")
+    # check if file exists
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_BOARD}_${RADIO_FREQUENCY}.syscfg")
+        message(FATAL_ERROR "\nCouldn't find a sysconfig file for radio frequency ${RADIO_FREQUENCY}.\n")
     endif()
 
 endfunction()
@@ -252,6 +244,8 @@ macro(nf_add_platform_sysconfig_steps ti_device ti_device_family)
         set(SYS_CONFIG_FILENAME ${TARGET_BOARD}_${RADIO_FREQUENCY}.syscfg)
     endif()
 
+    message(STATUS "Using sysconfig file: ${CMAKE_CURRENT_SOURCE_DIR}/${SYS_CONFIG_FILENAME}.")
+
     # copy Sys Config file to build directory
     add_custom_command(
         TARGET
@@ -308,8 +302,8 @@ macro(nf_add_platform_sysconfig_steps ti_device ti_device_family)
         set(TI_RTOS_CONFIG_FILE ti-rtos-release.cfg)
     endif()
 
-    # remove bin suffix from the ARM path
-    string(REPLACE "/bin" "" ARM_TOOLCHAIN_PATH_WITHOUT_BIN ${ARM_TOOLCHAIN_PATH})
+    # get parent directory of the toochain path (remove /bin)
+    cmake_path(GET ARM_TOOLCHAIN_PATH PARENT_PATH ARM_TOOLCHAIN_PATH_WITHOUT_BIN)
 
     # need to use a specific target because target dependency PRE_BUILT doesn't work on NINJA build files
 

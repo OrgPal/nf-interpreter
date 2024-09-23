@@ -10,6 +10,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef DT_DIR
+// When building with ESP32 "DT_DIR" clashes with esp_vfs.h 
+#undef DT_DIR
+#endif
+
 #define DT_NA    CLR_RT_DataTypeLookup::c_NA
 #define DT_VS    CLR_RT_DataTypeLookup::c_VariableSize
 
@@ -38,7 +43,7 @@
 #define DT_I4 sizeof(CLR_INT32)
 #define DT_U8 sizeof(CLR_UINT64)
 #define DT_I8 sizeof(CLR_INT64)
-#define DT_BL sizeof(CLR_RT_HeapBlock)
+#define DT_BL sizeof(struct CLR_RT_HeapBlock)
 
 #define DT_T(x)   (CLR_UINT8)DATATYPE_##x
 #define DT_CNV(x) (CLR_UINT8)ELEMENT_TYPE_##x
@@ -47,7 +52,7 @@
 #define DT_NOREL(x)  NULL
 #define DT_REL(x)    (CLR_RT_HeapBlockRelocate)&x
 
-#if defined(WIN32) || defined(NANOCLR_TRACE_MEMORY_STATS)
+#if defined(VIRTUAL_DEVICE) || defined(NANOCLR_TRACE_MEMORY_STATS)
 #define DT_OPT_NAME(x) , #x
 #else
 #define DT_OPT_NAME(x)
@@ -77,8 +82,8 @@ const CLR_RT_DataTypeLookup c_CLR_RT_DataTypeLookup[] =
     { DT_NUM | DT_INT | DT_SGN | DT_PRIM             | DT_DIR | DT_OPT | DT_MT,    64, DT_I8, DT_T(I8                  ), DT_CNV(I8       ), DT_CLS(m_Int64            ), DT_NOREL(CLR_RT_HeapBlock                                 ) DT_OPT_NAME(I8                  ) }, // DATATYPE_I8
     { DT_NUM | DT_INT          | DT_PRIM             | DT_DIR | DT_OPT | DT_MT,    64, DT_U8, DT_T(I8                  ), DT_CNV(U8       ), DT_CLS(m_UInt64           ), DT_NOREL(CLR_RT_HeapBlock                                 ) DT_OPT_NAME(U8                  ) }, // DATATYPE_U8
     { DT_NUM |          DT_SGN | DT_PRIM             | DT_DIR | DT_OPT | DT_MT,    64, DT_I8, DT_T(R8                  ), DT_CNV(R8       ), DT_CLS(m_Double           ), DT_NOREL(CLR_RT_HeapBlock                                 ) DT_OPT_NAME(R8                  ) }, // DATATYPE_R8
-    {          DT_INT | DT_SGN | DT_VALUE            | DT_DIR | DT_OPT | DT_MT,    64, DT_BL, DT_T(DATETIME            ), DT_CNV(END      ), DT_CLS(m_DateTime         ), DT_NOREL(CLR_RT_HeapBlock                                 ) DT_OPT_NAME(DATETIME            ) }, // DATATYPE_DATETIME
-    {          DT_INT | DT_SGN | DT_VALUE            | DT_DIR | DT_OPT | DT_MT,    64, DT_BL, DT_T(TIMESPAN            ), DT_CNV(END      ), DT_CLS(m_TimeSpan         ), DT_NOREL(CLR_RT_HeapBlock                                 ) DT_OPT_NAME(TIMESPAN            ) }, // DATATYPE_TIMESPAN
+    {          DT_INT | DT_SGN | DT_VALUE            | DT_DIR          | DT_MT,    64, DT_BL, DT_T(DATETIME            ), DT_CNV(END      ), DT_CLS(m_DateTime         ), DT_REL  (CLR_RT_HeapBlock              ::Relocate_Cls     ) DT_OPT_NAME(DATETIME            ) }, // DATATYPE_DATETIME
+    {          DT_INT | DT_SGN | DT_VALUE            | DT_DIR          | DT_MT,    64, DT_BL, DT_T(TIMESPAN            ), DT_CNV(END      ), DT_CLS(m_TimeSpan         ), DT_REL  (CLR_RT_HeapBlock              ::Relocate_Cls     ) DT_OPT_NAME(TIMESPAN            ) }, // DATATYPE_TIMESPAN
     { DT_REF                   | DT_PRIM             | DT_DIR          | DT_MT, DT_VS, DT_BL, DT_T(STRING              ), DT_CNV(STRING   ), DT_CLS(m_String           ), DT_REL  (CLR_RT_HeapBlock              ::Relocate_String  ) DT_OPT_NAME(STRING              ) }, // DATATYPE_STRING
                                                                                                                                                                                                                                                                    //
     { DT_REF                                         | DT_DIR          | DT_MT, DT_NA, DT_BL, DT_T(OBJECT              ), DT_CNV(OBJECT   ), DT_CLS(m_Object           ), DT_REL  (CLR_RT_HeapBlock              ::Relocate_Obj     ) DT_OPT_NAME(OBJECT              ) }, // DATATYPE_OBJECT
