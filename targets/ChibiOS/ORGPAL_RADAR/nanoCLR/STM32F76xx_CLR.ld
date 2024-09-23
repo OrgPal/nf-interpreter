@@ -84,7 +84,7 @@ REGION_ALIAS("BSS_RAM", ram3);
 REGION_ALIAS("HEAP_RAM", ram0);
 
 /* RAM region to be used for the nanoFramework CLR managed heap.*/
-REGION_ALIAS("CLR_MANAGED_HEAP_RAM", ext_ram);
+REGION_ALIAS("CLR_MANAGED_HEAP_RAM", ram0);
 
 /* RAM region to be used for the boot clipboard.*/
 REGION_ALIAS("SECTION_FOR_BOOTCLIPBOARD", bootclpbrd);
