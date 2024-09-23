@@ -16,6 +16,19 @@ jobs:
         fetch-depth: 0
         ref: 'orgpal-radar'
 
+    - uses: actions/checkout@v4
+      with:
+        repository: 'OrgPal/acconeer_cortex_m7_gcc_a121'
+        ref: 'v1.7.0'
+        token: ${{ secrets.UPTODATE }}
+        path: 'acconeer_cortex_m7_gcc_a121'
+
+    - name: Fix path with forward slashes
+      run: echo "ACCONNER_PATH=$(echo ${{ github.workspace }}/acconeer_cortex_m7_gcc_a121/cortex_m7_gcc | tr '\\' '/')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+
+    - name: Print path for debugging
+      run: echo ${{ env.ACCONNER_PATH }}
+  
     - uses: lukka/get-cmake@latest
 
     - name: Install arm-none-eabi-gcc
@@ -68,7 +81,7 @@ jobs:
     - uses: lukka/run-cmake@v10
       with:
         configurePreset: ${{ env.TARGET_NAME }}
-        configurePresetAdditionalArgs: "['-DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}','-DCMAKE_BUILD_TYPE=MinSizeRel','-DTOOL_HEX2DFU_PREFIX=${{ env.HEX2DFU_PATH }}']"
+        configurePresetAdditionalArgs: "['-DBUILD_VERSION=${{env.NBGV_VersionMajor}}.${{env.NBGV_VersionMinor}}.${{env.NBGV_BuildNumber}}.${{env.NBGV_VersionHeight}}','-DCMAKE_BUILD_TYPE=MinSizeRel','-DTOOL_HEX2DFU_PREFIX=${{ env.HEX2DFU_PATH }}','-DACCONEER_SOURCE=${{ Env.ACCONNER_PATH }}']"
         buildPreset: ${{ env.TARGET_NAME }}
         buildPresetAdditionalArgs: "['--config MinSizeRel']"
 
