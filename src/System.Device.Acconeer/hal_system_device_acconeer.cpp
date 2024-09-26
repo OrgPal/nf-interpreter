@@ -6,6 +6,7 @@
 #include "sys_dev_acconeer.h"
 #include "hal_system_device_acconeer.h"
 #include <nanoWeak.h>
+#include <nanoprintf.h>
 #include <nanoHAL_v2.h>
 
 #define LOG_BUFFER_MAX_SIZE 150
