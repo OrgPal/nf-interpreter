@@ -749,7 +749,7 @@ endif()
 
 #################################################################
 
-if(API_System.Device.Acconeer)
+if(API_System.Device.Acconeer OR API_System.Device.Acconeer.Distance)
     set(HAL_NF_USE_ACCONEER_OPTION TRUE CACHE INTERNAL "HAL Acconeer for System.Device.Acconeer")
     message(STATUS "Support for Acconeer enabled")
 else()
