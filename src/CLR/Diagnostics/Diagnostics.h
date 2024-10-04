@@ -14,4 +14,4 @@
 #ifndef VIRTUAL_DEVICE
 #include <nanoprintf.h>
 #endif // VIRTUAL_DEVICE
-//#include <spot_net_native.h>
+// #include <spot_net_native.h>
