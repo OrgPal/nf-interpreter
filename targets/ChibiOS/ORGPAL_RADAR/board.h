@@ -67,7 +67,7 @@
 
 #define GPIOB_RELAY_CTRL 0U
 #define GPIOB_PIN1       1U
-#define GPIOB_PIN2       2U
+#define GPIOB_SPI3_MOSI  2U
 #define GPIOB_SWO        3U
 #define GPIOB_PIN4       4U
 #define GPIOB_PIN5       5U
@@ -92,15 +92,15 @@
 #define GPIOC_PIN7        7U
 #define GPIOC_PIN8        8U
 #define GPIOC_PIN9        9U
-#define GPIOC_PIN10       10U
-#define GPIOC_PIN11       11U
-#define GPIOC_PIN12       12U
+#define GPIOC_SPI3_SCK    10U
+#define GPIOC_SPI3_MISO   11U
+#define GPIOC_FLASH_CS    12U
 #define GPIOC_PIN13       13U
 #define GPIOC_PIN14       14U
 #define GPIOC_PIN15       15U
 
 #define GPIOD_PIN0          0U
-#define GPIOD_PIN1          1U
+#define GPIOD_FLASH_WP      1U
 #define GPIOD_PIN2          2U
 #define GPIOD_RS485_TERM_DE 3U
 #define GPIOD_USART2_DE     4U
@@ -251,6 +251,7 @@
 #define LINE_SWCLK         PAL_LINE(GPIOA, 14U)
 #define LINE_JTDI          PAL_LINE(GPIOA, 15U)
 #define LINE_RELAY_CTRL    PAL_LINE(GPIOB, 0U)
+#define LINE_SPI3_MOSI     PAL_LINE(GPIOB, 2U)
 #define LINE_SWO           PAL_LINE(GPIOB, 3U)
 #define LINE_LED1          PAL_LINE(GPIOB, 6U)
 #define LINE_LED2          PAL_LINE(GPIOB, 7U)
@@ -261,6 +262,10 @@
 #define LINE_SEN_EN1       PAL_LINE(GPIOC, 1U)
 #define LINE_SPI_SEL0      PAL_LINE(GPIOC, 3U)
 #define LINE_A121_SPI_SS   PAL_LINE(GPIOC, 4U)
+#define LINE_SPI3_SCK      PAL_LINE(GPIOC, 10U)
+#define LINE_SPI3_MISO     PAL_LINE(GPIOC, 11U)
+#define LINE_FLASH_CS      PAL_LINE(GPIOC, 12U)
+#define LINE_FLASH_WP      PAL_LINE(GPIOD, 1U)
 #define LINE_RS485_TERM_DE PAL_LINE(GPIOD, 3U)
 #define LINE_USART2_DE     PAL_LINE(GPIOD, 4U)
 #define LINE_USART2_TX     PAL_LINE(GPIOD, 5U)
@@ -450,7 +455,7 @@ The user should also disable the MCO pin of the clock output if not used.
 *
 * PB0  - RELAY_CTRL                (output pushpull).
 * PB1  - PIN1                      (input pulldown).
-* PB2  - PIN2                      (input pulldown).
+* PB2  - SPI3_MOSI                 (alternate 5).
 * PB3  - SWO                       (alternate 0).
 * PB4  - PIN4                      (input pulldown).
 * PB5  - PIN5                      (input pulldown).
@@ -467,8 +472,8 @@ The user should also disable the MCO pin of the clock output if not used.
 */
 
 #define VAL_GPIOB_MODER             (PIN_MODE_OUTPUT(GPIOB_RELAY_CTRL) | \
-                                     PIN_MODE_ANALOG(GPIOB_PIN1) |        \
-                                     PIN_MODE_ANALOG(GPIOB_PIN2) |        \
+                                     PIN_MODE_ANALOG(GPIOB_PIN1) |       \
+                                     PIN_MODE_ALTERNATE(GPIOB_SPI3_MOSI) | \
                                      PIN_MODE_ALTERNATE(GPIOB_SWO) |     \
                                      PIN_MODE_ANALOG(GPIOB_PIN4) |        \
                                      PIN_MODE_ANALOG(GPIOB_PIN5) |        \
@@ -485,7 +490,7 @@ The user should also disable the MCO pin of the clock output if not used.
 
 #define VAL_GPIOB_OTYPER            (PIN_OTYPE_OPENDRAIN(GPIOB_RELAY_CTRL) | \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_PIN1) |        \
-                                     PIN_OTYPE_OPENDRAIN(GPIOB_PIN2) |        \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_SPI3_MOSI) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOB_SWO) |         \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_PIN4) |        \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_PIN5) |        \
@@ -502,7 +507,7 @@ The user should also disable the MCO pin of the clock output if not used.
 
 #define VAL_GPIOB_OSPEEDR           (PIN_OSPEED_HIGH(GPIOB_RELAY_CTRL) | \
                                      PIN_OSPEED_HIGH(GPIOB_PIN1) |        \
-                                     PIN_OSPEED_HIGH(GPIOB_PIN2) |        \
+                                     PIN_OSPEED_HIGH(GPIOB_SPI3_MOSI) |   \
                                      PIN_OSPEED_HIGH(GPIOB_SWO) |         \
                                      PIN_OSPEED_HIGH(GPIOB_PIN4) |        \
                                      PIN_OSPEED_HIGH(GPIOB_PIN5) |        \
@@ -519,7 +524,7 @@ The user should also disable the MCO pin of the clock output if not used.
 
 #define VAL_GPIOB_PUPDR             (PIN_PUPDR_PULLDOWN(GPIOB_RELAY_CTRL) | \
                                      PIN_PUPDR_PULLDOWN(GPIOB_PIN1) |        \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PIN2) |        \
+                                     PIN_PUPDR_FLOATING(GPIOB_SPI3_MOSI) |   \
                                      PIN_PUPDR_FLOATING(GPIOB_SWO) |         \
                                      PIN_PUPDR_PULLDOWN(GPIOB_PIN4) |        \
                                      PIN_PUPDR_PULLDOWN(GPIOB_PIN5) |        \
@@ -536,7 +541,7 @@ The user should also disable the MCO pin of the clock output if not used.
 
 #define VAL_GPIOB_ODR               (PIN_ODR_HIGH(GPIOB_RELAY_CTRL) | \
                                      PIN_ODR_HIGH(GPIOB_PIN1) |        \
-                                     PIN_ODR_HIGH(GPIOB_PIN2) |        \
+                                     PIN_ODR_HIGH(GPIOB_SPI3_MOSI) |   \
                                      PIN_ODR_HIGH(GPIOB_SWO) |         \
                                      PIN_ODR_HIGH(GPIOB_PIN4) |        \
                                      PIN_ODR_HIGH(GPIOB_PIN5) |        \
@@ -553,7 +558,7 @@ The user should also disable the MCO pin of the clock output if not used.
 
 #define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_RELAY_CTRL, 0U) | \
                                      PIN_AFIO_AF(GPIOB_PIN1, 0U) |       \
-                                     PIN_AFIO_AF(GPIOB_PIN2, 0U) |       \
+                                     PIN_AFIO_AF(GPIOB_SPI3_MOSI, 5U) |  \
                                      PIN_AFIO_AF(GPIOB_SWO, 0U) |        \
                                      PIN_AFIO_AF(GPIOB_PIN4, 0U) |       \
                                      PIN_AFIO_AF(GPIOB_PIN5, 0U) |       \
@@ -582,9 +587,9 @@ The user should also disable the MCO pin of the clock output if not used.
 * PC7  - PIN7                      (input pulldown).
 * PC8  - PIN8                      (input pulldown).
 * PC9  - PIN9                      (input pulldown).
-* PC10 - PIN10                     (input pulldown).
-* PC11 - PIN11                     (input pulldown).
-* PC12 - PIN12                     (input pulldown).
+* PC10 - SPI3_SCK                  (alternate 5).
+* PC11 - SPI3_MISO                 (alternate 5).
+* PC12 - FLASH_CS                  (output pushpull).
 * PC13 - PIN13                     (input pulldown).
 * PC14 - PIN14                     (input pulldown).
 * PC15 - PIN15                     (input pulldown).
@@ -600,9 +605,9 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_MODE_ANALOG(GPIOC_PIN7) |      \
                                      PIN_MODE_ANALOG(GPIOC_PIN8) |      \
                                      PIN_MODE_ANALOG(GPIOC_PIN9) |      \
-                                     PIN_MODE_ANALOG(GPIOC_PIN10) |     \
-                                     PIN_MODE_ANALOG(GPIOC_PIN11) |     \
-                                     PIN_MODE_ANALOG(GPIOC_PIN12) |     \
+                                     PIN_MODE_ALTERNATE(GPIOC_SPI3_SCK) | \
+                                     PIN_MODE_ALTERNATE(GPIOC_SPI3_MISO) | \
+                                     PIN_MODE_OUTPUT(GPIOC_FLASH_CS) |  \
                                      PIN_MODE_ANALOG(GPIOC_PIN13) |     \
                                      PIN_MODE_ANALOG(GPIOC_PIN14) |     \
                                      PIN_MODE_ANALOG(GPIOC_PIN15))
@@ -617,9 +622,9 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN7) |      \
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN8) |      \
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN9) |      \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_PIN10) |     \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_PIN11) |     \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_PIN12) |     \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_SPI3_SCK) |  \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_SPI3_MISO) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_FLASH_CS) |  \
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN13) |     \
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN14) |     \
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN15))
@@ -634,9 +639,9 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_OSPEED_HIGH(GPIOC_PIN7) |      \
                                      PIN_OSPEED_HIGH(GPIOC_PIN8) |      \
                                      PIN_OSPEED_HIGH(GPIOC_PIN9) |      \
-                                     PIN_OSPEED_HIGH(GPIOC_PIN10) |     \
-                                     PIN_OSPEED_HIGH(GPIOC_PIN11) |     \
-                                     PIN_OSPEED_HIGH(GPIOC_PIN12) |     \
+                                     PIN_OSPEED_HIGH(GPIOC_SPI3_SCK) |  \
+                                     PIN_OSPEED_HIGH(GPIOC_SPI3_MISO) | \
+                                     PIN_OSPEED_HIGH(GPIOC_FLASH_CS) |  \
                                      PIN_OSPEED_HIGH(GPIOC_PIN13) |     \
                                      PIN_OSPEED_HIGH(GPIOC_PIN14) |     \
                                      PIN_OSPEED_HIGH(GPIOC_PIN15))
@@ -651,9 +656,9 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN7) |      \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN8) |      \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN9) |      \
-                                     PIN_PUPDR_PULLDOWN(GPIOC_PIN10) |     \
-                                     PIN_PUPDR_PULLDOWN(GPIOC_PIN11) |     \
-                                     PIN_PUPDR_PULLDOWN(GPIOC_PIN12) |     \
+                                     PIN_PUPDR_FLOATING(GPIOC_SPI3_SCK) |  \
+                                     PIN_PUPDR_FLOATING(GPIOC_SPI3_MISO) | \
+                                     PIN_PUPDR_PULLUP(GPIOC_FLASH_CS) |  \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN13) |     \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN14) |     \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN15))
@@ -668,9 +673,9 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_ODR_HIGH(GPIOC_PIN7) |      \
                                      PIN_ODR_HIGH(GPIOC_PIN8) |      \
                                      PIN_ODR_HIGH(GPIOC_PIN9) |      \
-                                     PIN_ODR_HIGH(GPIOC_PIN10) |     \
-                                     PIN_ODR_HIGH(GPIOC_PIN11) |     \
-                                     PIN_ODR_HIGH(GPIOC_PIN12) |     \
+                                     PIN_ODR_HIGH(GPIOC_SPI3_SCK) |  \
+                                     PIN_ODR_HIGH(GPIOC_SPI3_MISO) | \
+                                     PIN_ODR_HIGH(GPIOC_FLASH_CS) |  \
                                      PIN_ODR_HIGH(GPIOC_PIN13) |     \
                                      PIN_ODR_HIGH(GPIOC_PIN14) |     \
                                      PIN_ODR_HIGH(GPIOC_PIN15))
@@ -686,9 +691,9 @@ The user should also disable the MCO pin of the clock output if not used.
 
 #define VAL_GPIOC_AFRH              (PIN_AFIO_AF(GPIOC_PIN8, 0U) |      \
                                      PIN_AFIO_AF(GPIOC_PIN9, 0U) |      \
-                                     PIN_AFIO_AF(GPIOC_PIN10, 0U) |     \
-                                     PIN_AFIO_AF(GPIOC_PIN11, 0U) |     \
-                                     PIN_AFIO_AF(GPIOC_PIN12, 0U) |     \
+                                     PIN_AFIO_AF(GPIOC_SPI3_SCK, 5U) |  \
+                                     PIN_AFIO_AF(GPIOC_SPI3_MISO, 5U) | \
+                                     PIN_AFIO_AF(GPIOC_FLASH_CS, 0U) |  \
                                      PIN_AFIO_AF(GPIOC_PIN13, 0U) |     \
                                      PIN_AFIO_AF(GPIOC_PIN14, 0U) |     \
                                      PIN_AFIO_AF(GPIOC_PIN15, 0U))
@@ -696,8 +701,8 @@ The user should also disable the MCO pin of the clock output if not used.
 /*
 * GPIOD setup:
 *
-* PD0  - PIN0                      (input pullup).
-* PD1  - PIN1                      (input pullup).
+* PD0  - FLASH_RST                 (output pushpull).
+* PD1  - FLASH_WP                  (output pushpull).
 * PD2  - PIN2                      (input pullup).
 * PD3  - RS485_TERM_DE             (output pushpull).
 * PD4  - USART2_DE                 (alternate 7).
@@ -714,7 +719,7 @@ The user should also disable the MCO pin of the clock output if not used.
 * PD15 - PIN15                     (input pullup).
 */
 #define VAL_GPIOD_MODER             (PIN_MODE_ANALOG(GPIOD_PIN0) |          \
-                                     PIN_MODE_ANALOG(GPIOD_PIN1) |          \
+                                     PIN_MODE_OUTPUT(GPIOD_FLASH_WP) |      \
                                      PIN_MODE_ANALOG(GPIOD_PIN2) |          \
                                      PIN_MODE_OUTPUT(GPIOD_RS485_TERM_DE) | \
                                      PIN_MODE_ALTERNATE(GPIOD_USART2_DE) |  \
@@ -731,7 +736,7 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_MODE_ANALOG(GPIOD_PIN15))
 
 #define VAL_GPIOD_OTYPER            (PIN_OTYPE_OPENDRAIN(GPIOD_PIN0) |  \
-                                     PIN_OTYPE_OPENDRAIN(GPIOD_PIN1) |  \
+                                     PIN_OTYPE_PUSHPULL(GPIOD_FLASH_WP) | \
                                      PIN_OTYPE_OPENDRAIN(GPIOD_PIN2) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOD_RS485_TERM_DE) | \
                                      PIN_OTYPE_PUSHPULL(GPIOD_USART2_DE) | \
@@ -748,7 +753,7 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_OTYPE_OPENDRAIN(GPIOD_PIN15))
 
 #define VAL_GPIOD_OSPEEDR           (PIN_OSPEED_HIGH(GPIOD_PIN0) |     \
-                                     PIN_OSPEED_HIGH(GPIOD_PIN1) |     \
+                                     PIN_OSPEED_HIGH(GPIOD_FLASH_WP) |   \
                                      PIN_OSPEED_HIGH(GPIOD_PIN2) |     \
                                      PIN_OSPEED_HIGH(GPIOD_RS485_TERM_DE) | \
                                      PIN_OSPEED_HIGH(GPIOD_USART2_DE) | \
@@ -765,7 +770,7 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_OSPEED_HIGH(GPIOD_PIN15))
 
 #define VAL_GPIOD_PUPDR             (PIN_PUPDR_PULLUP(GPIOD_PIN0) |             \
-                                     PIN_PUPDR_PULLUP(GPIOD_PIN1) |             \
+                                     PIN_PUPDR_PULLUP(GPIOD_FLASH_WP) |         \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN2) |             \
                                      PIN_PUPDR_FLOATING(GPIOD_RS485_TERM_DE) |  \
                                      PIN_PUPDR_FLOATING(GPIOD_USART2_DE) |      \
@@ -782,7 +787,7 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_PUPDR_PULLUP(GPIOD_PIN15))
 
 #define VAL_GPIOD_ODR               (PIN_ODR_HIGH(GPIOD_PIN0) |             \
-                                     PIN_ODR_HIGH(GPIOD_PIN1) |             \
+                                     PIN_ODR_HIGH(GPIOD_FLASH_WP) |         \
                                      PIN_ODR_HIGH(GPIOD_PIN2) |             \
                                      PIN_ODR_HIGH(GPIOD_RS485_TERM_DE) |    \
                                      PIN_ODR_HIGH(GPIOD_USART2_DE) |        \
@@ -799,7 +804,7 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_ODR_HIGH(GPIOD_PIN15))
 
 #define VAL_GPIOD_AFRL              (PIN_AFIO_AF(GPIOD_PIN0, 0U) |          \
-                                     PIN_AFIO_AF(GPIOD_PIN1, 0U) |          \
+                                     PIN_AFIO_AF(GPIOD_FLASH_WP, 0U) |      \
                                      PIN_AFIO_AF(GPIOD_PIN2, 0U) |          \
                                      PIN_AFIO_AF(GPIOD_RS485_TERM_DE, 0U) | \
                                      PIN_AFIO_AF(GPIOD_USART2_DE, 7U) |     \
