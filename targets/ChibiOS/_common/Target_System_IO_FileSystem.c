@@ -5,7 +5,9 @@
 
 #include <hal.h>
 #include <cmsis_os.h>
+#if HAL_USE_SDC
 #include <ff.h>
+#endif
 #include <target_windows_storage_config.h>
 #include <nanoHAL_System_IO_FileSystem.h>
 #include <Target_System_IO_FileSystem.h>
