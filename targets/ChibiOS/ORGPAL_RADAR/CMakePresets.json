@@ -28,7 +28,7 @@
                 "NF_FEATURE_HAS_ACCESSIBLE_STORAGE": "ON",       
                 "NF_BUILD_RTM": "OFF",
                 "API_System.Math": "OFF",
-                "API_Hardware.Stm32": "OFF",
+                "API_Hardware.Stm32": "ON",
                 "API_System.Device.Gpio": "ON",
                 "API_System.Device.Spi": "ON",
                 "API_System.Device.I2c": "OFF",
