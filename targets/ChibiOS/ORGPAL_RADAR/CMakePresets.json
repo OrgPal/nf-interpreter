@@ -20,6 +20,7 @@
                 "RTOS": "ChibiOS",
                 "BUILD_VERBOSE": "OFF",
                 "CHIBIOS_CONTRIB_REQUIRED": "OFF",
+                "STM32_CUBE_PACKAGE_REQUIRED": "ON",
                 "SUPPORT_ANY_BASE_CONVERSION": "ON",
                 "NF_FEATURE_DEBUGGER": "ON",
                 "NF_FEATURE_RTC": "ON",

@@ -16,6 +16,7 @@ nf_setup_target_build(
         STM32F76xx_CLR
 
     CLR_EXTRA_SOURCE_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/target_mpu_config.c
     
     BOOTER_EXTRA_COMPILE_DEFINITIONS
 
