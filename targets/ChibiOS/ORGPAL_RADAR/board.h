@@ -658,7 +658,7 @@ The user should also disable the MCO pin of the clock output if not used.
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN9) |      \
                                      PIN_PUPDR_FLOATING(GPIOC_SPI3_SCK) |  \
                                      PIN_PUPDR_FLOATING(GPIOC_SPI3_MISO) | \
-                                     PIN_PUPDR_PULLUP(GPIOC_FLASH_CS) |  \
+                                     PIN_PUPDR_FLOATING(GPIOC_FLASH_CS) |  \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN13) |     \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN14) |     \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN15))
