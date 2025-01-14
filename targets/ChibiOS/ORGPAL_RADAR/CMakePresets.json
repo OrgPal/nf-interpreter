@@ -42,6 +42,43 @@
                 "API_nanoFramework.System.Text": "ON",
                 "API_System.Device.Acconeer.Distance": "ON"
             }
+        },
+        {
+            "name": "ORGPAL_RADAR_REVA",
+            "inherits": [
+                "arm-gcc-cortex-preset",
+                "user-tools-repos",
+                "user-prefs"
+            ],
+            "hidden": false,
+            "cacheVariables": {
+                "TARGET_BOARD": "ORGPAL_RADAR",
+                "TARGET_SERIES": "STM32F7xx",
+                "RTOS": "ChibiOS",
+                "BUILD_VERBOSE": "OFF",
+                "CHIBIOS_CONTRIB_REQUIRED": "OFF",
+                "STM32_CUBE_PACKAGE_REQUIRED": "ON",
+                "SUPPORT_ANY_BASE_CONVERSION": "ON",
+                "NF_FEATURE_DEBUGGER": "ON",
+                "NF_FEATURE_RTC": "ON",
+                "NF_FEATURE_HAS_CONFIG_BLOCK": "OFF",
+                "NF_FEATURE_USE_LITTLEFS": "OFF",
+                "NF_FEATURE_HAS_ACCESSIBLE_STORAGE": "OFF",       
+                "NF_BUILD_RTM": "OFF",
+                "API_System.Math": "OFF",
+                "API_Hardware.Stm32": "ON",
+                "API_System.Device.Gpio": "ON",
+                "API_System.Device.Spi": "ON",
+                "API_System.Device.I2c": "OFF",
+                "API_System.IO.Ports": "ON",
+                "API_System.Device.Adc": "OFF",
+                "API_System.Device.Dac": "ON",
+                "API_System.IO.FileSystem": "OFF",
+                "API_nanoFramework.ResourceManager": "OFF",
+                "API_nanoFramework.System.Collections": "ON",
+                "API_nanoFramework.System.Text": "ON",
+                "API_System.Device.Acconeer.Distance": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -50,6 +87,12 @@
             "name": "ORGPAL_RADAR",
             "displayName": "ORGPAL_RADAR",
             "configurePreset": "ORGPAL_RADAR"
+        },
+        {
+            "inherits": "base-user",
+            "name": "ORGPAL_RADAR_REVA",
+            "displayName": "ORGPAL_RADAR_REVA",
+            "configurePreset": "ORGPAL_RADAR_REVA"
         }
     ]
 }
