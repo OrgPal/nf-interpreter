@@ -165,13 +165,6 @@ macro(nf_add_platform_dependencies target)
         if(API_nanoFramework.System.Security.Cryptography)
             FetchContent_GetProperties(mbedtls)
         endif()
-
-        if(API_System.Device.Acconeer.Distance)
-            FetchContent_GetProperties(acconeer)
-
-            message("acconeer_SOURCES: ${acconeer_SOURCES}")
-
-        endif()
     
         nf_add_lib_native_assemblies(
             EXTRA_SOURCES
