@@ -26,5 +26,6 @@ SPI_CONFIG_PINS(1, GPIOA, 5, GPIOA, 6, GPIOA, 7, 5)
 // port for MISO pin is: GPIOC_SPI3_MISO
 // port for MOSI pin is: GPIOB_SPI3_MOSI
 
-// GPIO alternate pin function is 5 (see alternate function mapping table in device datasheet)
-SPI_CONFIG_PINS(3, GPIOC, 10, GPIOC, 11, GPIOB, 2, 5)
+// GPIO alternate pin function is 6 for SCK and MISO and 7 for MOSI
+// (see alternate function mapping table in device datasheet)
+SPI_CONFIG_PINS_ALT(3, GPIOC, 10, 6, GPIOC, 11, 6, GPIOB, 2, 7)
