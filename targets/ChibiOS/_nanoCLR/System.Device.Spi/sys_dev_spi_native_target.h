@@ -33,8 +33,8 @@ struct NF_PAL_SPI
     int32_t ChipSelect;
 };
 
-// the following macro defines a function that configures the GPIO pins for an STM32 SPI peripheral
-// it gets called in the Windows_Devices_SPi_SPiDevice::NativeInit function
+// the following macros defines a function that configures the GPIO pins for an STM32 SPI peripheral
+// it gets called in the System_Device_SPI_SPIDevice::NativeInit function
 // this is required because the SPI peripherals can use multiple GPIO configuration combinations
 // configure:
 // - SCK, and MOSI pins with alternate
@@ -67,6 +67,55 @@ struct NF_PAL_SPI
                 gpio_port_miso,                                                                                        \
                 miso_pin,                                                                                              \
                 (PAL_MODE_ALTERNATE(alternate_function) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING |        \
+                 PAL_STM32_OTYPE_PUSHPULL));                                                                           \
+        }                                                                                                              \
+        if (spiDeviceConfig.DeviceChipSelect >= 0)                                                                     \
+        {                                                                                                              \
+            palSetPadMode(                                                                                             \
+                GPIO_PORT(spiDeviceConfig.DeviceChipSelect),                                                           \
+                spiDeviceConfig.DeviceChipSelect % 16,                                                                 \
+                (PAL_STM32_OSPEED_HIGHEST | PAL_MODE_OUTPUT_PUSHPULL));                                                \
+            if (spiDeviceConfig.ChipSelectActiveState)                                                                 \
+            {                                                                                                          \
+                palSetPad(GPIO_PORT(spiDeviceConfig.DeviceChipSelect), spiDeviceConfig.DeviceChipSelect % 16);         \
+            }                                                                                                          \
+            else                                                                                                       \
+            {                                                                                                          \
+                palClearPad(GPIO_PORT(spiDeviceConfig.DeviceChipSelect), spiDeviceConfig.DeviceChipSelect % 16);       \
+            }                                                                                                          \
+        }                                                                                                              \
+    }
+
+// this alternative macro accepts AF individually for each pin
+#define SPI_CONFIG_PINS_ALT(                                                                                           \
+    num,                                                                                                               \
+    gpio_port_sck,                                                                                                     \
+    sck_pin,                                                                                                           \
+    sck_alternate,                                                                                                     \
+    gpio_port_miso,                                                                                                    \
+    miso_pin,                                                                                                          \
+    miso_alternate,                                                                                                    \
+    gpio_port_mosi,                                                                                                    \
+    mosi_pin,                                                                                                          \
+    mosi_alternate)                                                                                                    \
+    void ConfigPins_SPI##num(const SPI_DEVICE_CONFIGURATION &spiDeviceConfig)                                          \
+    {                                                                                                                  \
+        palSetPadMode(                                                                                                 \
+            gpio_port_sck,                                                                                             \
+            sck_pin,                                                                                                   \
+            (PAL_MODE_ALTERNATE(sck_alternate) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING |                 \
+             PAL_STM32_OTYPE_PUSHPULL));                                                                               \
+        palSetPadMode(                                                                                                 \
+            gpio_port_mosi,                                                                                            \
+            mosi_pin,                                                                                                  \
+            (PAL_MODE_ALTERNATE(mosi_alternate) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING |                \
+             PAL_STM32_OTYPE_PUSHPULL));                                                                               \
+        if (spiDeviceConfig.BusConfiguration != SpiBusConfiguration_HalfDuplex)                                        \
+        {                                                                                                              \
+            palSetPadMode(                                                                                             \
+                gpio_port_miso,                                                                                        \
+                miso_pin,                                                                                              \
+                (PAL_MODE_ALTERNATE(miso_alternate) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING |            \
                  PAL_STM32_OTYPE_PUSHPULL));                                                                           \
         }                                                                                                              \
         if (spiDeviceConfig.DeviceChipSelect >= 0)                                                                     \
