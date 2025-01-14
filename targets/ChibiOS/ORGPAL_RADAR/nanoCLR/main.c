@@ -82,7 +82,7 @@ int main(void)
     // startup crc
     crcStart(NULL);
 #endif
-    
+
     // MPU configuration
     Target_ConfigMPU();
 
