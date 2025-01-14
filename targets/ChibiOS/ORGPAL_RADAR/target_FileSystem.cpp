@@ -31,14 +31,14 @@ void FS_AddVolumes()
     g_FS_Volumes = new FileSystemVolume[g_FS_NumVolumes];
     g_FS_DriverDetails = new STREAM_DRIVER_DETAILS[g_FS_NumVolumes];
 
-    // W25Q64, drive F:, volume 1
+    // W25Q64, drive I:, volume 1
     FileSystemVolumeList::AddVolume(
         &g_FS_Volumes[0],
         "I:",
         0,
         g_AvailableFSInterfaces[0].streamDriver,
         g_AvailableFSInterfaces[0].fsDriver,
-        1,
+        0,
         FALSE);
 }
 
