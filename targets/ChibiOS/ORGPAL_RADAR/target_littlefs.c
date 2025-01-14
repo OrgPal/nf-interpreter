@@ -35,7 +35,7 @@ static const SPIConfig spiConfig = {
     .data_cb = NULL,
     .error_cb = NULL,
     // CPHA=0, CPOL=0, MSb first
-    .cr1 = 0U, // SPI_CR1_CPOL | SPI_CR1_BR_0,
+    .cr1 = 0U + 32, // SPI_CR1_CPOL | SPI_CR1_BR_0,
     // transfer length to 8bit
     .cr2 = SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0};
 
