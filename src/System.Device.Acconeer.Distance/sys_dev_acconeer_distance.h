@@ -53,6 +53,15 @@ extern "C"
 //     ReflectorShape_Planar = 1,
 // } ReflectorShape;
 
+// matches declaration of acc_detector_distance_reflector_shape_t
+// typedef enum __nfpack ThresholdMethod
+// {
+//     ThresholdMethod_FixedAmplitude = 0,
+//     ThresholdMethod_FixedStrenght = 1,
+//     ThresholdMethod_Recorded = 2,
+//     ThresholdMethod_Cfar = 3,
+// } ThresholdMethod;
+
 struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detector
 {
     static const int FIELD___sensor = 1;
@@ -87,9 +96,12 @@ struct Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Distanc
     static const int FIELD___numberOfFrames = 6;
     static const int FIELD___peakSorting = 7;
     static const int FIELD___reflectorShape = 8;
-    static const int FIELD___thresholdSensivity = 9;
-    static const int FIELD___signalQuality = 10;
-    static const int FIELD___closeRangeLeakageCancellation = 11;
+    static const int FIELD___thresholdMethod = 9;
+    static const int FIELD___fixedAmplitudeThreshold = 10;
+    static const int FIELD___fixedStrengthThreshold = 11;
+    static const int FIELD___thresholdSensivity = 12;
+    static const int FIELD___signalQuality = 13;
+    static const int FIELD___closeRangeLeakageCancellation = 14;
 
     //--//
 };

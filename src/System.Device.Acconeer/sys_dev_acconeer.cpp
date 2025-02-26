@@ -30,7 +30,7 @@ const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_System_Device_Acconeer =
     "System.Device.Acconeer",
     0xF9907C62,
     method_lookup,
-    { 100, 0, 0, 1 }
+    { 100, 0, 0, 2 }
 };
 
 // clang-format on

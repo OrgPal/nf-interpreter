@@ -39,6 +39,17 @@ static void SetDistanceConfig(acc_detector_distance_config_t *config, CLR_RT_Hea
         (acc_detector_distance_reflector_shape_t)distanceConfig[DistanceConfiguration::FIELD___reflectorShape]
             .NumericByRef()
             .u1);
+    acc_detector_distance_config_threshold_method_set(
+        config,
+        (acc_detector_distance_threshold_method_t)distanceConfig[DistanceConfiguration::FIELD___thresholdMethod]
+            .NumericByRef()
+            .u1);
+    acc_detector_distance_config_fixed_amplitude_threshold_value_set(
+        config,
+        distanceConfig[DistanceConfiguration::FIELD___fixedAmplitudeThreshold].NumericByRef().r4);
+    acc_detector_distance_config_fixed_strength_threshold_value_set(
+        config,
+        distanceConfig[DistanceConfiguration::FIELD___fixedStrengthThreshold].NumericByRef().r4);
     acc_detector_distance_config_threshold_sensitivity_set(
         config,
         distanceConfig[DistanceConfiguration::FIELD___thresholdSensivity].NumericByRef().r4);
@@ -426,10 +437,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     // copy over the distances array
     arrayRef = distanceResult[DistanceResult::FIELD___distances].DereferenceArray();
-    memcpy(
-        arrayRef->GetFirstElement(),
-        result->distances,
-        result->num_distances * sizeof(float));
+    memcpy(arrayRef->GetFirstElement(), result->distances, result->num_distances * sizeof(float));
 
     // set the strengths array
     NANOCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance(
@@ -439,10 +447,7 @@ HRESULT Library_sys_dev_acconeer_distance_System_Device_Acconeer_Distance_Detect
 
     // copy over the strengths array
     arrayRef = distanceResult[DistanceResult::FIELD___strengths].DereferenceArray();
-    memcpy(
-        arrayRef->GetFirstElement(),
-        result->strengths,
-        result->num_distances * sizeof(float));
+    memcpy(arrayRef->GetFirstElement(), result->strengths, result->num_distances * sizeof(float));
 
     distanceResult[DistanceResult::FIELD___nearStartEdge].NumericByRef().u1 = result->near_start_edge_status;
     distanceResult[DistanceResult::FIELD___calibrationNeeded].NumericByRef().u1 = result->calibration_needed;
