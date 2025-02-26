@@ -260,11 +260,6 @@ void hal_lfs_config()
         lfsConfig[i].erase = hal_lfs_getEraseHandler(i);
         lfsConfig[i].sync = hal_lfs_getSyncHandler(i);
 
-        // #ifdef LFS_THREADSAFE
-        //         lfsConfig[i].lock = &hal_lfs_lock;
-        //         lfsConfig[i].unlock = &hal_lfs_unlock;
-        // #endif
-
         // setup littlefs configurations
         lfsConfig[i].read_size = hal_lfs_getReadSize(i);
         lfsConfig[i].prog_size = hal_lfs_getProgSize(i);
@@ -315,64 +310,56 @@ void hal_lfs_mount()
 
 int32_t hal_lfs_mount_partition(int32_t index, bool forceFormat)
 {
+    // not used
+    (void)forceFormat;
+
     int32_t operationResult = 0;
+
+    operationResult = lfs_format(&lfs[index], &lfsConfig[index]);
+
+    if (operationResult != LFS_ERR_OK)
+    {
+        // failed to format
+        return operationResult;
+    }
 
     // mount the file system
     operationResult = lfs_mount(&lfs[index], &lfsConfig[index]);
 
-    if (operationResult != 0)
-    {
-        // looks like littlefs is not formated (occuring at 1st boot)
-
-        if (forceFormat)
-        {
-            // wipe out the chip
-            hal_lfs_erase_chip(index);
-        }
-
-        lfs_format(&lfs[index], &lfsConfig[index]);
-
-        // mount the file system again
-        operationResult = lfs_mount(&lfs[index], &lfsConfig[index]);
-
-        // create the root directory
-        lfs_mkdir(&lfs[index], "/");
-    }
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // code block to assist testing littlefs
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    int32_t lfsIndex = 0;
-    char writeBuf[] = {
-        "Hello! if you get this message, congratulations, that's because littlefs is working on your device!!"};
-    char readBuf[sizeof(writeBuf)];
+    // int32_t lfsIndex = 0;
+    // char writeBuf[] = {
+    //     "Hello! if you get this message, congratulations, that's because littlefs is working on your device!!"};
+    // char readBuf[sizeof(writeBuf)];
 
-    lfs_file_t file;
-    lfs_file_open(&lfs[lfsIndex], &file, "file1.txt", LFS_O_RDWR | LFS_O_CREAT);
+    // lfs_file_t file;
+    // lfs_file_open(&lfs[lfsIndex], &file, "file1.txt", LFS_O_RDWR | LFS_O_CREAT);
 
-    if (lfs_file_write(&lfs[lfsIndex], &file, writeBuf, sizeof(writeBuf)) != sizeof(writeBuf))
-    {
-        // something went wrong
-        return -1;
-    }
+    // if (lfs_file_write(&lfs[lfsIndex], &file, writeBuf, sizeof(writeBuf)) != sizeof(writeBuf))
+    //{
+    //     // something went wrong
+    //     return -1;
+    // }
 
-    lfs_file_close(&lfs[lfsIndex], &file);
+    // lfs_file_close(&lfs[lfsIndex], &file);
 
-    // reopen the file and read it
-    lfs_file_open(&lfs[lfsIndex], &file, "file1.txt", LFS_O_RDONLY);
-    if (lfs_file_read(&lfs[lfsIndex], &file, readBuf, sizeof(readBuf)) != sizeof(writeBuf))
-    {
-        // something went wrong
-        return -1;
-    }
+    //// reopen the file and read it
+    // lfs_file_open(&lfs[lfsIndex], &file, "file1.txt", LFS_O_RDONLY);
+    // if (lfs_file_read(&lfs[lfsIndex], &file, readBuf, sizeof(readBuf)) != sizeof(writeBuf))
+    //{
+    //     // something went wrong
+    //     return -1;
+    // }
 
-    lfs_file_close(&lfs[lfsIndex], &file);
+    // lfs_file_close(&lfs[lfsIndex], &file);
 
-    if (memcmp(writeBuf, readBuf, sizeof(writeBuf)) != 0)
-    {
-        // content doesn't match
-        return -1;
-    }
+    // if (memcmp(writeBuf, readBuf, sizeof(writeBuf)) != 0)
+    //{
+    //     // content doesn't match
+    //     return -1;
+    // }
 
     return operationResult;
 }

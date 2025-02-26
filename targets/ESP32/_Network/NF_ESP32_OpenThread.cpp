@@ -10,6 +10,7 @@
 
 #include <NF_ESP32_Network.h>
 #include <esp32_idf.h>
+#include <nanoprintf.h>
 
 #include "esp_openthread.h"
 #include "esp_openthread_cli.h"
@@ -43,7 +44,7 @@ extern void ThreadSetInterfaceNumber(int networkInterfaceNumber);
         .host_connection_mode = HOST_CONNECTION_MODE_RCP_UART,                                                         \
         .host_uart_config =                                                                                            \
             {                                                                                                          \
-                .port = 0,                                                                                             \
+                .port = (uart_port_t)0,                                                                                \
                 .uart_config =                                                                                         \
                     {                                                                                                  \
                         .baud_rate = 460800,                                                                           \
@@ -72,7 +73,7 @@ extern void ThreadSetInterfaceNumber(int networkInterfaceNumber);
                         .sclk_io_num = 0,                                                                              \
                         .quadwp_io_num = -1,                                                                           \
                         .quadhd_io_num = -1,                                                                           \
-                        .isr_cpu_id = INTR_CPU_ID_0,                                                                   \
+                        .isr_cpu_id = ESP_INTR_CPU_AFFINITY_0,                                                         \
                     },                                                                                                 \
                 .slave_config =                                                                                        \
                     {                                                                                                  \
@@ -234,7 +235,7 @@ void ResetLineBuffer()
 int cliOutputCallback(void *aContext, const char *aFormat, va_list aArguments)
 {
     // Find length of string with args
-    int length = std::vsnprintf(nullptr, 0, aFormat, aArguments);
+    int length = vsnprintf(nullptr, 0, aFormat, aArguments);
 
     if (((cliLineBufferCount + length) > cliBufferSize) || cliIgnoreLine > 0)
     {
@@ -245,7 +246,7 @@ int cliOutputCallback(void *aContext, const char *aFormat, va_list aArguments)
     }
 
     // format into buffer
-    std::vsnprintf(&cliLineBuffer[cliLineBufferCount], cliBufferSize - length, aFormat, aArguments);
+    vsnprintf(&cliLineBuffer[cliLineBufferCount], cliBufferSize - length, aFormat, aArguments);
 
     // Update count
     cliLineBufferCount += length;
@@ -384,7 +385,7 @@ esp_err_t initOpenThread(ThreadDeviceType deviceType, esp_openthread_radio_mode_
             config.host_config = ESP_OPENTHREAD_DEFAULT_UART_HOST_CONFIG();
 
             // Set COM port using ESP32 configured pins
-            config.host_config.host_uart_config.port = port;
+            config.host_config.host_uart_config.port = (uart_port_t)port;
 
             config.host_config.host_uart_config.uart_config.baud_rate = baud_rate;
 

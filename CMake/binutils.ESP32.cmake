@@ -566,9 +566,10 @@ macro(nf_install_idf_component_from_registry component_name object_id)
 
     message(STATUS "Checking if component '" ${component_name} "' needs to be installed")
     
-    set(downloadUrl https://components.espressif.com/api/download/?object_type=component&object_id=${object_id})
+    set(downloadUrl https://components.espressif.com/api/downloads/?object_type=component&object_id=${object_id})
     set(archiveName ${CMAKE_BINARY_DIR}/downloads/${component_name}_${object_id}.zip)
     set(destinationPath ${IDF_PATH_CMAKED}/components/${component_name})
+    set(extractPath ${IDF_PATH_CMAKED}/components)
 
     if(NOT EXISTS ${destinationPath})
         file(DOWNLOAD ${downloadUrl} ${archiveName})
@@ -576,7 +577,7 @@ macro(nf_install_idf_component_from_registry component_name object_id)
 
         file(ARCHIVE_EXTRACT 
             INPUT ${archiveName} 
-            DESTINATION ${destinationPath}
+            DESTINATION ${extractPath}
         )
 
         # Remove idf_component.yml file otherwise we will get warning about Component manager not being enabled
@@ -593,28 +594,41 @@ macro(nf_add_idf_as_library)
     # Load any required Components from Component registry
     # Must be done before "tools/cmake/idf.cmake" 
     if(ESP32_USB_CDC)
-        nf_install_idf_component_from_registry(tinyusb a4c3e214-fc79-4264-8dfe-92f1555440b3) 
-        nf_install_idf_component_from_registry(esp_tinyusb 65318090-af6e-4dbe-a257-5074ed07a337) 
+        nf_install_idf_component_from_registry(tinyusb 55142eec-a3a4-47a5-ad01-4ba3ef44444b) 
+        nf_install_idf_component_from_registry(esp_tinyusb 8115ffc9-366a-4340-94ab-e327aed20831) 
     endif()
 
-    nf_install_idf_component_from_registry(littlefs a52ea255-cc2f-483c-a742-e4631623b8c2) 
+    nf_install_idf_component_from_registry(littlefs 4831aa41-8b72-48ac-a534-910a985a5519) 
     
     include(${IDF_PATH_CMAKED}/tools/cmake/idf.cmake)
 
-    # "fix" the reported version so it doesn't show '-dirty' 
+    # if needed, "fix" the reported version so it doesn't show '-dirty'
     # this is because we could be deleting some files and tweaking others in the IDF
     get_property(MY_IDF_VER TARGET __idf_build_target PROPERTY IDF_VER)
-    string(REPLACE "-dirty" "" MY_IDF_VER_FIXED "${MY_IDF_VER}")
-    set_property(TARGET __idf_build_target PROPERTY IDF_VER ${MY_IDF_VER_FIXED})
-    set(IDF_VER_FIXED ${MY_IDF_VER_FIXED} CACHE INTERNAL "IDF version as CMake var")
 
-    # for COMPILE DEFINITIONS it's a bit more work
-    get_property(IDF_COMPILE_DEFINITIONS TARGET __idf_build_target PROPERTY COMPILE_DEFINITIONS )
+    # sanity check
+    if(${MY_IDF_VER} STREQUAL "")
+        message(FATAL_ERROR "Couldn't get IDF version from target __idf_build_target")
+    endif()
 
-    string(REPLACE "-dirty" "" IDF_COMPILE_DEFINITIONS_FIXED "${IDF_COMPILE_DEFINITIONS}")
-    set_property(TARGET __idf_build_target PROPERTY COMPILE_DEFINITIONS ${IDF_COMPILE_DEFINITIONS_FIXED})
-    
-    message(STATUS "Fixed IDF version. Is now: ${MY_IDF_VER_FIXED}")
+    message(STATUS "Current IDF version is: ${MY_IDF_VER}")
+
+    string(FIND ${MY_IDF_VER} "-dirty" MY_IDF_VER_DIRTY)
+    if(${MY_IDF_VER_DIRTY} GREATER -1)
+
+        # found '-dirty' in the version string
+        string(REPLACE "-dirty" "" MY_IDF_VER_FIXED "${MY_IDF_VER}")
+        set_property(TARGET __idf_build_target PROPERTY IDF_VER ${MY_IDF_VER_FIXED})
+        set(IDF_VER_FIXED ${MY_IDF_VER_FIXED} CACHE INTERNAL "IDF version as CMake var")
+
+        # for COMPILE DEFINITIONS it's a bit more work
+        get_property(IDF_COMPILE_DEFINITIONS TARGET __idf_build_target PROPERTY COMPILE_DEFINITIONS )
+
+        string(REPLACE "-dirty" "" IDF_COMPILE_DEFINITIONS_FIXED "${IDF_COMPILE_DEFINITIONS}")
+        set_property(TARGET __idf_build_target PROPERTY COMPILE_DEFINITIONS ${IDF_COMPILE_DEFINITIONS_FIXED})
+        
+        message(STATUS "Fixed IDF version. Is now: ${MY_IDF_VER_FIXED}")
+    endif()
 
     # check for SDK config from build options
     if(SDK_CONFIG_FILE)
@@ -706,10 +720,6 @@ macro(nf_add_idf_as_library)
         )
 
         if(ESP32_USB_CDC)
-
-            #idf_build_set_property(IDF_COMPONENT_MANAGER 1)
-            #idf_build_set_property(__COMPONENT_MANAGER_INTERFACE_VERSION 2)
-            #message(STATUS "Support for component manager enabled")
 
             # add IDF components specific to ESP32S2/S3 series
             # They have to be added in a specific order so they compile/link ok

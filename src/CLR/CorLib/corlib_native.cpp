@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -175,6 +175,13 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_corlib_native_System_Exception::get_StackTrace___STRING,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -435,8 +442,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     Library_corlib_native_System_DateTime::DaysInMonth___STATIC__I4__I4__I4,
     NULL,
-    Library_corlib_native_System_DateTime::get_UtcNow___STATIC__SystemDateTime,
-    Library_corlib_native_System_DateTime::get_Today___STATIC__SystemDateTime,
     NULL,
     NULL,
     NULL,
@@ -449,10 +454,14 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    Library_corlib_native_System_DateTime::GetUtcNowAsTicks___STATIC__I8,
+    Library_corlib_native_System_DateTime::GetTodayAsTicks___STATIC__I8,
     NULL,
     Library_corlib_native_System_Convert::NativeToInt64___STATIC__I8__STRING__BOOLEAN__I8__I8__I4__BOOLEAN__BYREF_BOOLEAN,
     Library_corlib_native_System_Convert::NativeToDouble___STATIC__R8__STRING__BOOLEAN__BYREF_BOOLEAN,
-    Library_corlib_native_System_Convert::NativeToDateTime___STATIC__SystemDateTime__STRING__BOOLEAN__BYREF_BOOLEAN,
+    Library_corlib_native_System_Convert::NativeToDateTime___STATIC__VOID__STRING__BOOLEAN__BYREF_BOOLEAN__BYREF_SystemDateTime,
     NULL,
     NULL,
     NULL,
@@ -492,8 +501,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_corlib_native_System_Diagnostics_Debug::WriteLineNative___STATIC__VOID__STRING__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::get_IsAttached___STATIC__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::Break___STATIC__VOID,
-    NULL,
-    NULL,
     NULL,
     NULL,
     NULL,
@@ -547,11 +554,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_corlib_native_System_GC::SuppressFinalize___STATIC__VOID__OBJECT,
     Library_corlib_native_System_GC::ReRegisterForFinalize___STATIC__VOID__OBJECT,
     Library_corlib_native_System_Globalization_DateTimeFormat::FormatDigits___STATIC__STRING__I4__I4,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
     NULL,
     NULL,
     NULL,
@@ -678,6 +680,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_corlib_native_System_Runtime_CompilerServices_RuntimeHelpers::InitializeArray___STATIC__VOID__SystemArray__SystemRuntimeFieldHandle,
     Library_corlib_native_System_Runtime_CompilerServices_RuntimeHelpers::GetObjectValue___STATIC__OBJECT__OBJECT,
     Library_corlib_native_System_Runtime_CompilerServices_RuntimeHelpers::RunClassConstructor___STATIC__VOID__SystemRuntimeTypeHandle,
@@ -780,6 +783,10 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_corlib_native_System_Threading_WaitHandle::WaitMultiple___STATIC__I4__SZARRAY_SystemThreadingWaitHandle__I4__BOOLEAN__BOOLEAN,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -928,6 +935,13 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_corlib_native_System_Exception::get_StackTrace___STRING,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -1184,8 +1198,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     Library_corlib_native_System_DateTime::DaysInMonth___STATIC__I4__I4__I4,
     NULL,
-    Library_corlib_native_System_DateTime::get_UtcNow___STATIC__SystemDateTime,
-    Library_corlib_native_System_DateTime::get_Today___STATIC__SystemDateTime,
     NULL,
     NULL,
     NULL,
@@ -1198,10 +1210,14 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    Library_corlib_native_System_DateTime::GetUtcNowAsTicks___STATIC__I8,
+    Library_corlib_native_System_DateTime::GetTodayAsTicks___STATIC__I8,
     NULL,
     Library_corlib_native_System_Convert::NativeToInt64___STATIC__I8__STRING__BOOLEAN__I8__I8__I4__BOOLEAN__BYREF_BOOLEAN,
     Library_corlib_native_System_Convert::NativeToDouble___STATIC__R8__STRING__BOOLEAN__BYREF_BOOLEAN,
-    Library_corlib_native_System_Convert::NativeToDateTime___STATIC__SystemDateTime__STRING__BOOLEAN__BYREF_BOOLEAN,
+    Library_corlib_native_System_Convert::NativeToDateTime___STATIC__VOID__STRING__BOOLEAN__BYREF_BOOLEAN__BYREF_SystemDateTime,
     NULL,
     NULL,
     NULL,
@@ -1239,8 +1255,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_corlib_native_System_Diagnostics_Debugger::get_IsAttached___STATIC__BOOLEAN,
     Library_corlib_native_System_Diagnostics_Debugger::Break___STATIC__VOID,
     NULL,
-    NULL,
-    NULL,
     Library_corlib_native_System_Enum::HasFlag___BOOLEAN__SystemEnum,
     NULL,
     NULL,
@@ -1273,11 +1287,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_corlib_native_System_GC::SuppressFinalize___STATIC__VOID__OBJECT,
     Library_corlib_native_System_GC::ReRegisterForFinalize___STATIC__VOID__OBJECT,
     Library_corlib_native_System_Globalization_DateTimeFormat::FormatDigits___STATIC__STRING__I4__I4,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
     NULL,
     NULL,
     NULL,
@@ -1350,6 +1359,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_corlib_native_System_Random::NextBytes___VOID__SZARRAY_U1,
     Library_corlib_native_System_Random::_ctor___VOID,
     Library_corlib_native_System_Random::_ctor___VOID__I4,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -1456,6 +1466,10 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_corlib_native_System_ValueType::Equals___BOOLEAN__OBJECT,
     NULL,
     NULL,
@@ -1483,18 +1497,18 @@ const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_mscorlib =
 
 #if (NANOCLR_REFLECTION == TRUE)
 
-    0x445C7AF9,
+    0x9F295833,
 
 #elif (NANOCLR_REFLECTION == FALSE)
 
-    0xE3A4B52F,
+    0xFDC67F52,
 
 #else
 #error "NANOCLR_REFLECTION has to be define either TRUE or FALSE. Check the build options."
 #endif
 
     method_lookup,
-    { 100, 5, 0, 19 }
+    { 100, 5, 0, 23 }
 };
 
 // clang-format on

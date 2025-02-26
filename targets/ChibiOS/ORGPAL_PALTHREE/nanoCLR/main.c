@@ -19,11 +19,12 @@
 
 extern int32_t hal_lfs_config();
 extern void hal_lfs_mount();
+extern void Target_ConfigMPU();
 
 // need to declare the Receiver thread here
 osThreadDef(ReceiverThread, osPriorityHigh, 2048, "ReceiverThread");
 // declare CLRStartup thread here
-osThreadDef(CLRStartupThread, osPriorityNormal, 4096, "CLRStartupThread");
+osThreadDef(CLRStartupThread, osPriorityNormal, 6144, "CLRStartupThread");
 
 #if HAL_USE_SDC
 // declare SD Card working thread here
@@ -92,6 +93,9 @@ int main(void)
     // startup crc
     crcStart(NULL);
 #endif
+
+    // MPU configuration
+    Target_ConfigMPU();
 
     // config and init external memory
     // this has to be called after osKernelInitialize, otherwise an hard fault will occur

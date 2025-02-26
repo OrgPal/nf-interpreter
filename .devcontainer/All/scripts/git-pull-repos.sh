@@ -15,7 +15,8 @@ git svn clone http://svn.code.sf.net/p/chibios/code/branches/stable_21.11.x -rHE
 cd /sources/ChibiOs-Contrib
 git pull origin chibios-21.11.x
 cd /sources/mbedtls
-git pull origin mbedtls-2.28.5
+git pull origin mbedtls-3.6.0
+git submodule update --init
 cd /sources/fatfs
 git pull origin R0.15
 cd /sources/FreeRTOS

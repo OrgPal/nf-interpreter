@@ -89,9 +89,9 @@ HRESULT LITTLEFS_FS_Driver::GetSizeInfo(const VOLUME_ID *volume, int64_t *totalS
 
     // FATFS *fs = GetFatFsByVolumeId(volume, false);
 
-    FileSystemVolume *currentVolume = FileSystemVolumeList::FindVolume(volume->volumeId);
+    // FileSystemVolume *currentVolume = FileSystemVolumeList::FindVolume(volume->volumeId);
 
-    f_chdrive(currentVolume->m_rootName);
+    // f_chdrive(currentVolume->m_rootName);
 
     // // this call is prone to take a long time, thus hitting the watchdog, therefore we are skipping this for now
     // //     // get free clusters
@@ -412,6 +412,7 @@ HRESULT LITTLEFS_FS_Driver::Seek(void *handle, int64_t offset, uint32_t origin, 
 HRESULT LITTLEFS_FS_Driver::GetLength(void *handle, int64_t *length)
 {
     LITTLEFS_FileHandle *fileHandle;
+    long currentPosition;
 
     if (handle == 0)
     {
@@ -419,6 +420,13 @@ HRESULT LITTLEFS_FS_Driver::GetLength(void *handle, int64_t *length)
     }
 
     fileHandle = (LITTLEFS_FileHandle *)handle;
+
+    // Store current position
+    currentPosition = ftell(fileHandle->file);
+    if (currentPosition == -1L)
+    {
+        return CLR_E_FILE_IO;
+    }
 
     // Move to the end of the file to determine its size
     if (fseek(fileHandle->file, 0, SEEK_END) != 0)
@@ -430,8 +438,12 @@ HRESULT LITTLEFS_FS_Driver::GetLength(void *handle, int64_t *length)
     // Get the current position, which is the size of the file
     *length = ftell(fileHandle->file);
 
-    // rewind to the start of the file if you need to read from it next
-    rewind(fileHandle->file);
+    // Restore file position
+    if (fseek(fileHandle->file, currentPosition, SEEK_SET) != 0)
+    {
+        // Handle error
+        return CLR_E_FILE_IO;
+    }
 
     return S_OK;
 }
@@ -624,7 +636,7 @@ HRESULT LITTLEFS_FS_Driver::FindNext(void *handle, FS_FILEINFO *fi, bool *fileFo
                 }
                 else
                 {
-                    fi->Attributes = FileAttributes::FileAttributes_Archive;
+                    fi->Attributes = FileAttributes::FileAttributes_Normal;
                 }
 
                 // POSIX API does not provide file size
@@ -696,8 +708,11 @@ HRESULT LITTLEFS_FS_Driver::GetFileInfo(const VOLUME_ID *volume, const char *pat
         }
         else
         {
-            fileInfo->Attributes = FileAttributes::FileAttributes_Archive;
+            fileInfo->Attributes = FileAttributes::FileAttributes_Normal;
         }
+
+        // set the file size
+        fileInfo->Size = info.st_size;
 
         // no need to set the file name details as managed code already has this info
     }

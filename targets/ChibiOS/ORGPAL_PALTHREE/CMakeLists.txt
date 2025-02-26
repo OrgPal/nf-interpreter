@@ -18,7 +18,8 @@ nf_setup_target_build(
     CLR_EXTRA_SOURCE_FILES
         # the next one is required is the target implements and it's using external memory
         ${CMAKE_CURRENT_SOURCE_DIR}/target_external_memory.c
-    
+        ${CMAKE_CURRENT_SOURCE_DIR}/target_mpu_config.c
+
     BOOTER_EXTRA_COMPILE_DEFINITIONS
         USBH_DEBUG_MULTI_HOST=0
 
@@ -50,7 +51,7 @@ if(HEX2DFU_TOOL_AVAILABLE)
     else()
         nf_generate_dfu_package(
             ${CMAKE_SOURCE_DIR}/build/${NANOBOOTER_PROJECT_NAME}.bin 08000000
-            ${CMAKE_SOURCE_DIR}/build/${NANOCLR_PROJECT_NAME}.bin 08018000 
+            ${CMAKE_SOURCE_DIR}/build/${NANOCLR_PROJECT_NAME}.bin 08010000 
             ${CMAKE_SOURCE_DIR}/build/nanobooter-nanoclr.dfu       
         )
     endif()

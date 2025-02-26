@@ -1,10 +1,12 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
 //
 
+#if !defined(VIRTUAL_DEVICE)
 #include <nanoHAL_v2.h>
+#endif
 #include <nanoWeak.h>
 #include <nanoSupport.h>
 #include <targetHAL_Time.h>
@@ -62,12 +64,7 @@ bool IsMarkerMatched(void *header, const void *marker, size_t len)
     return memcmp(header, marker, len) == 0;
 }
 
-void ShiftBufferToLeft(void *buffer, uint32_t len)
-{
-    memmove((uint8_t *)buffer, ((uint8_t *)buffer + 1), len - 1);
-}
-
-void SyncToMessageStart()
+bool SyncToMessageStart()
 {
     uint32_t len;
 
@@ -88,16 +85,33 @@ void SyncToMessageStart()
             break;
         }
 
-        ShiftBufferToLeft(&_inboundMessage.m_header, len);
+        // Calculate the source and destination pointers
+        uint8_t *src = (uint8_t *)&_inboundMessage.m_header + 1;
+        uint8_t *dst = (uint8_t *)&_inboundMessage.m_header;
+        size_t moveLength = len - 1;
 
-        // update pointer and expected size
+        // Ensure that the memory regions do not exceed allocated bounds
+        if ((src + moveLength >= (uint8_t *)&_inboundMessage + sizeof(_inboundMessage)) ||
+            (dst + moveLength >= (uint8_t *)&_inboundMessage + sizeof(_inboundMessage)))
+        {
+            return false;
+        }
+
+        // Perform the memory move
+        memmove(dst, src, moveLength);
+
+        // Update pointer and expected size
         _pos--;
         _size++;
 
-        // sanity checks
-        _ASSERTE(_size <= sizeof(_inboundMessage.m_header));
-        _ASSERTE(_pos >= (uint8_t *)&(_inboundMessage.m_header));
+        // Sanity checks
+        if (_size > sizeof(_inboundMessage.m_header) || _pos < (uint8_t *)&_inboundMessage.m_header)
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
 void WP_ReplyToCommand(WP_Message *message, uint8_t fSuccess, uint8_t fCritical, void *ptr, uint32_t size)
@@ -304,7 +318,10 @@ void WP_Message_Process()
 
     while (true)
     {
+
+#if !defined(VIRTUAL_DEVICE)
         ASSERT(_rxState >= ReceiveState_Idle && _rxState <= ReceiveState_CompletePayload);
+#endif
 
 #ifdef DEBUG
         // store this here to debug issues with wrong sequence of state machine
@@ -357,7 +374,16 @@ void WP_Message_Process()
                     }
                 }
 
-                SyncToMessageStart();
+                if (!SyncToMessageStart())
+                {
+                    // something went wrong
+                    TRACE0(TRACE_ERRORS, "RxError: Failed to sync to message start\n");
+
+                    RestartStateMachine();
+
+                    // exit the loop to allow other RTOS threads to run
+                    return;
+                }
 
                 if (len >= sizeof(_inboundMessage.m_header.m_signature))
                 {
