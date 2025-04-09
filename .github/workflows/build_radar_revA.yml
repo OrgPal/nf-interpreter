@@ -28,8 +28,10 @@ jobs:
 
     - name: Print path for debugging
       run: echo ${{ env.ACCONNER_PATH }}
-  
+
     - uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: 3.31.6
 
     - name: Install arm-none-eabi-gcc
       uses: carlosperate/arm-none-eabi-gcc-action@v1
