@@ -11,12 +11,12 @@ jobs:
       TARGET_NAME: 'ORGPAL_RADAR_REVA'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         ref: 'orgpal-radar'
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         repository: 'OrgPal/acconeer_cortex_m7_gcc_a121'
         ref: 'v1.11.0'
