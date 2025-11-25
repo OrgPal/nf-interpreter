@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_ORGPAL_RADAR:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       TARGET_NAME: 'ORGPAL_RADAR_REVA'
