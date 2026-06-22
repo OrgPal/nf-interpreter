@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -110,8 +110,5 @@ extern "C"
 }
 
 #endif
-
-// Uncomment to support Ethernet
-// #define ESP32_ETHERNET_SUPPORT
 
 #endif // ESP32_IDF_H

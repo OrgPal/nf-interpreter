@@ -486,6 +486,13 @@
 #endif
 
 /**
+ * TCP_SYNMAXRTX: Maximum number of retransmissions of SYN segments.
+ */
+#ifndef TCP_SYNMAXRTX
+#define TCP_SYNMAXRTX 4
+#endif
+
+/**
  * TCP_LISTEN_BACKLOG: Enable the backlog option for tcp listen pcb.
  */
 #ifndef TCP_LISTEN_BACKLOG
@@ -1044,6 +1051,9 @@
 
 // empty define to keep the compiler when enabling lwIP debug
 #define sntp_format_time
+
+// SNTP servers can be specified as DNS names (required by nanoFramework SNTP API)
+#define SNTP_SERVER_DNS 1
 
 // required as we are defining priority-aware mutexes
 #define LWIP_COMPAT_MUTEX_ALLOWED

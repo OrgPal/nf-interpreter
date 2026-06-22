@@ -31,9 +31,9 @@ list(APPEND TARGET_CHIBIOS_NANOCLR_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Memory.cp
 list(APPEND TARGET_CHIBIOS_NANOCLR_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/nanoCRT.cpp)
 
 # append TRNG only if option is ON
-if(USE_RNG)
+if(NF_FEATURE_USE_RNG)
     
-    # append random implementation for all series, except F0
+    # append random implementation for supported series
     if( ${TARGET_SERIES} STREQUAL "STM32L0xx" OR
         ${TARGET_SERIES} STREQUAL "STM32L4xx" OR
         ${TARGET_SERIES} STREQUAL "STM32F4xx" OR 
@@ -42,9 +42,13 @@ if(USE_RNG)
 
         list(APPEND TARGET_CHIBIOS_NANOCLR_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/targetRandom.cpp)  
 
+    elseif(${TARGET_SERIES} STREQUAL "RP2040")
+        # RP2040 does not have hardware TRNG
+        message(ERROR "RP2040 doesn't have a hardware Random Number Generator. Please change USE_RNG option to OFF.")
+
     else()
         # this series doesn't feature hardware TRNG, report
-        message(ERROR "This CPU doesn't have a Random Number Generation. Please change USE_RNG option to OFF.")
+        message(ERROR "This CPU doesn't have a Random Number Generation. Please change NF_FEATURE_USE_RNG option to OFF.")
     endif()
 
 endif()

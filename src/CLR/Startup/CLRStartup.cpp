@@ -161,10 +161,18 @@ struct Settings
         const CLR_RECORD_ASSEMBLY *header;
 
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf(" Loading start at %x, end %x\r\n", (unsigned int)assStart, (unsigned int)assEnd);
+        CLR_Debug::Printf(" Loading start at %p, end %p\r\n", assStart, assEnd);
 #endif
 
-        g_buildCRC = SUPPORT_ComputeCRC(assStart, (unsigned int)assEnd - (unsigned int)assStart, 0);
+        FAULT_ON_NULL_ARG(assStart);
+        FAULT_ON_NULL_ARG(assEnd);
+
+        if (assEnd < assStart)
+        {
+            NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        }
+
+        g_buildCRC = SUPPORT_ComputeCRC(assStart, (unsigned int)((uintptr_t)assEnd - (uintptr_t)assStart), 0);
 
         header = (const CLR_RECORD_ASSEMBLY *)assStart;
 
@@ -430,11 +438,11 @@ void ClrStartup(CLR_SETTINGS params)
                 {
                     // no proprietary bootloader available, launch nanoBooter
 
-#if (TARGET_HAS_NANOBOOTER == TRUE)
+#if CONFIG_NF_TARGET_HAS_NANOBOOTER
 
                     RequestToLaunchNanoBooter(hr);
                     CPU_Reset();
-#endif // TARGET_HAS_NANOBOOTER
+#endif // CONFIG_NF_TARGET_HAS_NANOBOOTER
                 }
             }
 #endif

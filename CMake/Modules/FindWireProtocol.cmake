@@ -1,4 +1,4 @@
-#
+﻿#
 # Copyright (c) .NET Foundation and Contributors
 # See LICENSE file in the project root for full license information.
 #
@@ -33,6 +33,15 @@ endif()
 
 if (BUILD_VERBOSE)
     message(STATUS "Wire Protocol TRACE_MASK is '${WP_TRACE_MASK}'")
+endif()
+
+# report Wire Protocol transport channel
+if(NF_WP_TRANSPORT_USB_CDC)
+    message(STATUS "Wire Protocol transport: USB CDC")
+elseif(NF_WP_TRANSPORT_USB_CDC_OR_SERIAL)
+    message(STATUS "Wire Protocol transport: USB CDC or serial port (UART)")
+else()
+    message(STATUS "Wire Protocol transport: serial port (UART)")
 endif()
 
 # set include directories for Wire Protocol

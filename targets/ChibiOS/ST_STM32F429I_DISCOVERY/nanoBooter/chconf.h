@@ -4,6 +4,8 @@
 // See LICENSE file in the project root for full license information.
 //
 
+// clang-format off
+
 /**
  * @file    rt/templates/chconf.h
  * @brief   Configuration file template.
@@ -147,7 +149,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_CFG_OPTIMIZE_SPEED)
-#define CH_CFG_OPTIMIZE_SPEED TRUE
+#define CH_CFG_OPTIMIZE_SPEED FALSE
 #endif
 
 /** @} */
@@ -815,5 +817,7 @@
 /*===========================================================================*/
 
 #endif /* CHCONF_H */
-
+ 
 /** @} */
+
+// clang-format on

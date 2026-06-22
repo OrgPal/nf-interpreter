@@ -1,60 +1,9 @@
-#
+﻿#
 # Copyright (c) .NET Foundation and Contributors
 # See LICENSE file in the project root for full license information.
 #
 
 include(binutils.common)
-
-# process ESP32 Ethernet options
-macro(nf_process_esp32_ethernet_options)
-
-    # need to process this?
-    if(ESP32_ETHERNET_SUPPORT)
-
-        if(NOT ESP32_ETHERNET_INTERFACE)
-            # default to LAN8720
-            set(ESP32_ETHERNET_INTERFACE "LAN8720" CACHE INTERNAL "Defaulting LAN8720")
-
-            message(STATUS "\n\n*** No Ethernet interface defined. Defaulting to LAN8720. ***\n\n")
-        endif()
-
-        # list of supported PHYs
-        set(ESP32_SUPPORTED_PHY "LAN8720" "IP101" "RTL8201" "DP83848" "KSZ8041" CACHE INTERNAL "supported ESP32 PHYs")
-        # list of supported ETH SPI PHYs
-        # ENJ28J60 currently not supported, driver in IDF examples (TODO)
-        set(ESP32_SUPPORTED_ETH_SPI "W5500" "DM9051" "ENJ28J60" CACHE INTERNAL "supported ESP32 ETH SPIs")
-
-        list(FIND ESP32_SUPPORTED_PHY ${ESP32_ETHERNET_INTERFACE} ESP32_PHY_INDEX)
-
-        if(ESP32_PHY_INDEX EQUAL -1)
-
-            # can't find this under supported PHYs
-        
-            # try with SPIs
-            list(FIND ESP32_SUPPORTED_ETH_SPI ${ESP32_ETHERNET_INTERFACE} ESP32_ETH_SPI_INDEX)
-            
-            if(ESP32_ETH_SPI_INDEX EQUAL -1)
-                # can't find it under SPIs either
-                message(FATAL_ERROR "\n\nSomething wrong happening: can't find support for Ethernet interface ${ESP32_ETHERNET_INTERFACE}!\n\n")
-            else()
-                # store SPI option
-                set(ESP32_ETHERNET_SPI_OPTION TRUE CACHE INTERNAL "Set ESP32_ETHERNET_SPI option")
-                set(ESP32_ETHERNET_INTERNAL_OPTION FALSE CACHE INTERNAL "Set ESP32_ETHERNET_INTERNAL option")
-                # set define with SPI module
-                set(ESP32_ETHERNET_DEFINES -DESP32_ETHERNET_SPI_MODULE_${ESP32_ETHERNET_INTERFACE} CACHE INTERNAL "define for Ethernet SPI module option")
-            endif()
-
-        else()
-            # store PHY option
-            set(ESP32_ETHERNET_INTERNAL_OPTION TRUE CACHE INTERNAL "Set ESP32_ETHERNET_INTERNAL option")
-            set(ESP32_ETHERNET_SPI_OPTION FALSE CACHE INTERNAL "Set ESP32_ETHERNET_SPI option")
-            # set define with PHY name
-            set(ESP32_ETHERNET_DEFINES -DESP32_ETHERNET_PHY_${ESP32_ETHERNET_INTERFACE} CACHE INTERNAL "define for Ethernet PHY interface option")
-        endif()
-
-    endif()
-
-endmacro()
 
 # find a set of files on a list of possible locations
 macro(nf_find_esp32_files_at_location files locations)
@@ -112,7 +61,7 @@ macro(nf_fix_esp32c3_rom_file)
         if(${ESP32_REVISION} LESS_EQUAL 2)
             # need to UNcomment the rom_temp_to_power symbol
             file(READ
-                ${esp32_idf_SOURCE_DIR}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
+                ${IDF_PATH_CMAKED}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
                 ESP32_C3_ROM_LD_CONTENT)
         
             string(REPLACE
@@ -122,12 +71,12 @@ macro(nf_fix_esp32c3_rom_file)
                     "${ESP32_C3_ROM_LD_CONTENT}")
         
             file(WRITE 
-                ${esp32_idf_SOURCE_DIR}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
+                ${IDF_PATH_CMAKED}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
                 "${ESP32_C3_ROM_LD_NEW_CONTENT}")
         else()
             # need to COMMENT the rom_temp_to_power symbol
             file(READ
-                ${esp32_idf_SOURCE_DIR}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
+                ${IDF_PATH_CMAKED}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
                 ESP32_C3_ROM_LD_CONTENT)
 
             string(FIND "${ESP32_C3_ROM_LD_CONTENT}" "/* rom_temp_to_power = 0x40001ab4; */" ROM_TEMP_SYMBOL_INDEX)
@@ -141,7 +90,7 @@ macro(nf_fix_esp32c3_rom_file)
                         "${ESP32_C3_ROM_LD_CONTENT}")
             
                 file(WRITE 
-                    ${esp32_idf_SOURCE_DIR}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
+                    ${IDF_PATH_CMAKED}/components/esp_rom/esp32c3/ld/esp32c3.rom.ld
                     "${ESP32_C3_ROM_LD_NEW_CONTENT}")
             endif()
 
@@ -185,7 +134,7 @@ function(nf_set_esp32_target_series)
     set(TARGET_SERIES_SHORT ${TARGET_SERIES_2} CACHE INTERNAL "ESP32 target series lower case, short version")
 
     # set the CPU type
-    if(${TARGET_SERIES_SHORT} STREQUAL "esp32c3" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32c5" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32c6" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32h2" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32p4")
+    if(${TARGET_SERIES_SHORT} STREQUAL "esp32c3" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32c5" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32c6" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32c61" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32h2" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32p4")
         set(ESP32_CPU_TYPE "riscv" CACHE INTERNAL "Setting CPU type")
     else()
         set(ESP32_CPU_TYPE "xtensa" CACHE INTERNAL "Setting CPU type")
@@ -280,7 +229,7 @@ macro(nf_add_platform_dependencies target)
                 ${ESP32_IDF_INCLUDE_DIRS}
                 ${TARGET_ESP32_IDF_INCLUDES}
                 ${CMAKE_BINARY_DIR}/targets/${RTOS}
-                ${esp32_idf_SOURCE_DIR}/components/mbedtls/mbedtls/include
+                ${IDF_PATH_CMAKED}/components/mbedtls/mbedtls/include
         )
 
         add_dependencies(${target}.elf nano::NF_Network)
@@ -469,6 +418,7 @@ macro(nf_setup_partition_tables_generator)
        ${TARGET_SERIES_SHORT} STREQUAL "esp32c3" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32c5" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32c6" OR 
+       ${TARGET_SERIES_SHORT} STREQUAL "esp32c61" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32h2" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32p4" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32s2" OR 
@@ -487,6 +437,7 @@ macro(nf_setup_partition_tables_generator)
        ${TARGET_SERIES_SHORT} STREQUAL "esp32c3" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32c5" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32c6" OR 
+       ${TARGET_SERIES_SHORT} STREQUAL "esp32c61" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32p4" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32s2" OR 
        ${TARGET_SERIES_SHORT} STREQUAL "esp32s3")
@@ -543,7 +494,7 @@ macro(nf_add_tinyusb_component)
     # get the esp_tinyusb target library name
     idf_component_get_property(etusb_lib esp_tinyusb COMPONENT_LIB)
     # add the tinyusb src directory as include path to esp_tinyusb library project
-    target_include_directories(${etusb_lib} PRIVATE ${esp32_idf_SOURCE_DIR}/components/tinyusb/src)
+    target_include_directories(${etusb_lib} PRIVATE ${IDF_PATH_CMAKED}/components/tinyusb/src)
 
     # also add the freertos directory as include path
     idf_component_get_property(freertos_include freertos ORIG_INCLUDE_PATH)
@@ -600,16 +551,20 @@ macro(nf_add_idf_as_library)
 
     # Load any required Components from Component registry
     # Must be done before "tools/cmake/idf.cmake" 
-    if(ESP32_USB_CDC)
-        nf_install_idf_component_from_registry(tinyusb c384401d-144d-453d-a821-20f1ba0a7be1) 
-        nf_install_idf_component_from_registry(esp_tinyusb 47b2b1fc-fb7e-4acf-943b-a14125e0f1e7) 
+
+    # Load tinyusb for esp32s2 series if USB CDC transport is enabled
+    if(${TARGET_SERIES_SHORT} STREQUAL "esp32s2" AND NF_WP_TRANSPORT_USB_CDC)
+        # v0.19.0~2
+        nf_install_idf_component_from_registry(tinyusb dda61643-82de-40f9-86f4-4f3d9b1cb008) 
+        # v2.1.1
+        nf_install_idf_component_from_registry(esp_tinyusb 694410b3-6302-4cec-8a66-1ba0649b6809) 
     endif()
 
-    nf_install_idf_component_from_registry(littlefs 288ff2e7-dfd9-4833-9be5-6e9d37d29880) 
+    nf_install_idf_component_from_registry(littlefs 97bf51ce-1daa-4369-81ec-eacbd8102815) 
 
     if(${TARGET_SERIES_SHORT} STREQUAL "esp32p4")
-       nf_install_idf_component_from_registry(esp_wifi_remote 3355c7e4-03ac-44a2-b100-1cbb29a05d03)
-       nf_install_idf_component_from_registry(esp_hosted 9fb39051-7a32-4fbf-83e9-a4b54ab6fae5)
+       nf_install_idf_component_from_registry(esp_wifi_remote c90c182f-b7fc-4a59-a445-96f712e36bb2)
+       nf_install_idf_component_from_registry(esp_hosted 2c2bb417-ac4a-415a-8bd8-d2437701bb5e)
        endif()
     
     include(${IDF_PATH_CMAKED}/tools/cmake/idf.cmake)
@@ -724,18 +679,13 @@ macro(nf_add_idf_as_library)
         list(APPEND IDF_LIBRARIES_TO_ADD idf::bt)
     endif()
 
-    if(ESP32_ETHERNET_SUPPORT)
-        list(APPEND IDF_COMPONENTS_TO_ADD esp_eth)
-        list(APPEND IDF_LIBRARIES_TO_ADD idf::esp_eth)
-    endif()
-
     if(HAL_USE_THREAD_OPTION)
         list(APPEND IDF_COMPONENTS_TO_ADD openthread)
         list(APPEND IDF_LIBRARIES_TO_ADD idf::openthread)
     endif()
 
-    # handle specifics for ESP32S2/S3 series
-    if(${TARGET_SERIES_SHORT} STREQUAL "esp32s2" OR ${TARGET_SERIES_SHORT} STREQUAL "esp32s3")
+    # handle specifics for ESP32S2 series
+    if(${TARGET_SERIES_SHORT} STREQUAL "esp32s2")
 
         # need to read the supplied SDK CONFIG file and replace the appropriate option
         file(READ
@@ -743,9 +693,10 @@ macro(nf_add_idf_as_library)
             SDKCONFIG_DEFAULT_CONTENTS
         )
 
-        if(ESP32_USB_CDC)
+        # For ESP32S2 series we need to enable the USB CDC support in tinyUSB component as no native USB/jtag support
+        if(NF_WP_TRANSPORT_USB_CDC)
 
-            # add IDF components specific to ESP32S2/S3 series
+            # add IDF components specific to ESP32S2 series
             # They have to be added in a specific order so they compile/link ok
             list(APPEND IDF_COMPONENTS_TO_ADD tinyusb) 
             list(APPEND IDF_COMPONENTS_TO_ADD esp_tinyusb) 
@@ -781,7 +732,7 @@ macro(nf_add_idf_as_library)
     endif()
 
     option(HAL_USE_THREAD_OPTION "option to enable OpenThread support")
-    option(THREAD_DEVICE_TYPE "option to specify OpenThread device type (FTD or MTD")
+    option(ESP32_THREAD_DEVICE_TYPE "option to specify OpenThread device type (FTD or MTD")
 
     if(HAL_USE_THREAD_OPTION)
         message(DEBUG "Reading SDK config from '${SDKCONFIG_DEFAULTS_FILE}' to set Thread options")
@@ -802,16 +753,16 @@ macro(nf_add_idf_as_library)
         string(APPEND SDKCONFIG_DEFAULT_CONTENTS "CONFIG_MBEDTLS_KEY_EXCHANGE_ECJPAKE=y\n")
         string(APPEND SDKCONFIG_DEFAULT_CONTENTS "CONFIG_MBEDTLS_ECJPAKE_C=y\n")
         
-        # THREAD_DEVICE_TYPE
-        set(THREAD_DEVICE_TYPE_SUPPORTED "FTD" "MTD" CACHE INTERNAL "supported THREAD device types")
-        list(FIND THREAD_DEVICE_TYPE_SUPPORTED ${THREAD_DEVICE_TYPE} THREAD_DEVICE_TYPE_INDEX)
+        # ESP32_THREAD_DEVICE_TYPE
+        set(ESP32_THREAD_DEVICE_TYPE_SUPPORTED "FTD" "MTD" CACHE INTERNAL "supported THREAD device types")
+        list(FIND ESP32_THREAD_DEVICE_TYPE_SUPPORTED ${ESP32_THREAD_DEVICE_TYPE} ESP32_THREAD_DEVICE_TYPE_INDEX)
 
-        if(THREAD_DEVICE_TYPE_INDEX EQUAL -1)
+        if(ESP32_THREAD_DEVICE_TYPE_INDEX EQUAL -1)
             # Default FTD if not specified
-            set(THREAD_DEVICE_TYPE_INDEX 0)
+            set(ESP32_THREAD_DEVICE_TYPE_INDEX 0)
         endif()
         
-        if (${THREAD_DEVICE_TYPE_INDEX} EQUAL 0)
+        if (${ESP32_THREAD_DEVICE_TYPE_INDEX} EQUAL 0)
             string(APPEND SDKCONFIG_DEFAULT_CONTENTS "CONFIG_OPENTHREAD_FTD=y\n")
             message(STATUS "OpenThread configured as full thread device (FTD)")
         else()
@@ -863,6 +814,18 @@ macro(nf_add_idf_as_library)
         message(STATUS "Using default XTAL frequency")
     endif()
 
+    # Workaround for MODLOG_N implicit-declaration error with GCC 15+ in NimBLE debug builds.
+    # NimBLE defines log-level names as integers (DEBUG=1, INFO=2, ...). When these are used as
+    # the level argument to MODLOG_DFLT(), they expand to their numeric values before the ## paste
+    # in modlog.h, producing e.g. MODLOG_1 which is not defined. GCC 15 turns that implicit-
+    # function-declaration into a hard error. The compat header provides silent no-op fallbacks.
+    if(HAL_USE_BLE_OPTION AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+        idf_build_set_property(COMPILE_OPTIONS
+            "-include${CMAKE_SOURCE_DIR}/targets/ESP32/_include/nimble_modlog_compat.h"
+            APPEND
+        )
+    endif()
+
     # create IDF static libraries
     idf_build_process(${TARGET_SERIES_SHORT}
         COMPONENTS 
@@ -893,9 +856,9 @@ macro(nf_add_idf_as_library)
         # remove the ones we'll be replacing
         list(REMOVE_ITEM 
             IDF_LWIP_SOURCES
-                ${esp32_idf_SOURCE_DIR}/components/lwip/lwip/src/api/api_msg.c
-                ${esp32_idf_SOURCE_DIR}/components/lwip/lwip/src/api/sockets.c
-                ${esp32_idf_SOURCE_DIR}/components/lwip/port/freertos/sys_arch.c
+                ${IDF_PATH_CMAKED}/components/lwip/lwip/src/api/api_msg.c
+                ${IDF_PATH_CMAKED}/components/lwip/lwip/src/api/sockets.c
+                ${IDF_PATH_CMAKED}/components/lwip/port/freertos/sys_arch.c
         )
 
         # add our modified sources
@@ -1040,7 +1003,7 @@ macro(nf_add_idf_as_library)
     endif()    
 
     # add tinyusb dependencies 
-    if(ESP32_USB_CDC)
+    if(NF_WP_TRANSPORT_USB_CDC AND ${TARGET_SERIES_SHORT} STREQUAL "esp32s2")
         nf_add_tinyusb_component()
     endif()    
 

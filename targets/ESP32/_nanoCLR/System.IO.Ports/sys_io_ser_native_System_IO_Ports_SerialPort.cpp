@@ -8,6 +8,10 @@
 #include "sys_io_ser_native_target.h"
 #include <Esp32_DeviceMapping.h>
 #include <esp32_idf.h>
+#include <stdio.h>
+
+// Current transport being used for Wire protocol, defined in WireProtocol_HAL_Interface.c
+extern "C" enum { WP_TRANSPORT_NONE, WP_TRANSPORT_UART, WP_TRANSPORT_USB_JTAG, WP_TRANSPORT_TINY_USB } WP_Transport;
 
 // in UWP the COM ports are named COM1, COM2, COM3. But ESP32 uses internally UART0, UART1, UART2. This maps the port
 // index 1, 2 or 3 to the uart number 0, 1 or 2
@@ -76,6 +80,21 @@ void UninitializePalUart_sys(NF_PAL_UART *palUart)
         event.type = UART_EVENT_MAX;
         xQueueSend(palUart->UartEventQueue, &event, 0);
         palUart->UartEventTask = NULL;
+
+        // delete the TX worker task and its semaphore
+        if (palUart->TxWorkerTask != NULL)
+        {
+            // unblock any managed thread that is waiting for TX completion
+            Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
+            vTaskDelete(palUart->TxWorkerTask);
+            palUart->TxWorkerTask = NULL;
+        }
+
+        if (palUart->StartTx != NULL)
+        {
+            vSemaphoreDelete(palUart->StartTx);
+            palUart->StartTx = NULL;
+        }
 
         // free buffer memory
         platform_free(palUart->RxBuffer);
@@ -241,15 +260,18 @@ void UartTxWorkerTask_sys(void *pvParameters)
     // get PAL UART from task parameters
     NF_PAL_UART *palUart = (NF_PAL_UART *)pvParameters;
 
-    // Write data directly to UART FIFO
-    // by design: don't bother checking the return value
-    uart_write_bytes(palUart->UartNum, (const char *)palUart->TxBuffer, palUart->TxOngoingCount);
+    while (true)
+    {
+        // wait for work to be triggered
+        xSemaphoreTake(palUart->StartTx, portMAX_DELAY);
 
-    // set event flag for COM OUT
-    Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
+        // Write data directly to UART FIFO
+        // by design: don't bother checking the return value
+        uart_write_bytes(palUart->UartNum, (const char *)palUart->TxBuffer, palUart->TxOngoingCount);
 
-    // delete task
-    vTaskDelete(NULL);
+        // set event flag for COM OUT
+        Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
+    }
 }
 
 HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::get_BytesToRead___I4(CLR_RT_StackFrame &stack)
@@ -744,11 +766,11 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::Write___VOID__SZAR
 
         // Try to send buffer to fifo first.
         // if not all data written then use long running operation to complete.
-        palUart->IsLongRunning = false;
+        bool isLongRunning = false;
         int txCount = uart_tx_chars(uart_num, (const char *)data, count);
         if (txCount < count)
         {
-            palUart->IsLongRunning = true;
+            isLongRunning = true;
             if (txCount >= 0)
             {
                 // Any written then update ptr / count
@@ -757,7 +779,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::Write___VOID__SZAR
             }
         }
 
-        if (palUart->IsLongRunning)
+        if (isLongRunning)
         {
             hbTimeout.SetInteger(
                 (CLR_INT64)pThis[FIELD___writeTimeout].NumericByRef().s4 * TIME_CONVERSION__TO_MILLISECONDS);
@@ -775,15 +797,8 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::Write___VOID__SZAR
             // set TX count
             palUart->TxOngoingCount = count;
 
-            // Create a task to handle UART event from ISR
-            char task_name[16];
-            snprintf(task_name, ARRAYSIZE(task_name), "uart%d_tx", uart_num);
-
-            if (xTaskCreate(UartTxWorkerTask_sys, task_name, 2048, palUart, 12, NULL) != pdPASS)
-            {
-                ESP_LOGE(TAG, "Failed to start UART TX task");
-                NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
-            }
+            // trigger the persistent TX worker task
+            xSemaphoreGive(palUart->StartTx);
 
             // bump custom state so the read value above is pushed only once
             stack.m_customState = 2;
@@ -793,7 +808,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::Write___VOID__SZAR
     /////////////////////////////
     while (eventResult)
     {
-        if (!palUart->IsLongRunning)
+        if (stack.m_customState != 2)
         {
             // this is not a long running operation so nothing to do here
             break;
@@ -821,7 +836,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::Write___VOID__SZAR
         }
     }
 
-    if (palUart->IsLongRunning)
+    if (stack.m_customState == 2)
     {
         // pop length heap block from stack
         stack.PopValue();
@@ -879,13 +894,11 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeInit___VOID(
         NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
     }
 
-    // unless the build is configure to use USB CDC, COM1 is being used for VS debug, so it's not available
-#if !defined(CONFIG_TINYUSB_CDC_ENABLED) && !defined(CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED)
-    if (uart_num == 0)
+    // When Wire protocol is using UART then COM1 is being used for VS debug, so it's not available
+    if (WP_Transport == WP_TRANSPORT_UART && uart_num == 0)
     {
         NANOCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
     }
-#endif
 
     palUart = GetPalUartFromUartNum_sys(uart_num);
     if (palUart == NULL)
@@ -905,6 +918,13 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeInit___VOID(
 
     // alloc buffer memory
     bufferSize = pThis[FIELD___bufferSize].NumericByRef().s4;
+
+    // Buffer size must be bigger then HW fifo
+    if (bufferSize <= SOC_UART_FIFO_LEN)
+    {
+        bufferSize = SOC_UART_FIFO_LEN + 1;
+    }
+
     palUart->RxBuffer = (uint8_t *)platform_malloc(bufferSize);
 
     // sanity check
@@ -958,6 +978,23 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeInit___VOID(
     if (xTaskCreate(uart_event_task_sys, task_name, 2048, palUart, 12, &(palUart->UartEventTask)) != pdPASS)
     {
         ESP_LOGE(TAG, "Failed to start UART events task");
+        NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    }
+
+    // Create semaphore and persistent task to handle UART TX
+    palUart->StartTx = xSemaphoreCreateBinary();
+    if (palUart->StartTx == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create UART TX semaphore");
+        UninitializePalUart_sys(palUart);
+        NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    }
+
+    snprintf(task_name, ARRAYSIZE(task_name), "uart%d_tx", uart_num);
+    if (xTaskCreate(UartTxWorkerTask_sys, task_name, 2048, palUart, 12, &(palUart->TxWorkerTask)) != pdPASS)
+    {
+        ESP_LOGE(TAG, "Failed to start UART TX task");
+        UninitializePalUart_sys(palUart);
         NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
     }
 
@@ -1059,12 +1096,12 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeConfig___VOI
                 break;
 
             case Handshake_RequestToSend:
-                uart_config.flow_ctrl = UART_HW_FLOWCTRL_RTS;
+                uart_config.flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
                 uart_config.rx_flow_ctrl_thresh = 122;
                 break;
 
             case Handshake_RequestToSendXOnXOff:
-                uart_config.flow_ctrl = UART_HW_FLOWCTRL_RTS;
+                uart_config.flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
                 uart_config.rx_flow_ctrl_thresh = 122;
                 EnableXonXoff = true;
                 break;
@@ -1157,6 +1194,15 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeConfig___VOI
         if (txPin == UART_PIN_NO_CHANGE || rxPin == UART_PIN_NO_CHANGE)
         {
             NANOCLR_SET_AND_LEAVE(CLR_E_PIN_UNAVAILABLE);
+        }
+
+        // Validate RTS/CTS pins are available when flow control is enabled
+        if ((uart_config.flow_ctrl != UART_HW_FLOWCTRL_DISABLE) && !rs485Mode)
+        {
+            if (rtsPin == UART_PIN_NO_CHANGE || ctsPin == UART_PIN_NO_CHANGE)
+            {
+                NANOCLR_SET_AND_LEAVE(CLR_E_PIN_UNAVAILABLE);
+            }
         }
 
         // Don't use RTS/CTS pins if no hardware handshake enabled unless in RS485 mode
@@ -1267,7 +1313,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
 
         // Try to send buffer to fifo first.
         // if not all data written then use long running operation to complete.
-        palUart->IsLongRunning = false;
+        bool isLongRunning = false;
 
         // store pointer because it will be changed after this call
         bufferPointer = buffer;
@@ -1276,7 +1322,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
 
         if (txCount < (int)bufferLength)
         {
-            palUart->IsLongRunning = true;
+            isLongRunning = true;
             if (txCount >= 0)
             {
                 // Any written then update ptr / count
@@ -1285,7 +1331,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
             }
         }
 
-        if (palUart->IsLongRunning)
+        if (isLongRunning)
         {
             // setup timeout
             hbTimeout.SetInteger(
@@ -1308,15 +1354,8 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
             // need this to release the buffer later, because the pointer is changed
             stack.PushValueU4((CLR_UINT32)&bufferPointer);
 
-            // Create a task to handle UART event from ISR
-            char task_name[16];
-            snprintf(task_name, ARRAYSIZE(task_name), "uart%d_tx", uart_num);
-
-            if (xTaskCreate(UartTxWorkerTask_sys, task_name, 2048, palUart, 12, NULL) != pdPASS)
-            {
-                ESP_LOGE(TAG, "Failed to start UART TX task");
-                NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
-            }
+            // trigger the persistent TX worker task
+            xSemaphoreGive(palUart->StartTx);
 
             // bump custom state so the read value above is pushed only once
             stack.m_customState = 2;
@@ -1325,7 +1364,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
 
     while (eventResult)
     {
-        if (!palUart->IsLongRunning)
+        if (stack.m_customState != 2)
         {
             // this is not a long running operation so nothing to do here
             break;
@@ -1360,7 +1399,7 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::NativeWriteString_
         }
     }
 
-    if (palUart->IsLongRunning)
+    if (stack.m_customState == 2)
     {
         // pop "length" heap block from stack
         stack.PopValue();
@@ -1441,29 +1480,42 @@ HRESULT Library_sys_io_ser_native_System_IO_Ports_SerialPort::GetDeviceSelector_
 {
     NANOCLR_HEADER();
 
-    // declare the device selector string whose max size is "COM1,COM2,COM3" + terminator
-    // and init with the terminator
-    static char deviceSelectorString[] =
+    // declare the device selector string whose max size is "COM1,COM2,COM3,COM4,COM5 + terminator
+    char deviceSelectorString[64] = {0};
 
-    // unless the build is configure to use USB CDC, COM1 is being used for VS debug, so it's not available
-#if defined(CONFIG_TINYUSB_CDC_ENABLED) || defined(CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED)
-        "COM1,"
-#endif
+    auto appendPort = [&](const char *port) {
+        size_t len = hal_strlen_s(deviceSelectorString);
+
+        if (len < sizeof(deviceSelectorString) - 1)
+        {
+            snprintf(deviceSelectorString + len, sizeof(deviceSelectorString) - len, "%s", port);
+        }
+    };
+
+    // COM1 is reserved for VS debug when Wire Protocol is using UART.
+    if (WP_Transport != WP_TRANSPORT_UART)
+    {
+        appendPort("COM1,");
+    }
+
 #if SOC_UART_HP_NUM > 1
-        "COM2,"
+    appendPort("COM2,");
 #endif
 #if SOC_UART_HP_NUM > 2
-        "COM3,"
+    appendPort("COM3,");
 #endif
 #if SOC_UART_HP_NUM > 3
-        "COM4,"
+    appendPort("COM4,");
 #endif
-        ;
+#if SOC_UART_HP_NUM > 4
+    appendPort("COM5,");
+#endif
 
     // replace the last comma with a terminator
-    if (deviceSelectorString[hal_strlen_s(deviceSelectorString) - 1] == ',')
+    size_t len = hal_strlen_s(deviceSelectorString);
+    if (len > 0 && deviceSelectorString[len - 1] == ',')
     {
-        deviceSelectorString[hal_strlen_s(deviceSelectorString) - 1] = '\0';
+        deviceSelectorString[len - 1] = '\0';
     }
 
     // because the caller is expecting a result to be returned
