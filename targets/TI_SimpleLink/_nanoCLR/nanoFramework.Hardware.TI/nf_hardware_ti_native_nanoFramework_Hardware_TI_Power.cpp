@@ -14,7 +14,7 @@ extern "C" GPIO_PinConfig gpioPinConfigs[];
 // waiting for a proper fix in a future SDK
 extern "C"
 {
-    PINCC26XX_HWAttrs PINCC26XX_hwAttrs = {.intPriority = ~0, .swiPriority = 0};
+    PINCC26XX_HWAttrs PINCC26XX_hwAttrs = {.intPriority = static_cast<uint8_t>(0xFFu), .swiPriority = 0};
 
     const PIN_Config BoardGpioInitTable[] = {PIN_TERMINATE};
 

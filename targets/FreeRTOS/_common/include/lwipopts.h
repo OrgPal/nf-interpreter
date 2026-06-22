@@ -239,6 +239,13 @@
 #endif
 
 /**
+ * TCP_SYNMAXRTX: Maximum number of retransmissions of SYN segments.
+ */
+#ifndef TCP_SYNMAXRTX
+#define TCP_SYNMAXRTX 4
+#endif
+
+/**
  * TCP_SND_BUF: TCP sender buffer space (bytes).
  * To achieve good performance, this should be at least 2 * TCP_MSS.
  */
@@ -444,6 +451,15 @@
  */
 #ifndef SO_REUSE_RXTOALL
 #define SO_REUSE_RXTOALL 1
+#endif
+
+/**
+ * LWIP_TIMEVAL_PRIVATE==0: Use struct timeval from sys/_timeval.h provided by
+ * the toolchain (newlib) instead of lwIP's own definition, to avoid redefinition
+ * conflicts when system headers are included before lwip/sockets.h.
+ */
+#ifndef LWIP_TIMEVAL_PRIVATE
+#define LWIP_TIMEVAL_PRIVATE 0
 #endif
 
 /*

@@ -9,12 +9,11 @@ RUN apt-get update \
 
 RUN mkdir -p /tmp/dc-downloads /tmp/dc-extracted
 
-ARG GCC_VERSION=13.3.rel1
-ARG GCC_URI=https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu/$GCC_VERSION/binrel/arm-gnu-toolchain-$GCC_VERSION-x86_64-arm-none-eabi.tar.xz
+ARG GCC_VERSION=15.2.rel1
+ARG GCC_URI=https://developer.arm.com/-/media/Files/downloads/gnu/$GCC_VERSION/binrel/arm-gnu-toolchain-$GCC_VERSION-x86_64-arm-none-eabi.tar.xz
 RUN mkdir -p /tmp/dc-downloads /tmp/dc-extracted/gcc \
-    && curl -o /tmp/dc-downloads/gcc-arm.tar.xz  $GCC_URI \
-    && xz -d /tmp/dc-downloads/gcc-arm.tar.xz \
-    && tar -xvf /tmp/dc-downloads/gcc-arm.tar -C /tmp/dc-extracted/gcc --strip-components 1 \
+    && curl -fL -o /tmp/dc-downloads/gcc-arm.tar.xz $GCC_URI \
+    && tar -xJf /tmp/dc-downloads/gcc-arm.tar.xz -C /tmp/dc-extracted/gcc --strip-components 1 \
     && rm -rf /tmp/dc-extracted/gcc/share/doc/ /tmp/dc-extracted/gcc/share/gcc-arm-none-eabi/samples/
 
 ARG CMAKE_VERSION=3.31.6
@@ -26,7 +25,7 @@ RUN wget $CMAKE_SCRIPT \
     && /tmp/dc-downloads/cmake-install.sh --skip-license --prefix=/tmp/dc-extracted/cmake \
     && rm /tmp/dc-downloads/cmake-install.sh
 
-FROM python:3.10 AS devcontainer
+FROM python:3.11 AS devcontainer
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,8 +41,6 @@ RUN apt-get update \
     && apt-get install -y \
     git \
     git-lfs \
-    git-svn \
-    subversion \
     clang-format \
     curl \
     ninja-build \
@@ -55,15 +52,18 @@ RUN apt-get update \
 RUN mkdir -p /usr/local/bin/gcc
 
 # Clone libs mbedtls and fatfs etc.
-RUN git clone --branch R0.15a https://github.com/abbrev/fatfs.git --depth 1 ./sources/fatfs \
+RUN git clone --branch R0.16 https://github.com/abbrev/fatfs.git --depth 1 ./sources/fatfs \
     && git clone --branch STABLE-2_1_3_RELEASE https://github.com/lwip-tcpip/lwip.git --depth 1 ./sources/lwip \
     && git clone --branch mbedtls-3.6.5 https://github.com/ARMmbed/mbedtls.git --depth 1 ./sources/mbedtls \
     && cd ./sources/mbedtls \
     && git submodule update --init --recursive
     
 # Clone FreeRTOS
-RUN git clone --branch V10.4.1-kernel-only https://github.com/FreeRTOS/FreeRTOS-Kernel.git --depth 1 ./sources/FreeRTOS \
-    && git clone --branch 5.5.1 https://github.com/ARM-software/CMSIS_5.git --depth 1 ./sources/CMSIS_5
+RUN git clone --branch V10.4.1-kernel-only https://github.com/FreeRTOS/FreeRTOS-Kernel.git --depth 1 ./sources/FreeRTOS
+
+# Clone CMSIS
+RUN git clone --branch 5.5.1 https://github.com/ARM-software/CMSIS_5.git --depth 1 ./sources/CMSIS_5 \  
+    && git -C ./sources/CMSIS_5 lfs pull --include="CMSIS/DSP/**"  
 
 # set gcc location
 ARG TMP_GCC_PATH=/usr/local/bin/gcc
@@ -75,9 +75,8 @@ COPY --from=downloader /tmp/dc-extracted/cmake /usr/bin/cmake
 
 ENV PATH=/usr/bin/cmake/bin:${PATH}
 
-# Creating static link python for pyhton3
-RUN ln -fs /usr/bin/python3 /usr/bin/python \
-    && pip3 install pyserial
+# Installing python dependencies for the container
+RUN pip3 install --no-cache-dir pyserial "kconfiglib>=14.1.0"
 
 # Clean up downloaded files
 RUN apt-get autoremove -y \
