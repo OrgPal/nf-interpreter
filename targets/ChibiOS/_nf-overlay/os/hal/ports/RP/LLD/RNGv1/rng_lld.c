@@ -32,8 +32,9 @@
 #define TRNG_EHR_DATA4         (*(volatile uint32_t *)(TRNG_BASE + 0x124UL))
 #define TRNG_EHR_DATA5         (*(volatile uint32_t *)(TRNG_BASE + 0x128UL))
 #define TRNG_RND_SOURCE_ENABLE (*(volatile uint32_t *)(TRNG_BASE + 0x12CUL))
-#define TRNG_TRNG_SW_RESET     (*(volatile uint32_t *)(TRNG_BASE + 0x140UL))
-#define TRNG_RST_BITS_COUNTER  (*(volatile uint32_t *)(TRNG_BASE + 0x1BCUL))
+#define TRNG_SAMPLE_CNT1       (*(volatile uint32_t *)(TRNG_BASE + 0x130UL))
+#define TRNG_DEBUG_CONTROL     (*(volatile uint32_t *)(TRNG_BASE + 0x138UL))
+#define TRNG_BUSY              (*(volatile uint32_t *)(TRNG_BASE + 0x1B8UL))
 
 #define TRNG_RNG_ISR_VN_ERR       (1UL << 3)
 #define TRNG_RNG_ISR_CRNGT_ERR    (1UL << 2)
@@ -45,28 +46,12 @@
 #define TRNG_TRNG_VALID_EHR_VALID (1UL << 0)
 #define TRNG_RND_SRC_EN           (1UL << 0)
 
-#define c_RNG_TIMEOUT_VALUE_MS 500UL
-
 #endif
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if defined(RP2350)
-
-static void trng_prepare_source(void)
-{
-    // Requirement: counter reset only takes effect while source is disabled.
-    TRNG_RND_SOURCE_ENABLE = 0;
-    TRNG_TRNG_SW_RESET = 1;
-    TRNG_TRNG_SW_RESET = 0;
-    TRNG_RST_BITS_COUNTER = 1;
-    TRNG_RNG_ICR = TRNG_RNG_ICR_ALL;
-    TRNG_RND_SOURCE_ENABLE = TRNG_RND_SRC_EN;
-}
-
-#endif
 /** @brief RNGD1 driver identifier.*/
 RNGDriver RNGD1;
 
@@ -94,14 +79,25 @@ void rng_lld_init(void)
 #if (RNG_USE_MUTUAL_EXCLUSION == TRUE)
     osalMutexObjectInit(&RNGD1.Lock);
 #endif
+
+#if defined(RP2350)
+
+    rp_peripheral_unreset(RESETS_ALLREG_TRNG);
+
+    TRNG_RND_SOURCE_ENABLE = 0;
+    // Sample one ROSC bit into EHR every cycle
+    TRNG_SAMPLE_CNT1 = 0;
+    // Disable checks and bypass decorrelators
+    TRNG_DEBUG_CONTROL = -1;
+    TRNG_RNG_ICR = TRNG_RNG_ICR_ALL;
+
+#endif
 }
 
 void rng_lld_start(void)
 {
 #if defined(RP2350)
-    // Ensure TRNG peripheral clock domain is enabled.
-    rp_peripheral_unreset(RESETS_ALLREG_TRNG);
-    trng_prepare_source();
+    TRNG_RND_SOURCE_ENABLE = TRNG_RND_SRC_EN;
 #endif
 
     RNGD1.State = RNG_READY;
@@ -111,66 +107,76 @@ void rng_lld_stop(void)
 {
 #if defined(RP2350)
     TRNG_RND_SOURCE_ENABLE = 0;
-    rp_peripheral_reset(RESETS_ALLREG_TRNG);
 #endif
 
     RNGD1.State = RNG_STOP;
 }
 
-uint32_t rng_lld_GenerateRandomNumber(void)
+bool rng_lld_generate(size_t size, uint8_t *out)
 {
+    RNGD1.State = RNG_ACTIVE;
+
 #if defined(RP2040)
 
-    uint32_t value = 0;
-    for (int i = 0; i < 32; i++)
+    while (size > 0)
     {
-        value = (value << 1) | (ROSC_RANDOMBIT & 1u);
+        uint32_t value = 0;
+        for (int i = 0; i < 32; i++)
+        {
+            value = (value << 1) | (ROSC_RANDOMBIT & 1u);
+        }
+
+        for (size_t i = 0; i < sizeof(uint32_t) && size > 0; i++)
+        {
+            *out++ = (uint8_t)value;
+            value >>= 8;
+            size--;
+        }
     }
-    RNGD1.RandomNumber = value;
+
+    RNGD1.State = RNG_READY;
+
+    return true;
 
 #elif defined(RP2350)
 
-    for (uint32_t elapsed = 0; elapsed < c_RNG_TIMEOUT_VALUE_MS; elapsed++)
+    while (size > 0)
     {
-        uint32_t isr = TRNG_RNG_ISR;
-
-        // Per TRNG status semantics, AUTOCORR error stops RNG until reset.
-        if ((isr & (TRNG_RNG_ISR_AUTOCORR_ERR | TRNG_RNG_ISR_CRNGT_ERR | TRNG_RNG_ISR_VN_ERR)) != 0)
+        // Wait for 192 ROSC samples to fill EHR
+        while (TRNG_BUSY)
         {
-            trng_prepare_source();
-        }
-        else if ((TRNG_TRNG_VALID & TRNG_TRNG_VALID_EHR_VALID) != 0 || (isr & TRNG_RNG_ISR_EHR_VALID) != 0)
-        {
-            uint32_t e0 = TRNG_EHR_DATA0;
-            (void)TRNG_EHR_DATA1;
-            (void)TRNG_EHR_DATA2;
-            (void)TRNG_EHR_DATA3;
-            (void)TRNG_EHR_DATA4;
-            (void)TRNG_EHR_DATA5;
-
-            // EHR already contains conditioned entropy; return one native 32-bit lane.
-            RNGD1.RandomNumber = e0;
-
-            TRNG_RNG_ICR = TRNG_RNG_ISR_EHR_VALID;
-
-            return RNGD1.RandomNumber;
+            osalThreadSleepMilliseconds(1);
         }
 
-        osalThreadSleepMilliseconds(1);
+        // Copy 6 EHR words
+        volatile uint32_t *ehrRegs[] =
+            {&TRNG_EHR_DATA0, &TRNG_EHR_DATA1, &TRNG_EHR_DATA2, &TRNG_EHR_DATA3, &TRNG_EHR_DATA4, &TRNG_EHR_DATA5};
+
+        for (int r = 0; r < 6 && size > 0; r++)
+        {
+            uint32_t word = *ehrRegs[r];
+
+            for (size_t b = 0; b < sizeof(uint32_t) && size > 0; b++)
+            {
+                *out++ = (uint8_t)word;
+                word >>= 8;
+                size--;
+            }
+        }
     }
 
-    // Hardware RNG failure. Halting is cryptographically safer than returning predictable/repeated values.
-    osalSysHalt("TRNG Timeout");
-    return 0;
+    RNGD1.State = RNG_READY;
 
+    return true;
+
+#else
+    (void)size;
+    (void)out;
+
+    RNGD1.State = RNG_READY;
+
+    return false;
 #endif
-
-    return RNGD1.RandomNumber;
-}
-
-uint32_t rng_lld_GetLastRandomNumber(void)
-{
-    return RNGD1.RandomNumber;
 }
 
 #if (RNG_USE_MUTUAL_EXCLUSION == TRUE)
