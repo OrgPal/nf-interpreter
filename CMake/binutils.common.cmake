@@ -793,6 +793,7 @@ function(nf_add_mbedtls_library)
             mbedtls
             GIT_REPOSITORY https://github.com/ARMmbed/mbedtls
             GIT_TAG ${MBEDTLS_GIT_TAG}
+            UPDATE_DISCONNECTED ON
         )
 
     else()
@@ -850,6 +851,7 @@ function(nf_add_lwip_library)
             lwIP
             GIT_REPOSITORY https://github.com/lwip-tcpip/lwip.git
             GIT_TAG ${LWIP_GIT_TAG}
+            UPDATE_DISCONNECTED ON
         )
 
     else()
@@ -907,6 +909,7 @@ function(nf_add_cyw43_driver_library)
             GIT_TAG ${CYW43_DRIVER_GIT_TAG}
             GIT_SHALLOW TRUE
             GIT_CONFIG "core.fileMode=false"
+            UPDATE_DISCONNECTED ON
         )
 
     else()
